@@ -3,7 +3,7 @@
 class Sandbox : public ft::Application
 {
 public:
-	Sandbox() {}
+	Sandbox() : ft::Application(ft::WindowProps()) {}
 	~Sandbox() {}
 };
 
