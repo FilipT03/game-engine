@@ -29,7 +29,10 @@ project "Engine"
 
 	includedirs
 	{
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/src",
+		"%{prj.name}/vendor/spdlog/include",
+		"%{prj.name}/vendor/glfw/include",
+		"%{prj.name}/vendor/glm/include"
 	}
 
 	filter "system:windows"
@@ -80,6 +83,8 @@ project "Sandbox"
 	includedirs
 	{
 		"Engine/vendor/spdlog/include",
+		"Engine/vendor/glfw/include",
+		"Engine/vendor/glm/include",
 		"Engine/src"
 	}
 
