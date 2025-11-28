@@ -147,6 +147,10 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Components\ScriptComponent.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
@@ -158,6 +162,10 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
     <ClInclude Include="src\GameEngine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\ScriptComponent.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />

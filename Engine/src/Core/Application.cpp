@@ -8,13 +8,18 @@ namespace ft {
 
 	Application::Application(const WindowProps& windowProps)
 	{
-		m_Window = Window::Create(windowProps);
+		m_Window = Window::Create(windowProps, [this]() { this->Close(); });
 		s_Instance = this;
 	}
 
 	Application::~Application()
 	{
 		m_Running = false;
+		for (auto& it : m_scriptComponents)
+		{
+			it.second->OnDestroy();
+			delete it.second;
+		}
 	}
 
 	void Application::Run()
@@ -24,6 +29,11 @@ namespace ft {
 			double time = glfwGetTime();
 			Time::UpdateTime(time);
 
+			for (auto& it : m_scriptComponents)
+			{
+				it.second->OnUpdate();
+			}
+
 			m_Window->Update();
 		}
 	}
@@ -31,6 +41,15 @@ namespace ft {
 	void Application::Close()
 	{
 		m_Running = false;
+		for (auto& it : m_scriptComponents)
+		{
+			it.second->OnClose();
+		}
 	}
 
+	void Application::RegisterInternal(ScriptComponent* scriptComponent)
+	{
+		m_scriptComponents.emplace(scriptComponent->GetId(), scriptComponent);
+		scriptComponent->OnRegister();
+	}
 }

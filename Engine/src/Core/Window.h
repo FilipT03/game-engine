@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <memory>
+#include <functional>
 
 namespace ft {
 	struct FT_API WindowProps {
@@ -19,16 +20,17 @@ namespace ft {
 	class FT_API Window
 	{
 	public:
-		Window(const WindowProps& props);
+		Window(const WindowProps& props, std::function<void()> closeCallback);
 		~Window();
 		
 		GLFWwindow* GetNativeWindow() { return m_Window; }
-		static std::unique_ptr<Window> Create(const WindowProps& props);
+		static std::unique_ptr<Window> Create(const WindowProps& props, std::function<void()> closeCallback);
 		void Update();
 
 	private:
 		GLFWwindow* m_Window;
 		WindowProps m_Props;
+		std::function<void()> m_CloseCallback;
 	};
 }
 

@@ -6,6 +6,3 @@
 #include "Core/Time.h"
 #include "Core/Timer.h"
 #include "Core/Window.h"
-
-
-#include "Core/EntryPoint.h"
