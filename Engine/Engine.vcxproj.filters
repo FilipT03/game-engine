@@ -31,6 +31,10 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEngine.h" />
+    <ClInclude Include="src\Components\ScriptComponent.h" />
+    <ClInclude Include="src\Event\Event.h" />
+    <ClInclude Include="src\Event\WindowEvent.h" />
+    <ClInclude Include="src\Event\InputEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">

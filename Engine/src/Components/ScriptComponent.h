@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Core.h"
+#include "Event/InputEvent.h"
 #include <unordered_map>
 
 namespace ft {
@@ -8,12 +9,16 @@ namespace ft {
 	class FT_API ScriptComponent
 	{
 	public:
-		ScriptComponent();
-		virtual ~ScriptComponent();
+		virtual ~ScriptComponent() = default;
 		virtual void OnUpdate() {}
 		virtual void OnRegister() {}
 		virtual void OnClose() {}
 		virtual void OnDestroy() {}
+
+		// Event callbacks
+		virtual void OnEvent(const Event& e) {}
+		virtual void OnKeyInput(const KeyEvent& e) {}
+		virtual void OnMouseInput(const MouseEvent& e) {}
 		uint16_t GetId() { return m_Id; }
 	private:
 		void SetId(uint16_t id) { m_Id = id; }

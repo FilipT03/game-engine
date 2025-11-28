@@ -5,20 +5,32 @@
 
 namespace ft {
 
-	enum FT_API EventType
+	enum class FT_API EventType
 	{
-		WindowClose, WindowResize
+		None, Other,
+		WindowClose, WindowResize,
+		KeyPress, KeyRepeat, KeyRelease,
+		MousePress, MouseRelease, MouseMove, MouseScroll
+	};
+
+	enum class FT_API EventCategory
+	{
+		None,
+		Window,
+		KeyInput,
+		MouseInput
 	};
 
 	class FT_API Event
 	{
 	public:
-		Event(EventType eventType) : m_EventType(eventType) {}
-		~Event();
+		~Event() {}
+		const EventType Type = EventType::None;
+		const EventCategory Category = EventCategory::None;
 
-		EventType GetType() { return m_EventType; }
-	private:
-		EventType m_EventType;
+	protected:
+		Event() {}
+		Event(EventType type, EventCategory category) : Type(type), Category(category) {}
 	};
 
 	typedef std::function<void(Event&)> EventCallback;

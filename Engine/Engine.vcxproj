@@ -163,21 +163,18 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="src\Event\InputEvent.h" />
+    <ClInclude Include="src\Event\WindowEvent.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\GameEngine.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Components\ScriptComponent.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
-    <ClCompile Include="src\Event\Event.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\glfw\GLFW.vcxproj">

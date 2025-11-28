@@ -22,7 +22,14 @@ namespace ft {
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);
 
-			Event event = Event(EventType::WindowClose);
+			WindowCloseEvent event = WindowCloseEvent();
+			callback(event);
+		});
+
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);
+
+			WindowResizeEvent event = WindowResizeEvent(width, height);
 			callback(event);
 		});
 	};

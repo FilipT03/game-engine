@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "Event/Event.h"
+#include "Event/WindowEvent.h"
+#include "Event/InputEvent.h"
 #include <GLFW/glfw3.h>
 #include <string>
 #include <memory>

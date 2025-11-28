@@ -30,9 +30,7 @@ namespace ft {
 			Time::UpdateTime(time);
 
 			for (auto& it : m_scriptComponents)
-			{
 				it.second->OnUpdate();
-			}
 
 			m_Window->Update();
 		}
@@ -41,15 +39,14 @@ namespace ft {
 	void Application::Close()
 	{
 		m_Running = false;
+
 		for (auto& it : m_scriptComponents)
-		{
 			it.second->OnClose();
-		}
 	}
 
 	void Application::OnEvent(Event& event)
 	{
-		switch (event.GetType())
+		switch (event.Type)
 		{
 		case EventType::WindowClose:
 			Close();
@@ -57,6 +54,9 @@ namespace ft {
 		default:
 			break;
 		}
+
+		for (auto& it : m_scriptComponents)
+			it.second->OnEvent(event);
 	}
 
 	void Application::RegisterInternal(ScriptComponent* scriptComponent)
