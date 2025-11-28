@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Core.h"
+#include "Event/Event.h"
 #include <GLFW/glfw3.h>
 #include <string>
 #include <memory>
@@ -20,17 +21,17 @@ namespace ft {
 	class FT_API Window
 	{
 	public:
-		Window(const WindowProps& props, std::function<void()> closeCallback);
+		Window(const WindowProps& props, EventCallback eventCallback);
 		~Window();
 		
 		GLFWwindow* GetNativeWindow() { return m_Window; }
-		static std::unique_ptr<Window> Create(const WindowProps& props, std::function<void()> closeCallback);
+		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
 		void Update();
 
 	private:
 		GLFWwindow* m_Window;
 		WindowProps m_Props;
-		std::function<void()> m_CloseCallback;
+		EventCallback m_EventCallback;
 	};
 }
 

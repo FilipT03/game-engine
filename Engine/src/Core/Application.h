@@ -5,6 +5,7 @@
 #include "Core/Window.h"
 #include "Core/Timer.h"
 #include "Components/ScriptComponent.h"
+#include <Event/Event.h>
 
 namespace ft {
 
@@ -16,6 +17,7 @@ namespace ft {
 
 		void Run();
 		void Close();
+		void OnEvent(Event& event);
 
 		template <class T>
 		void RegisterScriptComponent()

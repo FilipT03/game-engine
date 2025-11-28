@@ -8,7 +8,7 @@ namespace ft {
 
 	Application::Application(const WindowProps& windowProps)
 	{
-		m_Window = Window::Create(windowProps, [this]() { this->Close(); });
+		m_Window = Window::Create(windowProps, [this](Event& event) { this->OnEvent(event); });
 		s_Instance = this;
 	}
 
@@ -44,6 +44,18 @@ namespace ft {
 		for (auto& it : m_scriptComponents)
 		{
 			it.second->OnClose();
+		}
+	}
+
+	void Application::OnEvent(Event& event)
+	{
+		switch (event.GetType())
+		{
+		case EventType::WindowClose:
+			Close();
+			break;
+		default:
+			break;
 		}
 	}
 
