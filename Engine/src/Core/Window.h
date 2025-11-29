@@ -1,0 +1,36 @@
+#pragma once
+
+#include "Core/Core.h"
+#include "Event/WindowEvent.h"
+#include "Event/InputEvent.h"
+#include <GLFW/glfw3.h>
+
+namespace ft {
+	struct FT_API WindowProps {
+		std::string title;
+		uint32_t width, height;
+		bool fullscreen;
+
+		WindowProps(std::string title = "Application",
+			uint32_t width = 1600, uint32_t height = 900, bool fullscreen = false)
+			: title(title), width(width), height(height), fullscreen(fullscreen)
+		{}
+	};
+
+	class FT_API Window
+	{
+	public:
+		Window(const WindowProps& props, EventCallback eventCallback);
+		~Window();
+		
+		GLFWwindow* GetNativeWindow() { return m_Window; }
+		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
+		void Update();
+
+	private:
+		GLFWwindow* m_Window;
+		WindowProps m_Props;
+		EventCallback m_EventCallback;
+	};
+}
+
