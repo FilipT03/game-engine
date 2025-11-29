@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include "Core/Window.h"
-#include "Core/Timer.h"
+#include <Core/Input.h>
 #include "Components/ScriptComponent.h"
 #include <Event/Event.h>
 
@@ -35,9 +35,10 @@ namespace ft {
 	private:
 		void RegisterInternal(ScriptComponent* scriptComponent);
 
-		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
-		Timer m_timer;
+
+		std::unique_ptr<Window> m_Window;
+		std::unique_ptr<Input> m_Input;
 
 		static Application* s_Instance;
 		

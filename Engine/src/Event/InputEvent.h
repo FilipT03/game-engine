@@ -8,27 +8,27 @@ namespace ft {
 	class FT_API KeyEvent : public Event
 	{
 	public:
-		const int Key;
+		const int Key, Mods;
 	protected:
-		KeyEvent(int key, EventType type) : Key(key), Event(type, EventCategory::KeyInput) {};
+		KeyEvent(int key, int mods, EventType type) : Key(key), Mods(mods), Event(type, EventCategory::KeyInput) {};
 	};
 
 	class FT_API KeyPressEvent : public KeyEvent
 	{
 	public:
-		KeyPressEvent(int key) : KeyEvent(key, EventType::KeyPress) {}
+		KeyPressEvent(int key, int mods) : KeyEvent(key, mods, EventType::KeyPress) {}
 	};
 
 	class FT_API KeyRepeatEvent : public KeyEvent
 	{
 	public:
-		KeyRepeatEvent(int key) : KeyEvent(key, EventType::KeyRepeat) {}
+		KeyRepeatEvent(int key, int mods) : KeyEvent(key, mods, EventType::KeyRepeat) {}
 	};
 
 	class FT_API KeyReleaseEvent : public KeyEvent
 	{
 	public:
-		KeyReleaseEvent(int key) : KeyEvent(key, EventType::KeyRelease) {}
+		KeyReleaseEvent(int key, int mods) : KeyEvent(key, mods, EventType::KeyRelease) {}
 	};
 
 
@@ -42,15 +42,15 @@ namespace ft {
 	class FT_API MousePressEvent : public MouseEvent
 	{
 	public:
-		const int Button;
-		MousePressEvent(int button) : Button(button), MouseEvent(EventType::MousePress) {}
+		const int Button, Mods;
+		MousePressEvent(int button, int mods) : Button(button), Mods(mods), MouseEvent(EventType::MousePress) {}
 	};
 
 	class FT_API MouseReleaseEvent : public MouseEvent
 	{
 	public:
-		const int Button;
-		MouseReleaseEvent(int button) : Button(button), MouseEvent(EventType::MouseRelease) {}
+		const int Button, Mods;
+		MouseReleaseEvent(int button, int mods) : Button(button), Mods(mods), MouseEvent(EventType::MouseRelease) {}
 	};
 
 	class FT_API MouseMoveEvent : public MouseEvent
@@ -63,7 +63,7 @@ namespace ft {
 	class FT_API MouseScrollEvent : public MouseEvent
 	{
 	public:
-		const float Delta;
-		MouseScrollEvent(float delta) : Delta(delta), MouseEvent(EventType::MouseScroll) {}
+		const float XDelta, YDelta;
+		MouseScrollEvent(float xDelta, float yDelta) : XDelta(xDelta), YDelta(yDelta), MouseEvent(EventType::MouseScroll) {}
 	};
 }

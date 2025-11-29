@@ -4,7 +4,6 @@
 #include <functional>
 
 namespace ft {
-
 	enum class FT_API EventType
 	{
 		None, Other,
@@ -34,5 +33,11 @@ namespace ft {
 	};
 
 	typedef std::function<void(Event&)> EventCallback;
+
+	template<typename T>
+	inline const T& As(const ft::Event& event)
+	{
+		return static_cast<const T&>(event);
+	}
 }
 

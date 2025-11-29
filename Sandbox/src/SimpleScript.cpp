@@ -13,13 +13,33 @@ void SimpleScript::OnUpdate()
 
 void SimpleScript::OnEvent(const ft::Event& event)
 {
-	if (event.Type == ft::EventType::WindowResize)
+	//if (event.Type == ft::EventType::WindowResize)
+	//{
+	//	auto& resizeEvent = static_cast<const ft::WindowResizeEvent&>(event);
+	//	FT_INFO("WindowResize, width = {}, height = {})", resizeEvent.Width, resizeEvent.Height);
+	//}
+	//if (event.Type == ft::EventType::WindowClose)
+	//{
+	//	FT_INFO("WindowCloseEvent");
+	//}
+}
+
+void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
+{
+	if (event.Type == ft::EventType::KeyPress)
 	{
-		auto& resizeEvent = static_cast<const ft::WindowResizeEvent&>(event);
-		FT_INFO("WindowResize, width = {}, height = {})", resizeEvent.Width, resizeEvent.Height);
+		auto& pressEvent = ft::As<ft::KeyPressEvent>(event);
+		if (event.Key == GLFW_KEY_ESCAPE)
+			ft::Application::Get().Close();
 	}
-	if (event.Type == ft::EventType::WindowClose)
-	{
-		FT_INFO("WindowCloseEvent");
-	}
+	//FT_INFO("Key event: {}, mods: {}", event.Key, event.Mods);
+}
+
+void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
+{
+	//if (event.Type == ft::EventType::MousePress)
+	//{
+	//	auto& pressEvent = ft::As<ft::MousePressEvent>(event);
+	//	FT_TRACE("Mouse event: {}, mods: {}", pressEvent.Button, pressEvent.Mods);
+	//}
 }

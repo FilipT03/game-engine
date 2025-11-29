@@ -8,8 +8,12 @@ namespace ft {
 
 	Application::Application(const WindowProps& windowProps)
 	{
-		m_Window = Window::Create(windowProps, [this](Event& event) { this->OnEvent(event); });
 		s_Instance = this;
+
+		m_Window = Window::Create(windowProps, [this](Event& event) { this->OnEvent(event); });
+
+		m_Input = std::make_unique<Input>();
+		m_Input->Init([this](Event& event) { this->OnEvent(event); });
 	}
 
 	Application::~Application()
@@ -55,8 +59,14 @@ namespace ft {
 			break;
 		}
 
-		for (auto& it : m_scriptComponents)
-			it.second->OnEvent(event);
+		for (auto& [id, script] : m_scriptComponents)
+		{
+			script->OnEvent(event);
+			if (event.Category == EventCategory::KeyInput)
+				script->OnKeyEvent(static_cast<KeyEvent&>(event));
+			if (event.Category == EventCategory::MouseInput)
+				script->OnMouseEvent(static_cast<MouseEvent&>(event));
+		}
 	}
 
 	void Application::RegisterInternal(ScriptComponent* scriptComponent)

@@ -17,8 +17,8 @@ namespace ft {
 
 		// Event callbacks
 		virtual void OnEvent(const Event& e) {}
-		virtual void OnKeyInput(const KeyEvent& e) {}
-		virtual void OnMouseInput(const MouseEvent& e) {}
+		virtual void OnKeyEvent(const KeyEvent& e) {}
+		virtual void OnMouseEvent(const MouseEvent& e) {}
 		uint16_t GetId() { return m_Id; }
 	private:
 		void SetId(uint16_t id) { m_Id = id; }
