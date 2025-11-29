@@ -12,7 +12,7 @@ namespace ft {
 	class FT_API Application
 	{
 	public:
-		Application(const WindowProps& windowProps);
+		Application(const WindowProps& windowProps, const int frameLimit);
 		virtual ~Application();
 
 		void Run();
@@ -36,6 +36,7 @@ namespace ft {
 		void RegisterInternal(ScriptComponent* scriptComponent);
 
 		bool m_Running = true;
+		int m_FrameLimit = -1;
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;

@@ -2,11 +2,12 @@
 #include "Core/Time.h"
 #include "GLFW/glfw3.h"
 #include "Log.h"
+#include <thread>
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(const WindowProps& windowProps)
+	Application::Application(const WindowProps& windowProps, const int frameLimit = -1) : m_FrameLimit(frameLimit)
 	{
 		s_Instance = this;
 
@@ -28,9 +29,21 @@ namespace ft {
 
 	void Application::Run()
 	{
+		const double targetFrameTime = 1.0 / m_FrameLimit;
 		while (m_Running)
 		{
 			double time = glfwGetTime();
+			
+			if (m_FrameLimit > 0)
+			{
+				double deltaTime = time - Time::TotalTime();
+				if (deltaTime < targetFrameTime)
+				{
+					std::this_thread::sleep_for(std::chrono::duration<double>(targetFrameTime - deltaTime));
+					time = glfwGetTime();
+				}
+			}
+
 			Time::UpdateTime(time);
 
 			for (auto& it : m_scriptComponents)
