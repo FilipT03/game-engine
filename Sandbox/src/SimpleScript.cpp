@@ -7,7 +7,15 @@ void SimpleScript::OnRegister()
 
 void SimpleScript::OnUpdate()
 {
-	FT_INFO("Is G pressed? {}", ft::Input::IsKeyDown(GLFW_KEY_G) ? "Yes" : "No");
+	//FT_INFO("Is G pressed? {}", ft::Input::IsKeyDown(GLFW_KEY_G) ? "Yes" : "No");
+	//glm::vec2 delta = ft::Input::GetMouseDelta();
+	//glm::vec2 pos = ft::Input::GetMousePosition();
+	//FT_INFO("Mouse Delta x:{0:.3f} y:{1:.3f}", delta.x, delta.y);
+	//FT_INFO("Mouse Pos x:{0:.3f} y:{1:.3f}", pos.x, pos.y);
+	
+	float fps = 1 / ft::Time::DeltaTime();
+	FT_INFO(fps);
+
 	//FT_INFO("Update loop, timeDelta is {}", ft::Time::DeltaTime());
 	//FT_INFO("Update loop, total time is {0:.3f}s (~{1:.3f}ms)", ft::Time::TotalTime(), ft::Time::DeltaTime()*1000.0);
 }

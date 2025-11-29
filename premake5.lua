@@ -32,7 +32,7 @@ project "Engine"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{prj.name}/vendor/glfw/include",
-		"%{prj.name}/vendor/glm/include"
+		"%{prj.name}/vendor/glm"
 	}
 
 	links
@@ -90,7 +90,7 @@ project "Sandbox"
 	{
 		"Engine/vendor/spdlog/include",
 		"Engine/vendor/glfw/include",
-		"Engine/vendor/glm/include",
+		"Engine/vendor/glm",
 		"Engine/src"
 	}
 
@@ -185,3 +185,5 @@ project "GLFW"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "on"
+
+		

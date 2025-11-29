@@ -17,7 +17,7 @@ namespace ft {
 		glfwSetWindowUserPointer(m_Window, &m_EventCallback);
 
 		glfwMakeContextCurrent(m_Window);
-		//glfwSwapInterval(1); // TODO: VSync
+		glfwSwapInterval(1); // TODO: VSync
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);

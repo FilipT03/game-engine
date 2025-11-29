@@ -3,6 +3,7 @@
 #include "Core/Core.h"
 #include "Event/InputEvent.h"
 #include "GLFW/glfw3.h"
+#include "glm/vec2.hpp"
 
 namespace ft {
 
@@ -12,8 +13,8 @@ namespace ft {
 		void Init(EventCallback eventCallback); 
 		static bool IsKeyDown(int key);
 		static bool IsMouseDown(int button);
-		//glm::vec2 GetMousePosition();
-		//glm::vec2 GetMouseDelta();
+		static glm::vec2 GetMousePosition();
+		static glm::vec2 GetMouseDelta();
 	private:
 		EventCallback m_EventCallback;
 		inline static bool s_KeyStates[GLFW_KEY_LAST];

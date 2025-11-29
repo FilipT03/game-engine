@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -103,7 +103,7 @@ copy /B /Y ..\bin\Debug-windows-x86_64\Engine\Engine.dll ..\bin\Debug-windows-x8
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -127,7 +127,7 @@ copy /B /Y ..\bin\Release-windows-x86_64\Engine\Engine.dll ..\bin\Release-window
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -147,10 +147,7 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Components\ScriptComponent.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
+    <ClInclude Include="src\Components\ScriptComponent.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
@@ -159,15 +156,9 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
     <ClInclude Include="src\Core\Time.h" />
     <ClInclude Include="src\Core\Timer.h" />
     <ClInclude Include="src\Core\Window.h" />
-    <ClInclude Include="src\Event\Event.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
+    <ClInclude Include="src\Event\Event.h" />
     <ClInclude Include="src\Event\InputEvent.h" />
-    <ClInclude Include="src\Event\WindowEvent.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
+    <ClInclude Include="src\Event\WindowEvent.h" />
     <ClInclude Include="src\GameEngine.h" />
   </ItemGroup>
   <ItemGroup>
