@@ -7,7 +7,7 @@
 
 namespace ft {
 
-	class FT_API Input
+	class Input
 	{
 	public:
 		void Init(EventCallback eventCallback); 

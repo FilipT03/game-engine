@@ -6,7 +6,7 @@
 
 namespace ft {
 
-	class FT_API ScriptComponent
+	class ScriptComponent
 	{
 	public:
 		virtual ~ScriptComponent() = default;

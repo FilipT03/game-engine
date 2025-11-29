@@ -15,15 +15,16 @@ include "Engine/vendor/glfw_premake5.lua"
 
 project "Engine"
 	location "Engine"
-	kind "SharedLib"
+	kind "StaticLib"
+
 	language "C++"
-	
+	cppdialect "C++20"
 
 	targetdir ("build/" .. outputdir .. "/%{prj.name}")
 	objdir ("build-int/" .. outputdir .. "/%{prj.name}")
 
 	buildoptions "/utf-8"
-	staticruntime "Off"
+	staticruntime "On"
 	pchheader "pch.h"
 	pchsource "Engine/src/pch.cpp"
 
@@ -50,13 +51,11 @@ project "Engine"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
 		systemversion "latest"
 
 		defines
 		{
 			"FT_PLATFORM_WINDOWS",
-			"FT_BUILD_DLL",
 			"GLFW_INCLUDE_NONE"
 		}
 
@@ -74,22 +73,24 @@ project "Engine"
 	filter "configurations:Release"
 		defines "FT_RELEASE"
 		runtime "Release"
-		symbols "On"
+		optimize "On"
 		
 	filter "configurations:Dist"
 		defines "FT_DIST"
 		runtime "Release"
-		symbols "On"
+		optimize "On"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
+
 	language "C++"
+	cppdialect "C++20"
 
 	targetdir ("build/" .. outputdir .. "/%{prj.name}")
 	objdir ("build-int/" .. outputdir .. "/%{prj.name}")
 
-	staticruntime "Off"
+	staticruntime "On"
 	buildoptions "/utf-8"
 
 	files
@@ -113,7 +114,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
 		systemversion "latest"
 
 		defines
@@ -129,9 +129,10 @@ project "Sandbox"
 	filter "configurations:Release"
 		defines "FT_RELEASE"
 		runtime "Release"
-		symbols "On"
+		optimize "On"
 		
 	filter "configurations:Dist"
 		defines "FT_DIST"
 		runtime "Release"
-		symbols "On"
+		optimize "On"
+		

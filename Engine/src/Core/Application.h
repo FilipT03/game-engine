@@ -7,7 +7,7 @@
 
 namespace ft {
 
-	class FT_API Application
+	class Application
 	{
 	public:
 		Application(const WindowProps& windowProps, const int frameLimit);

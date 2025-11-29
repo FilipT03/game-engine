@@ -5,19 +5,19 @@
 
 namespace ft {
 
-	class FT_API WindowEvent : public Event
+	class WindowEvent : public Event
 	{
 	protected:
 		WindowEvent(EventType type) : Event(type, EventCategory::Window) {}
 	};
 
-	class FT_API WindowCloseEvent : public WindowEvent
+	class WindowCloseEvent : public WindowEvent
 	{
 	public:
 		WindowCloseEvent() : WindowEvent(EventType::WindowClose) {}
 	};
 
-	class FT_API WindowResizeEvent : public WindowEvent
+	class WindowResizeEvent : public WindowEvent
 	{
 	public:
 		WindowResizeEvent(int width, int height) 

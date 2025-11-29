@@ -5,7 +5,7 @@
 
 namespace ft {
 
-	class FT_API KeyEvent : public Event
+	class KeyEvent : public Event
 	{
 	public:
 		const int Key, Mods;
@@ -13,19 +13,19 @@ namespace ft {
 		KeyEvent(int key, int mods, EventType type) : Key(key), Mods(mods), Event(type, EventCategory::KeyInput) {};
 	};
 
-	class FT_API KeyPressEvent : public KeyEvent
+	class KeyPressEvent : public KeyEvent
 	{
 	public:
 		KeyPressEvent(int key, int mods) : KeyEvent(key, mods, EventType::KeyPress) {}
 	};
 
-	class FT_API KeyRepeatEvent : public KeyEvent
+	class KeyRepeatEvent : public KeyEvent
 	{
 	public:
 		KeyRepeatEvent(int key, int mods) : KeyEvent(key, mods, EventType::KeyRepeat) {}
 	};
 
-	class FT_API KeyReleaseEvent : public KeyEvent
+	class KeyReleaseEvent : public KeyEvent
 	{
 	public:
 		KeyReleaseEvent(int key, int mods) : KeyEvent(key, mods, EventType::KeyRelease) {}
@@ -33,34 +33,34 @@ namespace ft {
 
 
 
-	class FT_API MouseEvent : public Event
+	class MouseEvent : public Event
 	{
 	protected:
 		MouseEvent(EventType type) : Event(type, EventCategory::MouseInput) {};
 	};
 
-	class FT_API MousePressEvent : public MouseEvent
+	class MousePressEvent : public MouseEvent
 	{
 	public:
 		const int Button, Mods;
 		MousePressEvent(int button, int mods) : Button(button), Mods(mods), MouseEvent(EventType::MousePress) {}
 	};
 
-	class FT_API MouseReleaseEvent : public MouseEvent
+	class MouseReleaseEvent : public MouseEvent
 	{
 	public:
 		const int Button, Mods;
 		MouseReleaseEvent(int button, int mods) : Button(button), Mods(mods), MouseEvent(EventType::MouseRelease) {}
 	};
 
-	class FT_API MouseMoveEvent : public MouseEvent
+	class MouseMoveEvent : public MouseEvent
 	{
 	public:
 		const float X, Y;
 		MouseMoveEvent(float x, float y) : X(x), Y(y), MouseEvent(EventType::MouseMove) {}
 	};
 
-	class FT_API MouseScrollEvent : public MouseEvent
+	class MouseScrollEvent : public MouseEvent
 	{
 	public:
 		const float XDelta, YDelta;

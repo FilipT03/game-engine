@@ -4,7 +4,7 @@
 #include "Core/Core.h"
 
 namespace ft {
-	enum class FT_API EventType
+	enum class EventType
 	{
 		None, Other,
 		WindowClose, WindowResize,
@@ -12,7 +12,7 @@ namespace ft {
 		MousePress, MouseRelease, MouseMove, MouseScroll
 	};
 
-	enum class FT_API EventCategory
+	enum class EventCategory
 	{
 		None,
 		Window,
@@ -20,7 +20,7 @@ namespace ft {
 		MouseInput
 	};
 
-	class FT_API Event
+	class Event
 	{
 	public:
 		~Event() {}
@@ -32,7 +32,7 @@ namespace ft {
 		Event(EventType type, EventCategory category) : Type(type), Category(category) {}
 	};
 
-	FT_API typedef std::function<void(Event&)> EventCallback;
+	typedef std::function<void(Event&)> EventCallback;
 
 	template<typename T>
 	inline const T& As(const ft::Event& event)

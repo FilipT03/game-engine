@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 namespace ft {
-	struct FT_API WindowProps {
+	struct WindowProps {
 		std::string title;
 		uint32_t width, height;
 		bool fullscreen;
@@ -17,7 +17,7 @@ namespace ft {
 		{}
 	};
 
-	class FT_API Window
+	class Window
 	{
 	public:
 		Window(const WindowProps& props, EventCallback eventCallback);

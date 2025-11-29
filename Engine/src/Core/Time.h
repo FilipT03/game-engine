@@ -7,10 +7,10 @@ namespace ft {
 	class Time
 	{
 	public:
-		static double FT_API DeltaTime() { return s_DeltaTime; }
+		static double DeltaTime() { return s_DeltaTime; }
 		static void SetDeltaTime(double time) { s_DeltaTime = time; }
 		
-		static double FT_API TotalTime() { return s_Time; }
+		static double TotalTime() { return s_Time; }
 		static void Reset() { s_Time = 0; s_DeltaTime = 0; }
 		static void UpdateTime(double newTime) 
 		{

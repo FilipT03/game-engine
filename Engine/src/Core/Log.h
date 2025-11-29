@@ -5,7 +5,7 @@
 
 namespace ft {
 
-	class FT_API Log
+	class Log
 	{
 	public:
 		static void Init();
