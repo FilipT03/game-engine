@@ -7,6 +7,7 @@ void SimpleScript::OnRegister()
 
 void SimpleScript::OnUpdate()
 {
+	FT_INFO("Is G pressed? {}", ft::Input::IsKeyDown(GLFW_KEY_G) ? "Yes" : "No");
 	//FT_INFO("Update loop, timeDelta is {}", ft::Time::DeltaTime());
 	//FT_INFO("Update loop, total time is {0:.3f}s (~{1:.3f}ms)", ft::Time::TotalTime(), ft::Time::DeltaTime()*1000.0);
 }
