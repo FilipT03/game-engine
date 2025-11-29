@@ -7,41 +7,20 @@ void SimpleScript::OnRegister()
 
 void SimpleScript::OnUpdate()
 {
-	//FT_INFO("Is G pressed? {}", ft::Input::IsKeyDown(GLFW_KEY_G) ? "Yes" : "No");
-	//glm::vec2 delta = ft::Input::GetMouseDelta();
-	//glm::vec2 pos = ft::Input::GetMousePosition();
-	//FT_INFO("Mouse Delta x:{0:.3f} y:{1:.3f}", delta.x, delta.y);
-	//FT_INFO("Mouse Pos x:{0:.3f} y:{1:.3f}", pos.x, pos.y);
-	
 	float fps = 1 / ft::Time::DeltaTime();
 	FT_INFO(fps);
-
-	//FT_INFO("Update loop, timeDelta is {}", ft::Time::DeltaTime());
-	//FT_INFO("Update loop, total time is {0:.3f}s (~{1:.3f}ms)", ft::Time::TotalTime(), ft::Time::DeltaTime()*1000.0);
 }
 
 void SimpleScript::OnEvent(const ft::Event& event)
 {
-	//if (event.Type == ft::EventType::WindowResize)
-	//{
-	//	auto& resizeEvent = static_cast<const ft::WindowResizeEvent&>(event);
-	//	FT_INFO("WindowResize, width = {}, height = {})", resizeEvent.Width, resizeEvent.Height);
-	//}
-	//if (event.Type == ft::EventType::WindowClose)
-	//{
-	//	FT_INFO("WindowCloseEvent");
-	//}
 }
 
 void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 {
-	if (event.Type == ft::EventType::KeyPress)
+	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_ESCAPE)
 	{
-		auto& pressEvent = ft::As<ft::KeyPressEvent>(event);
-		if (event.Key == GLFW_KEY_ESCAPE)
-			ft::Application::Get().Close();
+		ft::Application::Get().Close();
 	}
-	//FT_INFO("Key event: {}, mods: {}", event.Key, event.Mods);
 }
 
 void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
