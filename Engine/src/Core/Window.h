@@ -4,9 +4,6 @@
 #include "Event/WindowEvent.h"
 #include "Event/InputEvent.h"
 #include <GLFW/glfw3.h>
-#include <string>
-#include <memory>
-#include <functional>
 
 namespace ft {
 	struct FT_API WindowProps {

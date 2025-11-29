@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Input.h"
 #include "Core/Log.h"
 #include "Core/Window.h"
@@ -64,14 +65,14 @@ namespace ft {
 
 			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);
 
-			MouseMoveEvent event = MouseMoveEvent(xpos, ypos);
+			MouseMoveEvent event = MouseMoveEvent((float)xpos, (float)ypos);
 			callback(event);
 		});
 
 		glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
 			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);
 
-			MouseScrollEvent event = MouseScrollEvent(xoffset, yoffset);
+			MouseScrollEvent event = MouseScrollEvent((float)xoffset, (float)yoffset);
 			callback(event);
 		});
 	}

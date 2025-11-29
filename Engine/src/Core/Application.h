@@ -1,11 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <vector>
 #include "Core/Window.h"
-#include <Core/Input.h>
+#include "Core/Input.h"
 #include "Components/ScriptComponent.h"
-#include <Event/Event.h>
+#include "Event/Event.h"
 
 namespace ft {
 
@@ -20,20 +18,25 @@ namespace ft {
 		void OnEvent(Event& event);
 
 		template <class T>
-		void RegisterScriptComponent()
+		T* RegisterScriptComponent()
 		{
 			static_assert(std::is_base_of<ScriptComponent, T>::value, "Registered component must inherit ScriptComponent");
 			
 			T* script = new T();
 			script->SetId(++m_maxScriptId);
 			RegisterInternal(script);
+			return script;
 		}
+
+		void RemoveScriptComponent(uint16_t componentId);
+		void RemoveScriptComponent(ScriptComponent* component);
 
 		static Application& Get() { return *s_Instance; };
 		Window& GetWindow() { return *m_Window; };
 
 	private:
 		void RegisterInternal(ScriptComponent* scriptComponent);
+		void ProcessPendingRemovals();
 
 		bool m_Running = true;
 		int m_FrameLimit = -1;
@@ -45,6 +48,7 @@ namespace ft {
 		
 		std::unordered_map<uint16_t, ScriptComponent*> m_scriptComponents;
 		uint16_t m_maxScriptId = 0;
+		std::vector<uint16_t> m_ScriptsToRemove;
 	};
 
 	// Should be defined by the client application

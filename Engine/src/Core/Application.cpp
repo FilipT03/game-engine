@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Application.h"
 #include "Core/Time.h"
 #include "GLFW/glfw3.h"
@@ -22,7 +23,7 @@ namespace ft {
 		m_Running = false;
 		for (auto& it : m_scriptComponents)
 		{
-			it.second->OnDestroy();
+			it.second->OnDelete();
 			delete it.second;
 		}
 	}
@@ -50,7 +51,23 @@ namespace ft {
 				it.second->OnUpdate();
 
 			m_Window->Update();
+
+			ProcessPendingRemovals();
 		}
+	}
+
+	void Application::ProcessPendingRemovals()
+	{
+		for (uint16_t id : m_ScriptsToRemove)
+		{
+			if (!m_scriptComponents.contains(id))
+				continue;
+			ScriptComponent* component = m_scriptComponents.at(id);
+			m_scriptComponents.erase(id);
+			component->OnDelete();
+			delete component;
+		}
+		m_ScriptsToRemove.clear();
 	}
 
 	void Application::Close()
@@ -86,5 +103,15 @@ namespace ft {
 	{
 		m_scriptComponents.emplace(scriptComponent->GetId(), scriptComponent);
 		scriptComponent->OnRegister();
+	}
+
+	void Application::RemoveScriptComponent(uint16_t scriptId)
+	{
+		m_ScriptsToRemove.push_back(scriptId);
+	}
+
+	void Application::RemoveScriptComponent(ScriptComponent* component)
+	{
+		RemoveScriptComponent(component -> GetId());
 	}
 }

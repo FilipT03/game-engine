@@ -1,7 +1,7 @@
 #pragma once
 
+#include "pch.h"
 #include "Core/Core.h"
-#include <functional>
 
 namespace ft {
 	enum class FT_API EventType
@@ -32,7 +32,7 @@ namespace ft {
 		Event(EventType type, EventCategory category) : Type(type), Category(category) {}
 	};
 
-	typedef std::function<void(Event&)> EventCallback;
+	FT_API typedef std::function<void(Event&)> EventCallback;
 
 	template<typename T>
 	inline const T& As(const ft::Event& event)

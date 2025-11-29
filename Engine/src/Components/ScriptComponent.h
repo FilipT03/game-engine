@@ -13,7 +13,7 @@ namespace ft {
 		virtual void OnUpdate() {}
 		virtual void OnRegister() {}
 		virtual void OnClose() {}
-		virtual void OnDestroy() {}
+		virtual void OnDelete() {}
 
 		// Event callbacks
 		virtual void OnEvent(const Event& e) {}

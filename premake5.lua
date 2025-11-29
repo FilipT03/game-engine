@@ -20,6 +20,8 @@ project "Engine"
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	buildoptions "/utf-8"
+	pchheader "pch.h"
+	pchsource "Engine/src/pch.cpp"
 
 	files
 	{

@@ -6,9 +6,9 @@
 class Sandbox : public ft::Application
 {
 public:
-	Sandbox() : ft::Application(ft::WindowProps("App", 1600, 900, true), 75)
+	Sandbox() : ft::Application(ft::WindowProps("App", 1600, 900, false), 75)
 	{
-		RegisterScriptComponent<SimpleScript>();
+		SimpleScript* ss = RegisterScriptComponent<SimpleScript>();
 	}
 	~Sandbox() {}
 };
