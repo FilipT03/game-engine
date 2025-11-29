@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Window.h"
 #include "Core/Log.h"
+#include <glad/glad.h>
 
 namespace ft {
 
@@ -17,7 +18,7 @@ namespace ft {
 			m_Window = glfwCreateWindow(props.width, props.height, props.title.c_str(), nullptr, nullptr);
 		if (m_Window == NULL)
 		{
-			FT_CORE_ERROR("Failed to create GLFW window");
+			FT_ENGINE_ERROR("Failed to create GLFW window");
 			return;
 		}
 
@@ -27,6 +28,10 @@ namespace ft {
 
 		glfwMakeContextCurrent(m_Window);
 		glfwSwapInterval(0); // TODO: VSync
+
+		int success = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		if (!success)
+			FT_ENGINE_ERROR("Failed to init GLAD");
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);
@@ -56,7 +61,7 @@ namespace ft {
 	{
 		if (!glfwInit())
 		{
-			FT_CORE_ERROR("Failed to init GLFW");
+			FT_ENGINE_ERROR("Failed to init GLFW");
 			return nullptr;
 		}
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

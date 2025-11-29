@@ -10,16 +10,20 @@ workspace "GameEngine"
 	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+include "Engine/vendor/glad/premake5.lua"
+include "Engine/vendor/glfw_premake5.lua"
 
 project "Engine"
 	location "Engine"
 	kind "SharedLib"
 	language "C++"
+	
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("build/" .. outputdir .. "/%{prj.name}")
+	objdir ("build-int/" .. outputdir .. "/%{prj.name}")
 
 	buildoptions "/utf-8"
+	staticruntime "Off"
 	pchheader "pch.h"
 	pchsource "Engine/src/pch.cpp"
 
@@ -34,42 +38,47 @@ project "Engine"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{prj.name}/vendor/glfw/include",
+		"%{prj.name}/vendor/glad/include",
 		"%{prj.name}/vendor/glm"
 	}
 
 	links
 	{
 		"opengl32.lib",
-		"GLFW"
+		"GLFW",
+		"Glad"
 	}
 
 	filter "system:windows"
 		cppdialect "C++20"
-		staticruntime "Off"
 		systemversion "latest"
 
 		defines
 		{
 			"FT_PLATFORM_WINDOWS",
-			"FT_BUILD_DLL"
+			"FT_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands
 		{
-			("{MKDIR} ../bin/" .. outputdir .. "/Sandbox"),
-			("{COPYFILE} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox/%{cfg.buildtarget.name}")
+			("{MKDIR} ../build/" .. outputdir .. "/Sandbox"),
+			("{COPYFILE} %{cfg.buildtarget.relpath} ../build/" .. outputdir .. "/Sandbox/%{cfg.buildtarget.name}")
  		}
 
 	filter "configurations:Debug"
 		defines "FT_DEBUG"
+		runtime "Debug"
 		symbols "On"
 		
 	filter "configurations:Release"
 		defines "FT_RELEASE"
+		runtime "Release"
 		symbols "On"
 		
 	filter "configurations:Dist"
 		defines "FT_DIST"
+		runtime "Release"
 		symbols "On"
 
 project "Sandbox"
@@ -77,9 +86,10 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("build/" .. outputdir .. "/%{prj.name}")
+	objdir ("build-int/" .. outputdir .. "/%{prj.name}")
 
+	staticruntime "Off"
 	buildoptions "/utf-8"
 
 	files
@@ -92,6 +102,7 @@ project "Sandbox"
 	{
 		"Engine/vendor/spdlog/include",
 		"Engine/vendor/glfw/include",
+		"Engine/vendor/glad/include",
 		"Engine/vendor/glm",
 		"Engine/src"
 	}
@@ -103,7 +114,6 @@ project "Sandbox"
 
 	filter "system:windows"
 		cppdialect "C++20"
-		staticruntime "Off"
 		systemversion "latest"
 
 		defines
@@ -113,79 +123,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "FT_DEBUG"
+		runtime "Debug"
 		symbols "On"
 		
 	filter "configurations:Release"
 		defines "FT_RELEASE"
+		runtime "Release"
 		symbols "On"
 		
 	filter "configurations:Dist"
 		defines "FT_DIST"
-		symbols "On"
-
-project "GLFW"
-	location "Engine/vendor/glfw"
-	kind "StaticLib"
-	language "C"
-
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"%{prj.location}/include/GLFW/glfw3.h",
-		"%{prj.location}/include/GLFW/glfw3native.h",
-		"%{prj.location}/src/internal.h",
-		"%{prj.location}/src/platform.h",
-		"%{prj.location}/src/mappings.h",
-		"%{prj.location}/src/context.c",
-		"%{prj.location}/src/init.c",
-		"%{prj.location}/src/input.c",
-		"%{prj.location}/src/monitor.c",
-		"%{prj.location}/src/platform.c",
-		"%{prj.location}/src/vulkan.c",
-		"%{prj.location}/src/window.c",
-		"%{prj.location}/src/egl_context.c",
-		"%{prj.location}/src/osmesa_context.c",
-		"%{prj.location}/src/null_platform.h",
-		"%{prj.location}/src/null_joystick.h",
-		"%{prj.location}/src/null_init.c",
-
-		"%{prj.location}/src/null_monitor.c",
-		"%{prj.location}/src/null_window.c",
-		"%{prj.location}/src/null_joystick.c"
-	}
-
-	filter "system:windows"
-		systemversion "latest"
-		staticruntime "Off"
-
-		defines
-		{
-			"_GLFW_WIN32",
-			"_CRT_SECURE_NO_WARNINGS"
-		}
-        files {
-			"%{prj.location}/src/win32_init.c",
-			"%{prj.location}/src/win32_module.c",
-			"%{prj.location}/src/win32_joystick.c",
-			"%{prj.location}/src/win32_monitor.c",
-			"%{prj.location}/src/win32_time.h",
-			"%{prj.location}/src/win32_time.c",
-			"%{prj.location}/src/win32_thread.h",
-			"%{prj.location}/src/win32_thread.c",
-			"%{prj.location}/src/win32_window.c",
-			"%{prj.location}/src/wgl_context.c",
-			"%{prj.location}/src/egl_context.c",
-			"%{prj.location}/src/osmesa_context.c"
-        }
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "on"
-
-	filter "configurations:Release"
 		runtime "Release"
-		optimize "on"
-
-		
+		symbols "On"

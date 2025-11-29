@@ -30,13 +30,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
@@ -55,22 +55,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Debug-windows-x86_64\Engine\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Debug-windows-x86_64\Engine\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\Engine\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\Engine\</IntDir>
     <TargetName>Engine</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Release-windows-x86_64\Engine\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Release-windows-x86_64\Engine\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\Engine\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\Engine\</IntDir>
     <TargetName>Engine</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Dist-windows-x86_64\Engine\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Dist-windows-x86_64\Engine\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\Engine\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\Engine\</IntDir>
     <TargetName>Engine</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -79,8 +79,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;GLFW_INCLUDE_NONE;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -92,11 +92,11 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\bin\Debug-windows-x86_64\Engine\Engine.lib</ImportLibrary>
+      <ImportLibrary>..\build\Debug-windows-x86_64\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\bin\Debug-windows-x86_64\Sandbox (mkdir ..\bin\Debug-windows-x86_64\Sandbox)
-copy /B /Y ..\bin\Debug-windows-x86_64\Engine\Engine.dll ..\bin\Debug-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Debug-windows-x86_64\Sandbox (mkdir ..\build\Debug-windows-x86_64\Sandbox)
+copy /B /Y ..\build\Debug-windows-x86_64\Engine\Engine.dll ..\build\Debug-windows-x86_64\Sandbox\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,11 +104,11 @@ copy /B /Y ..\bin\Debug-windows-x86_64\Engine\Engine.dll ..\bin\Debug-windows-x8
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;GLFW_INCLUDE_NONE;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -117,11 +117,11 @@ copy /B /Y ..\bin\Debug-windows-x86_64\Engine\Engine.dll ..\bin\Debug-windows-x8
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\bin\Release-windows-x86_64\Engine\Engine.lib</ImportLibrary>
+      <ImportLibrary>..\build\Release-windows-x86_64\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\bin\Release-windows-x86_64\Sandbox (mkdir ..\bin\Release-windows-x86_64\Sandbox)
-copy /B /Y ..\bin\Release-windows-x86_64\Engine\Engine.dll ..\bin\Release-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Release-windows-x86_64\Sandbox (mkdir ..\build\Release-windows-x86_64\Sandbox)
+copy /B /Y ..\build\Release-windows-x86_64\Engine\Engine.dll ..\build\Release-windows-x86_64\Sandbox\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -129,11 +129,11 @@ copy /B /Y ..\bin\Release-windows-x86_64\Engine\Engine.dll ..\bin\Release-window
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;GLFW_INCLUDE_NONE;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -142,11 +142,11 @@ copy /B /Y ..\bin\Release-windows-x86_64\Engine\Engine.dll ..\bin\Release-window
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\bin\Dist-windows-x86_64\Engine\Engine.lib</ImportLibrary>
+      <ImportLibrary>..\build\Dist-windows-x86_64\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\bin\Dist-windows-x86_64\Sandbox (mkdir ..\bin\Dist-windows-x86_64\Sandbox)
-copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Dist-windows-x86_64\Sandbox (mkdir ..\build\Dist-windows-x86_64\Sandbox)
+copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.dll ..\build\Dist-windows-x86_64\Sandbox\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -177,6 +177,9 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
   <ItemGroup>
     <ProjectReference Include="vendor\glfw\GLFW.vcxproj">
       <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\glad\Glad.vcxproj">
+      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
