@@ -12,10 +12,11 @@ namespace ft {
 	struct FT_API WindowProps {
 		std::string title;
 		uint32_t width, height;
+		bool fullscreen;
 
 		WindowProps(std::string title = "Application",
-			uint32_t width = 1600, uint32_t height = 900)
-			: title(title), width(width), height(height)
+			uint32_t width = 1600, uint32_t height = 900, bool fullscreen = false)
+			: title(title), width(width), height(height), fullscreen(fullscreen)
 		{}
 	};
 

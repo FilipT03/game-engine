@@ -5,10 +5,15 @@ namespace ft {
 
 	Window::Window(const WindowProps& props, EventCallback eventCallback) : m_Props(props)
 	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-		m_Window = glfwCreateWindow(mode->width, mode->height, props.title.c_str(), monitor, nullptr);
-		//m_Window = glfwCreateWindow(props.width, props.height, props.title.c_str(), nullptr, nullptr);
+		if (props.fullscreen)
+		{
+			glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			m_Window = glfwCreateWindow(mode->width, mode->height, props.title.c_str(), monitor, nullptr);
+		}
+		else
+			m_Window = glfwCreateWindow(props.width, props.height, props.title.c_str(), nullptr, nullptr);
 		if (m_Window == NULL)
 		{
 			FT_CORE_ERROR("Failed to create GLFW window");
@@ -56,7 +61,6 @@ namespace ft {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 		return std::make_unique<Window>(props, eventCallback);
 	}
 	
