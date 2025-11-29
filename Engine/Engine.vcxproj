@@ -172,6 +172,14 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Event\WindowEvent.h" />
     <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\RenderingContext.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\RenderingAPI\OpenGL\OpenGLContext.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp" />
@@ -180,6 +188,14 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\RenderingContext.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\RenderingAPI\OpenGL\OpenGLContext.cpp">
+      <SubType>
+      </SubType>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Window.h"
 #include "Core/Log.h"
-#include <glad/glad.h>
+#include "RenderingAPI/OpenGL/OpenGLContext.h"
 
 namespace ft {
 
@@ -22,16 +22,13 @@ namespace ft {
 			return;
 		}
 
+		m_Context = new OpenGLContext(m_Window);
+		m_Context->Init();
+
 		m_EventCallback = eventCallback;
 
 		glfwSetWindowUserPointer(m_Window, &m_EventCallback);
 
-		glfwMakeContextCurrent(m_Window);
-		glfwSwapInterval(0); // TODO: VSync
-
-		int success = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		if (!success)
-			FT_ENGINE_ERROR("Failed to init GLAD");
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			EventCallback& callback = *(EventCallback*)glfwGetWindowUserPointer(window);
@@ -55,6 +52,11 @@ namespace ft {
 			glfwDestroyWindow(m_Window);
 			glfwTerminate();
 		}
+		if (m_Context)
+		{
+			delete m_Context;
+			m_Context = nullptr;
+		}
 	}
 
 	std::unique_ptr<Window> Window::Create(const WindowProps& props, EventCallback eventCallback)
@@ -72,7 +74,7 @@ namespace ft {
 	
 	void Window::Update()
 	{
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
 		glfwPollEvents();
 	}
 }

@@ -50,6 +50,8 @@
     </ClInclude>
     <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\RenderingContext.h" />
+    <ClInclude Include="src\RenderingAPI\OpenGL\OpenGLContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -65,5 +67,7 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Renderer\RenderingContext.cpp" />
+    <ClCompile Include="src\RenderingAPI\OpenGL\OpenGLContext.cpp" />
   </ItemGroup>
 </Project>

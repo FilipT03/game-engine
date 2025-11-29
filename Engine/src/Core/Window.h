@@ -3,6 +3,7 @@
 #include "Core/Core.h"
 #include "Event/WindowEvent.h"
 #include "Event/InputEvent.h"
+#include "Renderer/RenderingContext.h"
 #include <GLFW/glfw3.h>
 
 namespace ft {
@@ -31,6 +32,7 @@ namespace ft {
 		GLFWwindow* m_Window;
 		WindowProps m_Props;
 		EventCallback m_EventCallback;
+		RenderingContext* m_Context;
 	};
 }
 
