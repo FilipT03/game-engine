@@ -3,11 +3,11 @@
 
 #ifdef FT_OPENGL_RENDERER
 #include <glad/glad.h>
-#endif
 
 #define FT_GLSL_INCLUDE
-#include "Renderer/Shaders/Basic.vert"
-#include "Renderer/Shaders/Basic.frag"
+#include "Platform/OpenGL/Shaders/Basic.vert"
+#include "Platform/OpenGL/Shaders/Basic.frag"
+#endif
 
 namespace ft {
 	Renderer::Renderer() {};
@@ -41,7 +41,7 @@ namespace ft {
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
 
-		m_Shader = std::make_unique<Shader>(basicVert, basicFrag);
+		m_Shader = std::unique_ptr<Shader>(Shader::Create(basicVert, basicFrag));
 		m_Shader->Bind();
 
 		#endif
