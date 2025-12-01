@@ -4,11 +4,11 @@
 
 namespace ft {
 
-	class Buffer
+	class EmbedDataLoader
 	{
 	public:
-		Buffer();
-		~Buffer();
+		EmbedDataLoader();
+		~EmbedDataLoader();
 	};
 }
 

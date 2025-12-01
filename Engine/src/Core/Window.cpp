@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Window.h"
 #include "Core/Log.h"
-#include "RenderingAPI/OpenGL/OpenGLContext.h"
+#include "Platform/OpenGL/GLContext.h"
 
 namespace ft {
 
@@ -22,7 +22,12 @@ namespace ft {
 			return;
 		}
 
-		m_Context = new OpenGLContext(m_Window);
+		#ifdef FT_OPENGL_RENDERER
+			m_Context = new GLContext(m_Window);
+		#else
+			FT_ENGINE_ERROR("Unknown rendering API");
+			return;
+		#endif
 		m_Context->Init();
 
 		m_EventCallback = eventCallback;

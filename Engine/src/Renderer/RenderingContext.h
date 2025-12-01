@@ -9,6 +9,8 @@ namespace ft {
 	public:
 		virtual void Init() = 0;
 		virtual void SwapBuffers() = 0;
+
+		static RenderingContext* Create(void* windowHandle);
 	};
 }
 

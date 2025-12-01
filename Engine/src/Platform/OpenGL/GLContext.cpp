@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "OpenGLContext.h"
+#include "GLContext.h"
 
 #include "Core/Log.h"
 #include <glad/glad.h>
 
 namespace ft {
-	void OpenGLContext::Init()
+	void GLContext::Init()
 	{
 		glfwMakeContextCurrent(m_Window);
 		glfwSwapInterval(0); // TODO: VSync
@@ -15,7 +15,7 @@ namespace ft {
 			FT_ENGINE_ERROR("Failed to init GLAD");
 	}
 
-	void OpenGLContext::SwapBuffers()
+	void GLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_Window);
 	}

@@ -1,0 +1,39 @@
+#pragma once
+
+#include "Core/Core.h"
+#include "Renderer/Buffers.h"
+
+namespace ft {
+
+	class GLVertexBuffer : public VertexBuffer
+	{
+	public:
+		GLVertexBuffer(const float* data, uint32_t count);
+		~GLVertexBuffer();
+
+		void Bind() const override;
+		void Unbind() const override;
+		uint32_t GetCount() const override { return m_Count; }
+
+		private:
+			uint32_t m_ID;
+			uint32_t m_Count;
+	};
+
+
+	class GLIndexBuffer : public IndexBuffer
+	{
+		public:
+		GLIndexBuffer(const uint32_t* data, uint32_t count);
+		~GLIndexBuffer();
+
+		void Bind() const override;
+		void Unbind() const override;
+		uint32_t GetCount() const override { return m_Count; }
+
+		private:
+			uint32_t m_ID;
+			uint32_t m_Count;
+	};
+}
+

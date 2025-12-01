@@ -6,10 +6,10 @@
 
 namespace ft {
 
-	class OpenGLContext : public RenderingContext
+	class GLContext : public RenderingContext
 	{
 	public:
-		OpenGLContext(GLFWwindow* windowHandle)
+		GLContext(GLFWwindow* windowHandle)
 			: m_Window(windowHandle) {}
 		void Init() override;
 		void SwapBuffers() override;

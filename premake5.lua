@@ -56,6 +56,7 @@ project "Engine"
 		defines
 		{
 			"FT_PLATFORM_WINDOWS",
+			"FT_OPENGL_RENDERER",
 			"GLFW_INCLUDE_NONE"
 		}
 

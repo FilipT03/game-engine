@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <cstdint>
 
 #include <memory>
 #include <vector>
@@ -14,3 +15,5 @@
 #include <thread>
 #include <chrono>
 #include <functional>
+
+#include "Core/Log.h"

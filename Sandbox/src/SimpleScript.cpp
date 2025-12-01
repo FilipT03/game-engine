@@ -13,7 +13,15 @@ void SimpleScript::OnDelete()
 void SimpleScript::OnUpdate()
 {
 	double fps = 1 / ft::Time::DeltaTime();
-	FT_INFO(fps);
+	m_FpsCount++;
+	m_FpsSum += fps;
+	if (m_FpsCount >= 60)
+	{
+		double avgFps = m_FpsSum / m_FpsCount;
+		FT_INFO("Average FPS over last {} frames: {}", m_FpsCount, avgFps);
+		m_FpsCount = 0;
+		m_FpsSum = 0;
+	}
 }
 
 void SimpleScript::OnEvent(const ft::Event& event)

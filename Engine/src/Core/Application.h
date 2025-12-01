@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Renderer/Shader.h"
+#include "Renderer/Renderer.h"
 #include "Core/Window.h"
 #include "Core/Input.h"
 #include "Components/ScriptComponent.h"
 #include "Event/Event.h"
-
-//#include "Renderer/Shader.h"
 
 namespace ft {
 
@@ -45,11 +45,7 @@ namespace ft {
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;
-
-		unsigned int m_VertexArray = 0;
-		unsigned int m_VertexBuffer = 0;
-		unsigned int m_IndexBuffer = 0;
-		//std::unique_ptr<Shader> m_Shader;
+		std::unique_ptr<Renderer> m_Renderer;
 
 		static Application* s_Instance;
 		
