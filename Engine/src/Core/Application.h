@@ -5,6 +5,8 @@
 #include "Components/ScriptComponent.h"
 #include "Event/Event.h"
 
+//#include "Renderer/Shader.h"
+
 namespace ft {
 
 	class Application
@@ -23,7 +25,7 @@ namespace ft {
 			static_assert(std::is_base_of<ScriptComponent, T>::value, "Registered component must inherit ScriptComponent");
 			
 			T* script = new T();
-			script->SetId(++m_maxScriptId);
+			script->SetId(++m_MaxScriptId);
 			RegisterInternal(script);
 			return script;
 		}
@@ -44,10 +46,15 @@ namespace ft {
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;
 
+		unsigned int m_VertexArray = 0;
+		unsigned int m_VertexBuffer = 0;
+		unsigned int m_IndexBuffer = 0;
+		//std::unique_ptr<Shader> m_Shader;
+
 		static Application* s_Instance;
 		
-		std::unordered_map<uint16_t, ScriptComponent*> m_scriptComponents;
-		uint16_t m_maxScriptId = 0;
+		std::unordered_map<uint16_t, ScriptComponent*> m_ScriptComponents;
+		uint16_t m_MaxScriptId = 0;
 		std::vector<uint16_t> m_ScriptsToRemove;
 	};
 

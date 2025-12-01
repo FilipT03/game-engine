@@ -52,6 +52,9 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\RenderingAPI\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Renderer\Buffer.h" />
+    <ClInclude Include="src\Renderer\Shader.h" />
+    <ClInclude Include="src\Core\AssetLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -69,5 +72,12 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\RenderingAPI\OpenGL\OpenGLContext.cpp" />
+    <ClCompile Include="src\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Core\AssetLoader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\Basic.vert" />
+    <None Include="assets\shaders\Basic.frag" />
   </ItemGroup>
 </Project>

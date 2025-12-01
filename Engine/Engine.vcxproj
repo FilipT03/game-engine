@@ -160,6 +160,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
   <ItemGroup>
     <ClInclude Include="src\Components\ScriptComponent.h" />
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\AssetLoader.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Input.h" />
@@ -172,7 +176,15 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Event\WindowEvent.h" />
     <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\Buffer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Renderer\RenderingContext.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Shader.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -183,13 +195,25 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\Core\AssetLoader.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Renderer\Buffer.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Renderer\RenderingContext.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Shader.cpp">
       <SubType>
       </SubType>
     </ClCompile>
@@ -205,6 +229,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ProjectReference Include="vendor\glad\Glad.vcxproj">
       <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\Basic.frag" />
+    <None Include="assets\shaders\Basic.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
