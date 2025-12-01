@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Renderer.h"
+#include "Renderer/BufferLayout.h"
 
 #ifdef FT_OPENGL_RENDERER
 #include <glad/glad.h>
@@ -34,6 +35,12 @@ namespace ft {
 		
 		m_IndexBuffer = std::unique_ptr<IndexBuffer>(IndexBuffer::Create(indices, 3));
 		m_IndexBuffer->Bind();
+
+		auto test = BufferLayout({
+			{ LayoutElementType::Float3, "a_Position" },
+			{ LayoutElementType::Float4, "a_Color" },
+			{ LayoutElementType::Float3, "a_dColor" }
+			});
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
