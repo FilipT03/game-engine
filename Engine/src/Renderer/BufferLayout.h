@@ -38,6 +38,25 @@ namespace ft {
 		return 0;
 	}
 
+	static uint32_t LayoutElementTypeCount(LayoutElementType type)
+	{
+		switch (type)
+		{
+			case LayoutElementType::Float:   return 1;
+			case LayoutElementType::Float2:  return 2;
+			case LayoutElementType::Float3:  return 3;
+			case LayoutElementType::Float4:  return 4;
+			case LayoutElementType::Mat3:    return 3 * 3;
+			case LayoutElementType::Mat4:    return 4 * 4;
+			case LayoutElementType::Int:     return 1;
+			case LayoutElementType::Int2:    return 2;
+			case LayoutElementType::Int3:    return 3;
+			case LayoutElementType::Int4:    return 4;
+			case LayoutElementType::Bool:    return 1;
+		}
+		return 0;
+	}
+
 	struct LayoutElement
 	{
 		LayoutElementType Type;
@@ -48,27 +67,30 @@ namespace ft {
 
 		LayoutElement(LayoutElementType type, std::string name, bool normalized = false)
 			: Type(type), Name(name), Size(LayoutElementTypeSize(Type)), Offset(0), Normalized(normalized) {}
+
+		uint32_t GetComponentCount() const { return LayoutElementTypeCount(Type); }
 	};
 
 	class BufferLayout
 	{
 	public:
-		BufferLayout(std::initializer_list<LayoutElement> data) : m_Layout(data), m_Stride(0)
+		BufferLayout(std::initializer_list<LayoutElement> data) : m_Elements(data), m_Stride(0)
 		{
 			uint32_t offset = 0;
-			for (auto& element : m_Layout)
+			for (auto& element : m_Elements)
 			{
 				element.Offset = offset;
 				offset += element.Size;
 				m_Stride += element.Size;
 			}
 		}
+		BufferLayout() = default;
 		~BufferLayout() = default;
-		inline const std::vector<LayoutElement>& GetLayout() const { return m_Layout; }
+		inline const std::vector<LayoutElement>& GetElements() const { return m_Elements; }
 		inline uint32_t GetStride() const { return m_Stride; }
-		inline uint32_t GetElementCount() const { return static_cast<uint32_t>(m_Layout.size()); }
+		inline uint32_t GetElementCount() const { return static_cast<uint32_t>(m_Elements.size()); }
 	private:
-		std::vector<LayoutElement> m_Layout;
+		std::vector<LayoutElement> m_Elements;
 		uint32_t m_Stride;
 	};
 }
