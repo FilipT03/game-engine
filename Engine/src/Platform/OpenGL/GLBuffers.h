@@ -8,16 +8,18 @@ namespace ft {
 	class GLVertexBuffer : public VertexBuffer
 	{
 	public:
-		GLVertexBuffer(const float* data, uint32_t count);
+		GLVertexBuffer(const float* data, uint32_t size);
+		GLVertexBuffer(uint32_t size);
 		~GLVertexBuffer();
 
 		void Bind() const override;
 		void Unbind() const override;
-		uint32_t GetCount() const override { return m_Count; }
+		uint32_t GetCount() const override { return m_Size / sizeof(float); }
+		uint32_t GetSize() const override { return m_Size; }
 
 		private:
 			uint32_t m_ID;
-			uint32_t m_Count;
+			uint32_t m_Size;
 	};
 
 

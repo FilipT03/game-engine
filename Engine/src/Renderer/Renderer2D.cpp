@@ -18,10 +18,13 @@ namespace ft {
 	{
 		#ifdef FT_OPENGL_RENDERER
 
+		m_Shapes.emplace_back(std::make_unique<Polygon>(3));
+		Shape& triangle = *m_Shapes[0];
+
 		auto test = BufferLayout({
-			{ LayoutElementType::Float3, "a_Position" },
-			{ LayoutElementType::Float3, "a_Color" }
-			});
+			{ LayoutElementType::Float3, "inPosition" },
+			{ LayoutElementType::Float3, "inColor" },
+		});
 
 		VertexArray* vao = VertexArray::Create(test);
 
@@ -31,7 +34,7 @@ namespace ft {
 			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
 			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 		};
-		m_VertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(vertices, 6 * 3));
+		m_VertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(vertices, sizeof(vertices)));
 		vao->SetVertexBuffer(m_VertexBuffer);
 
 		unsigned int indices[3] = { 0, 1, 2 };		

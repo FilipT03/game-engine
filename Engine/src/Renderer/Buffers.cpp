@@ -16,12 +16,22 @@ namespace ft {
 	};
 
 
+	VertexBuffer* VertexBuffer::Create(uint32_t size) {
+		#ifdef FT_OPENGL_RENDERER
+			return new GLVertexBuffer(size);
+		#else
+			FT_ENGINE_ERROR("Unknown rendering API");
+			return nullptr;
+		#endif
+	};
+
+
 	IndexBuffer* IndexBuffer::Create(const uint32_t* data, uint32_t count) {
-#ifdef FT_OPENGL_RENDERER
-		return new GLIndexBuffer(data, count);
-#else
-		FT_ENGINE_ERROR("Unknown rendering API");
-		return nullptr;
-#endif
+		#ifdef FT_OPENGL_RENDERER
+			return new GLIndexBuffer(data, count);
+		#else
+			FT_ENGINE_ERROR("Unknown rendering API");
+			return nullptr;
+		#endif
 	};
 }

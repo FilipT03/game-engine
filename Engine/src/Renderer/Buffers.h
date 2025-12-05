@@ -13,8 +13,10 @@ namespace ft {
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 		virtual uint32_t GetCount() const = 0;
+		virtual uint32_t GetSize() const = 0;
 
 		static VertexBuffer* Create(const float* data, uint32_t count);
+		static VertexBuffer* Create(uint32_t size);
 	};
 
 

@@ -233,10 +233,6 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <SubType>
       </SubType>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Shape.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
     <ClCompile Include="src\Renderer\VertexArray.cpp">
       <SubType>
       </SubType>

@@ -119,6 +119,5 @@
     <ClCompile Include="src\Renderer\Buffers.cpp" />
     <ClCompile Include="src\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
-    <ClCompile Include="src\Renderer\Shape.cpp" />
   </ItemGroup>
 </Project>

@@ -5,12 +5,20 @@
 
 namespace ft {
 	/// Vertex Buffer
-	GLVertexBuffer::GLVertexBuffer(const float* data, uint32_t count) : m_Count(count)
+	GLVertexBuffer::GLVertexBuffer(const float* data, uint32_t size) : m_Size(size)
 	{
 		glGenBuffers(1, &m_ID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_ID);
 		
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	};
+
+	GLVertexBuffer::GLVertexBuffer(uint32_t size) : m_Size(size)
+	{
+		glGenBuffers(1, &m_ID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+
+		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	};
 	
 	void GLVertexBuffer::Bind() const 
