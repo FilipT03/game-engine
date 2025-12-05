@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Renderer.h"
+#include "Renderer2D.h"
 #include "Renderer/BufferLayout.h"
 
 #ifdef FT_OPENGL_RENDERER
@@ -11,10 +11,10 @@
 #endif
 
 namespace ft {
-	Renderer::Renderer() {};
-	Renderer::~Renderer() {}
+	Renderer2D::Renderer2D() {};
+	Renderer2D::~Renderer2D() {}
 
-	void Renderer::Init()
+	void Renderer2D::Init()
 	{
 		#ifdef FT_OPENGL_RENDERER
 
@@ -46,27 +46,27 @@ namespace ft {
 		#endif
 	}
 
-	void Renderer::Shutdown()
+	void Renderer2D::Shutdown()
 	{
 		#ifdef FT_OPENGL_RENDERER
 		#endif
 	}
 
-	void Renderer::Clear()
+	void Renderer2D::Clear()
 	{
 		#ifdef FT_OPENGL_RENDERER
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		#endif
 	}
 
-	void Renderer::SetClearColor(float r, float g, float b, float a)
+	void Renderer2D::SetClearColor(float r, float g, float b, float a)
 	{
 		#ifdef FT_OPENGL_RENDERER
 		glClearColor(r, g, b, a);
 		#endif
 	}
 
-	void Renderer::OnUpdate()
+	void Renderer2D::OnUpdate()
 	{
 		#ifdef FT_OPENGL_RENDERER
 

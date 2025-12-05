@@ -190,11 +190,15 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\Renderer\Renderer2D.h" />
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
     <ClInclude Include="src\Renderer\Buffers.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\Shape.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Renderer\VertexArray.h">
       <SubType>
       </SubType>
@@ -219,13 +223,17 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <SubType>
       </SubType>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\Renderer2D.cpp" />
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Renderer\Buffers.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Shape.cpp">
       <SubType>
       </SubType>
     </ClCompile>

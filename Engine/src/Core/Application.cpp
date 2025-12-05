@@ -18,7 +18,7 @@ namespace ft {
 		m_Input = std::make_unique<Input>();
 		m_Input->Init([this](Event& event) { this->OnEvent(event); });
 
-		m_Renderer = std::make_unique<Renderer>();
+		m_Renderer = std::make_unique<Renderer2D>();
 		m_Renderer->Init();
 
 		m_Renderer->SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);

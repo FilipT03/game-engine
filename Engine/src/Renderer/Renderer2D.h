@@ -7,11 +7,11 @@
 
 namespace ft {
 
-	class Renderer
+	class Renderer2D
 	{
 	public:
-		Renderer();
-		~Renderer();
+		Renderer2D();
+		~Renderer2D();
 
 		void Init();
 		void Shutdown();

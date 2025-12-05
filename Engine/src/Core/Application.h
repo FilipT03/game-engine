@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Renderer/Shader.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/Renderer2D.h"
 #include "Core/Window.h"
 #include "Core/Input.h"
 #include "Components/ScriptComponent.h"
@@ -45,7 +45,7 @@ namespace ft {
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;
-		std::unique_ptr<Renderer> m_Renderer;
+		std::unique_ptr<Renderer2D> m_Renderer;
 
 		static Application* s_Instance;
 		
