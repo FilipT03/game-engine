@@ -15,7 +15,7 @@
 #endif
 
 namespace ft {
-	Renderer2D::Renderer2D() {};
+	Renderer2D::Renderer2D() : m_Projection(0.0f) {};
 	Renderer2D::~Renderer2D() {}
 
 	void Renderer2D::Init()
@@ -24,34 +24,30 @@ namespace ft {
 
 		auto props = Application::Get().GetWindow().GetWindowProps();
 		CalculateProjectionMatrix(props.width, props.height);
-		
-		//m_Shapes.emplace_back(std::make_unique<Polygon>(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
-		m_Shapes.emplace_back(std::make_unique<Polygon>(5));
-		Shape& triangle = *m_Shapes[0];
 
 		auto basicLayout = BufferLayout({
 			{ LayoutElementType::Float2, "inPosition" },
-		});
+			});
 
-		VertexArray* vao = VertexArray::Create(basicLayout);
+		m_VertexArray = std::unique_ptr<VertexArray>(VertexArray::Create(basicLayout));
+
 		m_VertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(100000));
-		uint32_t size = sizeof(float) * triangle.worldVertices.size();
-		triangle.vertexOffset = m_LastVertexOffset;
-		m_LastVertexOffset += size;		
-		m_VertexBuffer->SetData(triangle.vertexOffset, size, triangle.worldVertices.data());
-		vao->SetVertexBuffer(m_VertexBuffer);
-
 		m_IndexBuffer = std::shared_ptr<IndexBuffer>(IndexBuffer::Create(100000));
-		size = sizeof(uint32_t) * triangle.indices.size();
-		triangle.indexOffset= m_LastIndexOffset;
-		m_LastIndexOffset += size;
-		m_IndexBuffer->SetData(triangle.indexOffset, size, triangle.indices.data());
-		vao->SetIndexBuffer(m_IndexBuffer);
 
-		m_VertexArrays.push_back(std::unique_ptr<VertexArray>(vao));
+		m_VertexArray->SetVertexBuffer(m_VertexBuffer);
+		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
-		m_Shader = std::unique_ptr<Shader>(Shader::Create(basicVert, basicFrag));
-		m_Shader->Bind();
+		m_BasicShader = std::unique_ptr<Shader>(Shader::Create(basicVert, basicFrag));
+		m_BasicShader->Bind();
+
+		// This will be client code
+		auto shape1 = AddShape(std::make_shared<Polygon>(4));
+		shape1->transform.position.x -= 1.0f;
+		shape1->UpdateWorldVertices();
+		auto shape2 = AddShape(std::make_shared<Polygon>(3));
+		shape2->transform.position.x += 1.0f;
+		shape2->UpdateWorldVertices();
+		//AddShape(Line(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
 
 		#endif
 	}
@@ -76,24 +72,59 @@ namespace ft {
 		#endif
 	}
 
+	std::shared_ptr<Shape> Renderer2D::AddShape(std::shared_ptr<Shape> shape)
+	{
+		m_Shapes.push_back(shape);
+
+		uint32_t size = shape->GetVertexByteSize();
+		uint32_t count = shape->GetVertexCount();
+		
+		shape->vertexByteOffset = m_LastVertexByteOffset;
+		m_LastVertexByteOffset += size;
+
+		shape->vertexOffset = m_LastVertexVertexOffset;
+		m_LastVertexVertexOffset += count;
+		
+		m_VertexBuffer->SetData(shape->vertexByteOffset, size, shape->worldVertices.data());
+
+		size = shape->GetIndexByteSize();
+		shape->indexOffset = m_LastIndexOffset;
+		m_LastIndexOffset += size;
+		m_IndexBuffer->SetData(shape->indexOffset, size, shape->indices.data());
+
+		return shape;
+	}
+
 	void Renderer2D::OnUpdate()
 	{
 		#ifdef FT_OPENGL_RENDERER
 
-		m_Shader->SetUniformMatrix4fv("uProjection", m_Projection);
-		m_VertexArrays[0]->Bind();
-		auto& triangle = m_Shapes[0];
-		triangle->transform.rotation += 2;
-		triangle->UpdateWorldVertices();
-		triangle->color.r = sin(Time::TotalTime());
-		triangle->color.g = cos(Time::TotalTime());
-		triangle->color.b = cos(Time::TotalTime()+glm::pi<float>()/4.0f);
-		triangle->transform.scale.x = sin(Time::TotalTime())/2.0+1;
-		triangle->transform.scale.y = sin(Time::TotalTime())/2.0+1;
-		m_Shader->SetUniform3f("uColor", triangle->color);
-		m_VertexBuffer->SetData(triangle->vertexOffset, sizeof(float) * triangle->worldVertices.size(), triangle->worldVertices.data());
-		glDrawElementsBaseVertex(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)triangle->indexOffset, triangle->vertexOffset);
+		m_BasicShader->SetUniformMatrix4fv("uProjection", m_Projection);
+		m_VertexArray->Bind();
 
+		for (auto& shape : m_Shapes)
+		{
+			//if (std::static_pointer_cast<Polygon>(shape)->GetSides() == 4)
+			//	continue;
+			// Also client code
+			shape->transform.rotation += 2;
+			shape->color.r = sin(Time::TotalTime());
+			shape->color.g = cos(Time::TotalTime());
+			shape->color.b = cos(Time::TotalTime() + glm::pi<float>() / 2.0f);
+			shape->transform.scale.x = sin(Time::TotalTime()) / 2.0 + 1;
+			shape->transform.scale.y = sin(Time::TotalTime()) / 2.0 + 1;
+			shape->UpdateWorldVertices();
+			
+			m_BasicShader->SetUniform3f("uColor", shape->color);
+
+			if (shape->IsDirty())
+			{
+				m_VertexBuffer->SetData(shape->vertexByteOffset, shape->GetVertexByteSize(), shape->worldVertices.data());
+				shape->ResetDirty();
+			}
+
+			glDrawElementsBaseVertex(GL_TRIANGLE_FAN, shape->indices.size(), GL_UNSIGNED_INT, (void*)shape->indexOffset, shape->vertexOffset);
+		}
 		#endif
 	}
 

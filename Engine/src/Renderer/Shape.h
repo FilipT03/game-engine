@@ -26,7 +26,7 @@ namespace ft {
     class Shape {
     public:
         Shape(const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f), const ShapeType type = ShapeType::Other)
-            : transform(transform), color(color), type(type) {}
+            : transform(transform), color(color), m_Type(type) {}
         virtual ~Shape() = default;
 
         Transform transform;
@@ -36,9 +36,9 @@ namespace ft {
         std::vector<float> worldVertices;
         std::vector<uint32_t> indices;
 
-        uint32_t vertexOffset, indexOffset;
+        uint32_t vertexOffset, vertexByteOffset, indexOffset;
 
-        virtual void GenerateModel() = 0;
+        virtual void GenerateModel() {};
 
         void UpdateWorldVertices() {
             worldVertices.clear();
@@ -64,9 +64,21 @@ namespace ft {
                 worldVertices.push_back(xr);
                 worldVertices.push_back(yr);
             }
+
+            m_Dirty = true;
         }
+
+        uint32_t GetVertexByteSize() const { return sizeof(float) * worldVertices.size(); }
+        uint32_t GetVertexCount() const { return modelVertices.size(); }
+        uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
+        ShapeType GetType() const { return m_Type; }
+        bool IsDirty() const { return m_Dirty; }
+
+        void ResetDirty() { m_Dirty = true; }
 	protected:
-        ShapeType type;
+        ShapeType m_Type;
+    private:
+        bool m_Dirty = false;
     };
 
 
@@ -109,35 +121,38 @@ namespace ft {
     /// ===== Polygon =====
     class Polygon : public Shape {
     public:
-        int sides;
         Polygon(int sides, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
-            : sides(sides), Shape(transform, color, ShapeType::Polygon) {
+            : m_Sides(sides), Shape(transform, color, ShapeType::Polygon) {
             GenerateModel();
             UpdateWorldVertices();
         }
 
         void GenerateModel() override {
             modelVertices.clear();
-            modelVertices.reserve(sides);
+            modelVertices.reserve(m_Sides);
             
-            float angleStep = 2.0f * glm::pi<float>() / static_cast<float>(sides);
+            float angleStep = 2.0f * glm::pi<float>() / static_cast<float>(m_Sides);
             constexpr float startAngle = glm::pi<float>() / 2.0f;
             float r = 0.5f;
             
-            for (int i = 0; i < sides; ++i) {
+            for (int i = 0; i < m_Sides; ++i) {
 				float x = r * cos(i * angleStep + startAngle);
 				float y = r * sin(i * angleStep + startAngle);
 				modelVertices.emplace_back(x, y);
 			}
             
             indices.clear();
-            indices.reserve(3 * (sides - 2));
-            for (int i = 1; i < sides - 1; ++i) {
+            indices.reserve(3 * (m_Sides - 2));
+            for (int i = 1; i < m_Sides - 1; ++i) {
 				indices.push_back(0);
 				indices.push_back(i);
 				indices.push_back(i + 1);
 			}
         }
+
+        int GetSides() const { return m_Sides; }
+    private:
+        int m_Sides;
     };
 
     class Line : public Shape {
