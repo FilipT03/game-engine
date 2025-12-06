@@ -173,36 +173,18 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Event\InputEvent.h" />
     <ClInclude Include="src\Event\WindowEvent.h" />
     <ClInclude Include="src\GameEngine.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLBuffers.h" />
     <ClInclude Include="src\Platform\OpenGL\GLContext.h" />
-    <ClInclude Include="src\Platform\OpenGL\GLBuffers.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="src\Platform\OpenGL\GLShader.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\BufferLayout.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLShader.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
+    <ClInclude Include="src\Renderer\BufferLayout.h" />
+    <ClInclude Include="src\Renderer\Buffers.h" />
     <ClInclude Include="src\Renderer\Renderer2D.h" />
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
-    <ClInclude Include="src\Renderer\Buffers.h" />
+    <ClInclude Include="src\Renderer\Shape.h" />
+    <ClInclude Include="src\Renderer\VertexArray.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Renderer\Shape.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\VertexArray.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp" />
@@ -210,32 +192,17 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLContext.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
-    <ClCompile Include="src\Platform\OpenGL\GLShader.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
-    <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLShader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
+    <ClCompile Include="src\Renderer\Buffers.cpp" />
     <ClCompile Include="src\Renderer\Renderer2D.cpp" />
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\Renderer\Buffers.cpp">
-      <SubType>
-      </SubType>
-    </ClCompile>
-    <ClCompile Include="src\Renderer\VertexArray.cpp">
-      <SubType>
-      </SubType>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

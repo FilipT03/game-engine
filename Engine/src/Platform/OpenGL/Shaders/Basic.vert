@@ -4,14 +4,16 @@ std::string basicVert = R"(
 
 #version 330 core
 
-layout(location = 0) in vec3 inPos;
-layout(location = 1) in vec3 inCol;
+uniform mat4 uProjection;
+
+layout(location = 0) in vec2 inPos;
+uniform vec3 uColor;
 out vec3 chColor;
 
 void main()
 {
-	gl_Position = vec4(inPos, 1.0);
-	chColor = inCol;
+	gl_Position = uProjection * vec4(inPos, 0.0, 1.0);
+	chColor = uColor;
 }
 
 

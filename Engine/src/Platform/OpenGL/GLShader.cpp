@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GLShader.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace ft {
 	/// Shader code taken and adapted from https://wikis.khronos.org/opengl/Shader_Compilation
@@ -101,5 +102,15 @@ namespace ft {
 	void GLShader::Unbind() const
 	{
 		glUseProgram(0);
+	}
+
+	void GLShader::SetUniform3f(const std::string& name, const glm::vec3& value) const
+	{
+		glUniform3f(glGetUniformLocation(m_ID, name.c_str()), value.x, value.y, value.z);
+	}
+
+	void GLShader::SetUniformMatrix4fv(const std::string& name, const glm::mat4 value, bool transpose) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, transpose ? GL_TRUE : GL_FALSE, glm::value_ptr(value));
 	}
 }

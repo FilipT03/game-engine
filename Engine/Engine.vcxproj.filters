@@ -64,8 +64,23 @@
       <Filter>Event</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEngine.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLBuffers.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\GLContext.h">
       <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLShader.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\BufferLayout.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Buffers.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Renderer2D.h">
       <Filter>Renderer</Filter>
@@ -76,14 +91,13 @@
     <ClInclude Include="src\Renderer\Shader.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\Shape.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\VertexArray.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Platform\OpenGL\GLBuffers.h" />
-    <ClInclude Include="src\Platform\OpenGL\GLShader.h" />
-    <ClInclude Include="src\Renderer\BufferLayout.h" />
-    <ClInclude Include="src\Renderer\Buffers.h" />
-    <ClInclude Include="src\Renderer\VertexArray.h" />
-    <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
-    <ClInclude Include="src\Renderer\Shape.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -101,8 +115,20 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\GLContext.cpp">
       <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLShader.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Buffers.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\Renderer2D.cpp">
       <Filter>Renderer</Filter>
@@ -113,11 +139,9 @@
     <ClCompile Include="src\Renderer\Shader.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\VertexArray.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\GLShader.cpp" />
-    <ClCompile Include="src\Renderer\Buffers.cpp" />
-    <ClCompile Include="src\Renderer\VertexArray.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
   </ItemGroup>
 </Project>

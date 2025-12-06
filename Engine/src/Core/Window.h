@@ -24,7 +24,8 @@ namespace ft {
 		Window(const WindowProps& props, EventCallback eventCallback);
 		~Window();
 		
-		GLFWwindow* GetNativeWindow() { return m_Window; }
+		GLFWwindow* GetNativeWindow() const { return m_Window; }
+		WindowProps GetWindowProps() const { return m_Props; }
 		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
 		void Update();
 

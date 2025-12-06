@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "Renderer2D.h"
 #include "Renderer/BufferLayout.h"
+#include "Core/Time.h"
+#include "Core/Application.h"
+#include "Event/WindowEvent.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 #ifdef FT_OPENGL_RENDERER
 #include <glad/glad.h>
@@ -18,27 +22,30 @@ namespace ft {
 	{
 		#ifdef FT_OPENGL_RENDERER
 
-		m_Shapes.emplace_back(std::make_unique<Polygon>(3));
+		auto props = Application::Get().GetWindow().GetWindowProps();
+		CalculateProjectionMatrix(props.width, props.height);
+		
+		//m_Shapes.emplace_back(std::make_unique<Polygon>(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
+		m_Shapes.emplace_back(std::make_unique<Polygon>(5));
 		Shape& triangle = *m_Shapes[0];
 
-		auto test = BufferLayout({
-			{ LayoutElementType::Float3, "inPosition" },
-			{ LayoutElementType::Float3, "inColor" },
+		auto basicLayout = BufferLayout({
+			{ LayoutElementType::Float2, "inPosition" },
 		});
 
-		VertexArray* vao = VertexArray::Create(test);
-
-		float vertices[6 * 3] =
-		{
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-		};
-		m_VertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(vertices, sizeof(vertices)));
+		VertexArray* vao = VertexArray::Create(basicLayout);
+		m_VertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(100000));
+		uint32_t size = sizeof(float) * triangle.worldVertices.size();
+		triangle.vertexOffset = m_LastVertexOffset;
+		m_LastVertexOffset += size;		
+		m_VertexBuffer->SetData(triangle.vertexOffset, size, triangle.worldVertices.data());
 		vao->SetVertexBuffer(m_VertexBuffer);
 
-		unsigned int indices[3] = { 0, 1, 2 };		
-		m_IndexBuffer = std::shared_ptr<IndexBuffer>(IndexBuffer::Create(indices, 3));
+		m_IndexBuffer = std::shared_ptr<IndexBuffer>(IndexBuffer::Create(100000));
+		size = sizeof(uint32_t) * triangle.indices.size();
+		triangle.indexOffset= m_LastIndexOffset;
+		m_LastIndexOffset += size;
+		m_IndexBuffer->SetData(triangle.indexOffset, size, triangle.indices.data());
 		vao->SetIndexBuffer(m_IndexBuffer);
 
 		m_VertexArrays.push_back(std::unique_ptr<VertexArray>(vao));
@@ -73,8 +80,35 @@ namespace ft {
 	{
 		#ifdef FT_OPENGL_RENDERER
 
-		glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
+		m_Shader->SetUniformMatrix4fv("uProjection", m_Projection);
+		m_VertexArrays[0]->Bind();
+		auto& triangle = m_Shapes[0];
+		triangle->transform.rotation += 2;
+		triangle->UpdateWorldVertices();
+		triangle->color.r = sin(Time::TotalTime());
+		triangle->color.g = cos(Time::TotalTime());
+		triangle->color.b = cos(Time::TotalTime()+glm::pi<float>()/4.0f);
+		triangle->transform.scale.x = sin(Time::TotalTime())/2.0+1;
+		triangle->transform.scale.y = sin(Time::TotalTime())/2.0+1;
+		m_Shader->SetUniform3f("uColor", triangle->color);
+		m_VertexBuffer->SetData(triangle->vertexOffset, sizeof(float) * triangle->worldVertices.size(), triangle->worldVertices.data());
+		glDrawElementsBaseVertex(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, (void*)triangle->indexOffset, triangle->vertexOffset);
 
 		#endif
+	}
+
+	void Renderer2D::OnEvent(const Event& event)
+	{
+		if (event.Type == EventType::WindowResize)
+		{
+			auto& resizeEvent = As<WindowResizeEvent>(event);
+			CalculateProjectionMatrix(resizeEvent.Width, resizeEvent.Height);
+		}
+	}
+
+	void Renderer2D::CalculateProjectionMatrix(float width, float height)
+	{
+		float aspect = width / height;
+		m_Projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f);
 	}
 }

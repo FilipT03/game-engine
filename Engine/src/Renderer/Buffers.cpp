@@ -34,4 +34,13 @@ namespace ft {
 			return nullptr;
 		#endif
 	};
+
+	IndexBuffer* IndexBuffer::Create(uint32_t size) {
+		#ifdef FT_OPENGL_RENDERER
+			return new GLIndexBuffer(size);
+		#else
+			FT_ENGINE_ERROR("Unknown rendering API");
+			return nullptr;
+		#endif
+	};
 }

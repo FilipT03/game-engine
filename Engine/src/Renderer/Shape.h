@@ -33,13 +33,16 @@ namespace ft {
         glm::vec4 color;
 
         std::vector<glm::vec2> modelVertices;
+        std::vector<float> worldVertices;
         std::vector<uint32_t> indices;
+
+        uint32_t vertexOffset, indexOffset;
 
         virtual void GenerateModel() = 0;
 
         void UpdateWorldVertices() {
             worldVertices.clear();
-            worldVertices.reserve(modelVertices.size());
+            worldVertices.reserve(modelVertices.size() * 2);
 
             float angle = glm::radians(transform.rotation);
             float c = cos(angle);
@@ -58,13 +61,12 @@ namespace ft {
                 xr += transform.position.x;
                 yr += transform.position.y;
 
-                worldVertices.emplace_back(xr, yr);
+                worldVertices.push_back(xr);
+                worldVertices.push_back(yr);
             }
         }
 	protected:
-
         ShapeType type;
-        std::vector<glm::vec2> worldVertices;
     };
 
 
@@ -116,20 +118,21 @@ namespace ft {
 
         void GenerateModel() override {
             modelVertices.clear();
-            modelVertices.reserve(sides + 2);
+            modelVertices.reserve(sides);
             
             float angleStep = 2.0f * glm::pi<float>() / static_cast<float>(sides);
+            constexpr float startAngle = glm::pi<float>() / 2.0f;
             float r = 0.5f;
             
-            modelVertices.emplace_back(0.0f, 0.0f);
-            for (int i = 0; i <= sides; ++i) {
-				float x = r * cos(i * angleStep);
-				float y = r * sin(i * angleStep);
+            for (int i = 0; i < sides; ++i) {
+				float x = r * cos(i * angleStep + startAngle);
+				float y = r * sin(i * angleStep + startAngle);
 				modelVertices.emplace_back(x, y);
 			}
             
             indices.clear();
-            for (int i = 1; i <= sides; ++i) {
+            indices.reserve(3 * (sides - 2));
+            for (int i = 1; i < sides - 1; ++i) {
 				indices.push_back(0);
 				indices.push_back(i);
 				indices.push_back(i + 1);
@@ -158,7 +161,7 @@ namespace ft {
             };
 
             transform.position = center;
-            transform.rotation = angle;
+            transform.rotation = glm::degrees(angle);
             transform.scale = glm::vec2(length, 1.0f);
 
             indices = { 0, 1 };

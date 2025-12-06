@@ -100,6 +100,7 @@ namespace ft {
 			break;
 		}
 
+		m_Renderer->OnEvent(event);
 		for (auto& [id, script] : m_ScriptComponents)
 		{
 			script->OnEvent(event);
