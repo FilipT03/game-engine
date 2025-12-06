@@ -42,11 +42,18 @@ namespace ft {
 
 		// This will be client code
 		auto shape1 = AddShape(std::make_shared<Polygon>(4));
-		shape1->transform.position.x -= 1.0f;
+		shape1->transform.position.x -= 30.0f;
+		shape1->transform.position.y -= 30.0f;
 		shape1->UpdateWorldVertices();
+
 		auto shape2 = AddShape(std::make_shared<Polygon>(3));
-		shape2->transform.position.x += 1.0f;
+		shape2->transform.position.x += 30.0f;
+		shape2->transform.position.y -= 30.0f;
 		shape2->UpdateWorldVertices();
+
+		auto shape3 = AddShape(std::make_shared<Polygon>(7));
+		shape3->transform.position.y += 30.0f;
+		shape3->UpdateWorldVertices();
 		//AddShape(Line(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
 
 		#endif
@@ -104,15 +111,13 @@ namespace ft {
 
 		for (auto& shape : m_Shapes)
 		{
-			//if (std::static_pointer_cast<Polygon>(shape)->GetSides() == 4)
-			//	continue;
 			// Also client code
 			shape->transform.rotation += 2;
 			shape->color.r = sin(Time::TotalTime());
 			shape->color.g = cos(Time::TotalTime());
 			shape->color.b = cos(Time::TotalTime() + glm::pi<float>() / 2.0f);
-			shape->transform.scale.x = sin(Time::TotalTime()) / 2.0 + 1;
-			shape->transform.scale.y = sin(Time::TotalTime()) / 2.0 + 1;
+			shape->transform.scale.x = sin(Time::TotalTime()) / 2.0 + 30;
+			shape->transform.scale.y = sin(Time::TotalTime()) / 2.0 + 30;
 			shape->UpdateWorldVertices();
 			
 			m_BasicShader->SetUniform3f("uColor", shape->color);
@@ -132,14 +137,34 @@ namespace ft {
 	{
 		if (event.Type == EventType::WindowResize)
 		{
-			auto& resizeEvent = As<WindowResizeEvent>(event);
-			CalculateProjectionMatrix(resizeEvent.Width, resizeEvent.Height);
+			glm::vec2 size = Application::Get().GetWindow().GetFrameBufferSize();
+			
+			#ifdef FT_OPENGL_RENDERER
+			glViewport(0, 0, size.x, size.y);
+			#endif
+
+			CalculateProjectionMatrix(size.x, size.y);
 		}
 	}
 
+	/// The smaller dimension will be 100 units, and the larger will be 100 x aspect ratio.
 	void Renderer2D::CalculateProjectionMatrix(float width, float height)
 	{
-		float aspect = width / height;
-		m_Projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f);
+		float aspect;
+		if (width > height)
+		{
+			aspect = width / height;
+			m_Projection = glm::ortho(
+				-aspect * 0.5f * FT_VIEW_UNITS, aspect * 0.5f * FT_VIEW_UNITS,
+						 -0.5f * FT_VIEW_UNITS,			 0.5f * FT_VIEW_UNITS);
+		}
+		else
+		{
+			aspect = height / width;
+			m_Projection = glm::ortho(
+						 -0.5f * FT_VIEW_UNITS,			 0.5f * FT_VIEW_UNITS,
+				-aspect * 0.5f * FT_VIEW_UNITS, aspect * 0.5f * FT_VIEW_UNITS);
+
+		}
 	}
 }

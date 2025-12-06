@@ -5,6 +5,7 @@
 #include "Event/InputEvent.h"
 #include "Renderer/RenderingContext.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace ft {
 	struct WindowProps {
@@ -26,6 +27,7 @@ namespace ft {
 		
 		GLFWwindow* GetNativeWindow() const { return m_Window; }
 		WindowProps GetWindowProps() const { return m_Props; }
+		const glm::vec2 GetFrameBufferSize() const;
 		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
 		void Update();
 

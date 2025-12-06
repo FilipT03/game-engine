@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Core/Log.h"
 #include "Platform/OpenGL/GLContext.h"
+#include <glm/glm.hpp>
 
 namespace ft {
 
@@ -62,6 +63,13 @@ namespace ft {
 			delete m_Context;
 			m_Context = nullptr;
 		}
+	}
+
+	const glm::vec2 Window::GetFrameBufferSize() const
+	{
+		int fbWidth, fbHeight;
+		glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
+		return { fbWidth, fbHeight };
 	}
 
 	std::unique_ptr<Window> Window::Create(const WindowProps& props, EventCallback eventCallback)

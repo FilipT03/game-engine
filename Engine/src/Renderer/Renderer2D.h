@@ -7,6 +7,8 @@
 #include "Renderer/Shape.h"
 #include "Event/Event.h"
 
+#define FT_VIEW_UNITS 100
+
 namespace ft {
 
 	class Renderer2D
