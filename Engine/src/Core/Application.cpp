@@ -1,10 +1,8 @@
 #include "pch.h"
 #include "Application.h"
 #include "Core/Time.h"
-#include "Log.h"
-
-#include <Core/AssetLoader.h>
-
+#include "Core/Log.h"
+#include "Renderer/Renderer2D.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
@@ -18,8 +16,10 @@ namespace ft {
 		m_Input = std::make_unique<Input>();
 		m_Input->Init([this](Event& event) { this->OnEvent(event); });
 
-		m_Renderer = std::make_unique<Renderer2D>();
+		m_Renderer = std::make_unique<Renderer2DInternal>();
 		m_Renderer->Init();
+
+		Renderer2D::s_Renderer = m_Renderer.get();
 
 		m_Renderer->SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	}

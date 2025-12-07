@@ -6,9 +6,14 @@
 
 namespace ft {
 	bool Input::IsKeyDown(int key) { return s_KeyStates[key]; }
+	bool Input::IsCtrlDown() { return s_KeyStates[GLFW_KEY_LEFT_CONTROL] || s_KeyStates[GLFW_KEY_RIGHT_CONTROL]; }
+	bool Input::IsShiftDown() { return s_KeyStates[GLFW_KEY_LEFT_SHIFT] || s_KeyStates[GLFW_KEY_RIGHT_SHIFT]; }
+	bool Input::IsAltDown() { return s_KeyStates[GLFW_KEY_LEFT_ALT] || s_KeyStates[GLFW_KEY_RIGHT_ALT]; }
 	bool Input::IsMouseDown(int button) { return s_MouseStates[button]; }
+	
 	glm::vec2 Input::GetMousePosition() { return { s_MouseX, s_MouseY }; }
 	glm::vec2 Input::GetMouseDelta() { return { s_MouseDeltaX, s_MouseDeltaY }; }
+
 
 	void Input::Init(EventCallback eventCallback)
 	{

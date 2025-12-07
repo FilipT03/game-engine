@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Core.h"
+#include "Core/Log.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -26,7 +27,7 @@ namespace ft {
     class Shape {
     public:
         Shape(const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f), const ShapeType type = ShapeType::Other)
-            : transform(transform), color(color), m_Type(type) {}
+            : transform(transform), color(color), m_Type(type), m_ID(0) {}
         virtual ~Shape() = default;
 
         Transform transform;
@@ -71,6 +72,13 @@ namespace ft {
         uint32_t GetVertexCount() const { return modelVertices.size(); }
         uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
         ShapeType GetType() const { return m_Type; }
+
+        void SetID(uint32_t id) {
+            if (m_ID)
+                FT_ENGINE_WARN("ID of shape {} already set.", m_ID);
+            else
+                m_ID = id;
+        }
         bool IsDirty() const { return m_Dirty; }
 
         void ResetDirty() { m_Dirty = true; }
@@ -78,6 +86,7 @@ namespace ft {
         ShapeType m_Type;
     private:
         bool m_Dirty = false;
+        uint32_t m_ID;
     };
 
 

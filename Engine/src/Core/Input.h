@@ -12,6 +12,9 @@ namespace ft {
 	public:
 		void Init(EventCallback eventCallback); 
 		static bool IsKeyDown(int key);
+		static bool IsCtrlDown();
+		static bool IsShiftDown();
+		static bool IsAltDown();
 		static bool IsMouseDown(int button);
 		static glm::vec2 GetMousePosition();
 		static glm::vec2 GetMouseDelta();

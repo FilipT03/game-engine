@@ -12,7 +12,12 @@ public:
 	void OnMouseEvent(const ft::MouseEvent& event);
 
 private:
+	const float m_ZoomSpeed = 5.0f;
+
 	double m_FpsSum = 0;
 	double m_FpsCount = 0;
+	bool m_Dragging = false;
+	glm::vec2 m_StartPos;
+	std::vector<ft::Shape*> m_Shapes;
 };
 

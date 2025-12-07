@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Renderer2D.h"
+#include "Renderer2DInternal.h"
 #include "Renderer/BufferLayout.h"
 #include "Core/Time.h"
 #include "Core/Application.h"
@@ -18,15 +18,16 @@
 #endif
 
 namespace ft {
-	Renderer2D::Renderer2D() : m_Projection(0.0f) {};
-	Renderer2D::~Renderer2D() {}
+	Renderer2DInternal::Renderer2DInternal() : m_Projection(0.0f), m_View(0.0f), m_ViewProjection(0.0f) {};
+	Renderer2DInternal::~Renderer2DInternal() {}
 
-	void Renderer2D::Init()
+	void Renderer2DInternal::Init()
 	{
 		#ifdef FT_OPENGL_RENDERER
 
 		auto props = Application::Get().GetWindow().GetWindowProps();
 		CalculateProjectionMatrix(props.width, props.height);
+		RecalculateView();
 
 		auto basicLayout = BufferLayout({
 			{ LayoutElementType::Float2, "inWorldPosition" },
@@ -44,52 +45,31 @@ namespace ft {
 		m_BasicShader = std::unique_ptr<Shader>(Shader::Create(basicVert, basicFrag));
 		m_EllipseShader = std::unique_ptr<Shader>(Shader::Create(basicVert, ellipseFrag));
 
-		// This will be client code
-		auto shape1 = AddShape(std::make_shared<Polygon>(4));
-		shape1->transform.position.x -= 30.0f;
-		shape1->transform.position.y -= 30.0f;
-		shape1->UpdateWorldVertices();
-
-		auto shape2 = AddShape(std::make_shared<Polygon>(3));
-		shape2->transform.position.x += 30.0f;
-		shape2->transform.position.y -= 30.0f;
-		shape2->UpdateWorldVertices();
-
-		auto shape3 = AddShape(std::make_shared<Ellipse>());
-		shape3->transform.position.y += 30.0f;
-		shape3->transform.scale.x = 50;
-		shape3->transform.scale.y = 20;
-		shape3->color = glm::vec4(0.7f, 0.3f, 0.4f, 1.0f);
-		shape3->UpdateWorldVertices();
-		//AddShape(Line(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
-
 		#endif
 	}
 
-	void Renderer2D::Shutdown()
+	void Renderer2DInternal::Shutdown()
 	{
 		#ifdef FT_OPENGL_RENDERER
 		#endif
 	}
 
-	void Renderer2D::Clear()
+	void Renderer2DInternal::Clear()
 	{
 		#ifdef FT_OPENGL_RENDERER
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		#endif
 	}
 
-	void Renderer2D::SetClearColor(float r, float g, float b, float a)
+	void Renderer2DInternal::SetClearColor(float r, float g, float b, float a)
 	{
 		#ifdef FT_OPENGL_RENDERER
 		glClearColor(r, g, b, a);
 		#endif
 	}
 
-	std::shared_ptr<Shape> Renderer2D::AddShape(std::shared_ptr<Shape> shape)
+	Shape* Renderer2DInternal::AddShapeInternal(Shape* shape)
 	{
-		m_Shapes.push_back(shape);
-
 		uint32_t size = shape->GetVertexByteSize() * 2;
 		uint32_t count = shape->GetVertexCount();
 		
@@ -100,7 +80,7 @@ namespace ft {
 		m_LastVertexVertexOffset += count;
 		
 		std::vector<uint8_t> data;
-		PackInterleaved(data, shape->GetVertexCount(), {shape->worldVertices.data(), shape->modelVertices.data()}, m_VertexArray->GetBufferLayout());
+		PackInterleaved(data, shape->GetVertexCount(), { shape->worldVertices.data(), shape->modelVertices.data()}, m_VertexArray->GetBufferLayout());
 		m_VertexBuffer->SetData(shape->vertexByteOffset, size, data.data());
 
 		size = shape->GetIndexByteSize();
@@ -111,25 +91,18 @@ namespace ft {
 		return shape;
 	}
 
-	void Renderer2D::OnUpdate()
+	void Renderer2DInternal::OnUpdate()
 	{
 		#ifdef FT_OPENGL_RENDERER
 
 		m_BasicShader->Bind();
-		m_BasicShader->SetUniformMatrix4fv("uProjection", m_Projection);
+		m_BasicShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
 		m_EllipseShader->Bind();
-		m_EllipseShader->SetUniformMatrix4fv("uProjection", m_Projection);
+		m_EllipseShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
 		m_VertexArray->Bind();
 
 		for (auto& shape : m_Shapes)
 		{
-			// Also client code
-
-			shape->transform.rotation += 2;
-			shape->color.r = sin(Time::TotalTime());
-			shape->color.g = cos(Time::TotalTime());
-			shape->color.b = cos(Time::TotalTime() + glm::pi<float>() / 2.0f);
-			shape->UpdateWorldVertices();
 			GLenum mode;
 			switch (shape->GetType())
 			{
@@ -137,10 +110,10 @@ namespace ft {
 				{
 					m_EllipseShader->Bind();
 					m_EllipseShader->SetUniform4f("uColor", shape->color);
-					auto& ellipse = *std::static_pointer_cast<Ellipse>(shape);
-					ellipse.thickness = std::abs(sin(Time::TotalTime()));
-					m_EllipseShader->SetUniform1f("uThickness", ellipse.thickness);
-					m_EllipseShader->SetUniform1f("uAA", ellipse.AA);
+
+					Ellipse* ellipse = dynamic_cast<Ellipse*>(shape.get());
+					m_EllipseShader->SetUniform1f("uThickness", ellipse->thickness);
+					m_EllipseShader->SetUniform1f("uAA", ellipse->AA);
 
 					mode = GL_TRIANGLE_FAN;
 					break;
@@ -151,11 +124,6 @@ namespace ft {
 					break;
 			
 				default:
-					shape->transform.scale.x = sin(Time::TotalTime()) * 20 + 30;
-					shape->transform.scale.y = sin(Time::TotalTime()) * 20 + 30;
-					shape->UpdateWorldVertices();
-
-
 					m_BasicShader->Bind();
 					m_BasicShader->SetUniform4f("uColor", shape->color);
 				
@@ -176,7 +144,7 @@ namespace ft {
 		#endif
 	}
 
-	void Renderer2D::OnEvent(const Event& event)
+	void Renderer2DInternal::OnEvent(const Event& event)
 	{
 		if (event.Type == EventType::WindowResize)
 		{
@@ -191,7 +159,7 @@ namespace ft {
 	}
 
 	/// The smaller dimension will be 100 units, and the larger will be 100 x aspect ratio.
-	void Renderer2D::CalculateProjectionMatrix(float width, float height)
+	void Renderer2DInternal::CalculateProjectionMatrix(float width, float height)
 	{
 		float aspect;
 		if (width > height)
@@ -208,10 +176,20 @@ namespace ft {
 						 -0.5f * FT_VIEW_UNITS,			 0.5f * FT_VIEW_UNITS,
 				-aspect * 0.5f * FT_VIEW_UNITS, aspect * 0.5f * FT_VIEW_UNITS);
 		}
+
+		m_ViewProjection = m_Projection * m_View;
+	}
+
+	void Renderer2DInternal::RecalculateView()
+	{
+		m_View = glm::translate(glm::mat4(1.0f), glm::vec3(-m_Camera.position, 0.0f));
+		m_View = glm::scale(m_View, glm::vec3(m_Camera.zoom, m_Camera.zoom, 1.0f));
+
+		m_ViewProjection = m_Projection * m_View;
 	}
 
 	/// Sources should be in the same order as the layout.
-	void Renderer2D::PackInterleaved(
+	void Renderer2DInternal::PackInterleaved(
 		std::vector<uint8_t>& out,
 		uint32_t vertexCount,
 		const std::vector<const void*>& sources,

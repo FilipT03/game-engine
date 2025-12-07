@@ -82,7 +82,7 @@
     <ClInclude Include="src\Renderer\Buffers.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Renderer2D.h">
+    <ClInclude Include="src\Renderer\Renderer2DInternal.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RenderingContext.h">
@@ -98,6 +98,7 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -130,7 +131,7 @@
     <ClCompile Include="src\Renderer\Buffers.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Renderer2D.cpp">
+    <ClCompile Include="src\Renderer\Renderer2DInternal.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\RenderingContext.cpp">
