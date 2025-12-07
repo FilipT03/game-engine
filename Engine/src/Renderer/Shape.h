@@ -33,10 +33,10 @@ namespace ft {
         glm::vec4 color;
 
         std::vector<glm::vec2> modelVertices;
-        std::vector<float> worldVertices;
+        std::vector<glm::vec2> worldVertices;
         std::vector<uint32_t> indices;
 
-        uint32_t vertexOffset, vertexByteOffset, indexOffset;
+        uint32_t vertexOffset = 0, vertexByteOffset = 0, indexOffset = 0;
 
         virtual void GenerateModel() {};
 
@@ -61,14 +61,13 @@ namespace ft {
                 xr += transform.position.x;
                 yr += transform.position.y;
 
-                worldVertices.push_back(xr);
-                worldVertices.push_back(yr);
+                worldVertices.emplace_back(xr, yr);
             }
 
             m_Dirty = true;
         }
 
-        uint32_t GetVertexByteSize() const { return sizeof(float) * worldVertices.size(); }
+        uint32_t GetVertexByteSize() const { return sizeof(float) * worldVertices.size() * 2; }
         uint32_t GetVertexCount() const { return modelVertices.size(); }
         uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
         ShapeType GetType() const { return m_Type; }
@@ -86,7 +85,7 @@ namespace ft {
     class Rectangle : public Shape {
     public:
         Rectangle(const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
-            : Shape(transform, color, ShapeType::Rectangle) {
+            : Shape(transform, color, ShapeType::Rectangle){
             GenerateModel();
             UpdateWorldVertices();
         }
@@ -98,22 +97,29 @@ namespace ft {
 				{  0.5,  0.5 },
 				{ -0.5,  0.5 }
 			};
-			indices = { 0, 1, 2, 2, 3, 0 };
+			indices = { 0, 1, 2, 0, 2, 3 };
 		}
     };
 
     /// ===== Ellipse =====
     class Ellipse : public Shape {
     public:
-        Ellipse(const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
-            : Shape(transform, color, ShapeType::Ellipse) {
+        Ellipse(float thickness = 0, float AA = 0.01, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+            : Shape(transform, color, ShapeType::Ellipse), thickness(thickness), AA(AA) {
             GenerateModel();
             UpdateWorldVertices();
         }
 
+        float thickness, AA;
+
         void GenerateModel() override {
-            modelVertices = { { 0.0f, 0.0f } }; // Ellipse only needs the center point
-            indices = { 0 };
+            modelVertices = {
+                { -0.5, -0.5 },
+                {  0.5, -0.5 },
+                {  0.5,  0.5 },
+                { -0.5,  0.5 }
+            };
+            indices = { 0, 1, 2, 0, 2, 3 };
         }
     };
 

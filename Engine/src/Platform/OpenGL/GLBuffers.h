@@ -14,7 +14,7 @@ namespace ft {
 
 		void Bind() const override;
 		void Unbind() const override;
-		void SetData(uint32_t offset, uint32_t size, const float* data) override;
+		void SetData(uint32_t offset, uint32_t size, const void* data) override;
 
 		uint32_t GetCount() const override { return m_Size / sizeof(float); }
 		uint32_t GetSize() const override { return m_Size; }

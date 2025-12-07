@@ -5,11 +5,11 @@ std::string basicFrag = R"(
 #version 330 core
 
 layout(location = 0) out vec4 outColor;
-in vec3 chColor;
+uniform vec4 uColor;
 
 void main()
 {
-	outColor = vec4(chColor, 1.0);
+	outColor = uColor;
 }
 
 

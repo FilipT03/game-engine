@@ -74,7 +74,7 @@ namespace ft {
 	class BufferLayout
 	{
 	public:
-		BufferLayout(std::initializer_list<LayoutElement> data) : m_Elements(data), m_Stride(0)
+		BufferLayout(std::initializer_list<LayoutElement> data) : m_Elements(data), m_Stride(0), m_ComponentCount(0)
 		{
 			uint32_t offset = 0;
 			for (auto& element : m_Elements)
@@ -82,16 +82,19 @@ namespace ft {
 				element.Offset = offset;
 				offset += element.Size;
 				m_Stride += element.Size;
+				m_ComponentCount += element.GetComponentCount();
 			}
 		}
 		BufferLayout() = default;
 		~BufferLayout() = default;
 		inline const std::vector<LayoutElement>& GetElements() const { return m_Elements; }
 		inline uint32_t GetStride() const { return m_Stride; }
-		inline uint32_t GetElementCount() const { return static_cast<uint32_t>(m_Elements.size()); }
+		inline uint32_t GetElementCount() const { return static_cast<uint32_t>(m_Elements.size()); };
+		inline uint32_t GetComponentCount() const { return m_ComponentCount; };
 	private:
 		std::vector<LayoutElement> m_Elements;
 		uint32_t m_Stride;
+		uint32_t m_ComponentCount;
 	};
 }
 

@@ -13,8 +13,11 @@ namespace ft {
 		virtual ~VertexArray() = default;
 		virtual void Bind() const {}
 		virtual void Unbind() const {}
+		
 		virtual void SetVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) {}
 		virtual void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) {}
+		
+		virtual const BufferLayout& GetBufferLayout() const = 0;
 
 		static VertexArray* Create(BufferLayout layout);
 	};

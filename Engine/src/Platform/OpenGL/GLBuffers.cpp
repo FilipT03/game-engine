@@ -31,7 +31,7 @@ namespace ft {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	};
 
-	void GLVertexBuffer::SetData(uint32_t offset, uint32_t size, const float* data)
+	void GLVertexBuffer::SetData(uint32_t offset, uint32_t size, const void* data)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_ID);
 		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);

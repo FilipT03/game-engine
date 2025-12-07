@@ -12,7 +12,7 @@ namespace ft {
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
-		virtual void SetData(uint32_t offset, uint32_t size, const float* data) = 0;
+		virtual void SetData(uint32_t offset, uint32_t size, const void* data) = 0;
 
 		virtual uint32_t GetCount() const = 0;
 		virtual uint32_t GetSize() const = 0;

@@ -104,9 +104,19 @@ namespace ft {
 		glUseProgram(0);
 	}
 
+	void GLShader::SetUniform1f(const std::string& name, float value) const
+	{
+		glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);
+	}
+
 	void GLShader::SetUniform3f(const std::string& name, const glm::vec3& value) const
 	{
 		glUniform3f(glGetUniformLocation(m_ID, name.c_str()), value.x, value.y, value.z);
+	}
+
+	void GLShader::SetUniform4f(const std::string& name, const glm::vec4& value) const
+	{
+		glUniform4f(glGetUniformLocation(m_ID, name.c_str()), value.x, value.y, value.z, value.w);
 	}
 
 	void GLShader::SetUniformMatrix4fv(const std::string& name, const glm::mat4 value, bool transpose) const
