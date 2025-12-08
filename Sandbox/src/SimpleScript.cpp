@@ -68,6 +68,7 @@ void SimpleScript::OnUpdate()
 	if (m_Panning)
 	{
 		glm::vec2 delta = ft::Input::GetMouseDeltaNormalized();
+		FT_INFO("Delta x {} y {}", delta.x, delta.y);
 		delta.x *= -1;
 		delta *= m_PanSpeed;
 		ft::Renderer2D::GetCamera()->position += delta;
@@ -101,6 +102,8 @@ void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 		ft::Application::Get().Close();
 	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_G)
 		ft::Application::Get().RemoveScriptComponent(GetId());
+	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_E)
+		m_Ellipses = !m_Ellipses;
 }
 
 void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
@@ -115,7 +118,10 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 			{
 				m_Dragging = true;
 				m_StartPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
-				m_DrawingShape = ft::Renderer2D::AddShape<ft::Rectangle>();
+				if (m_Ellipses)
+					m_DrawingShape = ft::Renderer2D::AddShape<ft::Ellipse>();
+				else
+					m_DrawingShape = ft::Renderer2D::AddShape<ft::Rectangle>();
 				m_DrawingShape->transform.position = m_StartPos;
 				m_DrawingShape->transform.scale = glm::vec2(0.00001f);
 			}
@@ -128,18 +134,28 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 		if (releaseEvent.Button == GLFW_MOUSE_BUTTON_1)
 		{
 			m_Panning = false;
-			m_Dragging = false;
-			m_Shapes.push_back(m_DrawingShape);
+			if (m_Dragging)
+			{
+				m_Dragging = false;
+				m_Shapes.push_back(m_DrawingShape);
+			}
 		}
 	}
 	if (event.Type == ft::EventType::MouseScroll && ft::Input::IsCtrlDown())
 	{
 		auto& scrollEvent = ft::As<ft::MouseScrollEvent>(event);
-		//float zoom = ft::Renderer2D::GetCamera()->zoom
+		glm::vec2 previousPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+		FT_TRACE("Previous {} {}", previousPos.x, previousPos.y);
 		m_LogZoom += scrollEvent.YDelta * m_ZoomSpeed;
 		m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);
-		ft::Renderer2D::GetCamera()->zoom = std::exp(m_LogZoom);
-		//ft::Renderer2D::GetCamera()->zoom = exp(m_Zoom / 1.442695) - 1.0;
+		ft::Camera2D* camera = ft::Renderer2D::GetCamera();
+		camera->zoom = std::exp(m_LogZoom);
+		ft::Renderer2D::RecalculateView();
+		
+		// Zooming towards the cursor, adjust position
+		glm::vec2 newPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+		FT_TRACE("New {} {}", newPos.x, newPos.y);
+		camera->position += (previousPos - newPos) * camera->zoom;
 		ft::Renderer2D::RecalculateView();
 	}
 }

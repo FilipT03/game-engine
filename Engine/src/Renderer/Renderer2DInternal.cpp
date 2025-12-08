@@ -200,6 +200,18 @@ namespace ft {
 		return glm::vec2(world.x, world.y);
 	}
 
+	glm::vec2 Renderer2DInternal::WorldToScreen(glm::vec2 worldCoordinates) const
+	{
+		glm::vec4 ndc = m_ViewProjection * glm::vec4(worldCoordinates.x, worldCoordinates.y, 0.0f, 1.0f);
+		
+		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
+		glm::vec2 screenCoords{};
+		ndc = (ndc + 1.0f) / 2.0f; // transform to range [0,1]
+		screenCoords.x = windowSize.x * ndc.x;
+		screenCoords.y = windowSize.y * (1.0f - ndc.y);
+		return screenCoords;
+	}
+
 	/// Sources should be in the same order as the layout.
 	void Renderer2DInternal::PackInterleaved(
 		std::vector<uint8_t>& out,

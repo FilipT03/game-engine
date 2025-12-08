@@ -26,6 +26,9 @@ namespace ft {
 		inline static glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) {
 			return s_Renderer->ScreenToWorld(screenCoordinates);
 		}
+		inline static glm::vec2 WorldToScreen(glm::vec2 worldCoordinates) {
+			return s_Renderer->WorldToScreen(worldCoordinates);
+		}
 
 	private:
 		inline static Renderer2DInternal* s_Renderer = nullptr;
