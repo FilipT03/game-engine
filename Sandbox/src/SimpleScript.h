@@ -13,7 +13,7 @@ public:
 
 private:
 	const float m_ZoomSpeed = 0.05f;
-	const float m_PanSpeed = 10.00f;
+	const float m_PanSpeed = 100.00f;
 
 	double m_FpsSum = 0;
 	double m_FpsCount = 0;

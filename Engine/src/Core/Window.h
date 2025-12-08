@@ -28,6 +28,7 @@ namespace ft {
 		GLFWwindow* GetNativeWindow() const { return m_Window; }
 		WindowProps GetWindowProps() const { return m_Props; }
 		const glm::vec2 GetFrameBufferSize() const;
+		const glm::vec2 GetWindowSize() const;
 		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
 		void Update();
 

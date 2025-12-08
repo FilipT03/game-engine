@@ -65,10 +65,10 @@ void SimpleScript::OnUpdate()
 
 	if (m_Panning)
 	{
-		FT_TRACE("X: {}, Y: {}", ft::Input::GetMouseDelta().x, ft::Input::GetMouseDelta().y);
-		glm::vec2 delta = ft::Input::GetMouseDelta();
+		FT_TRACE("X: {}, Y: {}", ft::Input::GetMouseDeltaNormalized().x, ft::Input::GetMouseDeltaNormalized().y);
+		glm::vec2 delta = ft::Input::GetMouseDeltaNormalized();
 		delta.x *= -1;
-		delta *= m_PanSpeed * (float)ft::Time::DeltaTime();
+		delta *= m_PanSpeed;
 		ft::Renderer2D::GetCamera()->position += delta;
 		ft::Renderer2D::RecalculateView();
 	}

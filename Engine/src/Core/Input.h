@@ -18,6 +18,7 @@ namespace ft {
 		static bool IsMouseDown(int button);
 		static glm::vec2 GetMousePosition();
 		static glm::vec2 GetMouseDelta();
+		static glm::vec2 GetMouseDeltaNormalized();
 		
 		void OnUpdate();
 	private:

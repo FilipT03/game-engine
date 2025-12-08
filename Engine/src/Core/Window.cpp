@@ -72,6 +72,13 @@ namespace ft {
 		return { fbWidth, fbHeight };
 	}
 
+	const glm::vec2 Window::GetWindowSize() const
+	{
+		int width, height;
+		glfwGetWindowSize(m_Window, &width, &height);
+		return { width, height };
+	}
+
 	std::unique_ptr<Window> Window::Create(const WindowProps& props, EventCallback eventCallback)
 	{
 		if (!glfwInit())

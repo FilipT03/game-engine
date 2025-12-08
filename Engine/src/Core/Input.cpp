@@ -13,6 +13,11 @@ namespace ft {
 	
 	glm::vec2 Input::GetMousePosition() { return { s_MouseX, s_MouseY }; }
 	glm::vec2 Input::GetMouseDelta() { return { s_MouseDeltaX, s_MouseDeltaY }; }
+	glm::vec2 Input::GetMouseDeltaNormalized() 
+	{ 
+		glm::vec2 size = Application::Get().GetWindow().GetWindowSize();
+		return { s_MouseDeltaX / size.x, s_MouseDeltaY / size.y };
+	}
 
 
 	void Input::Init(EventCallback eventCallback)
