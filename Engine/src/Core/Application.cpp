@@ -59,6 +59,7 @@ namespace ft {
 			for (auto& it : m_ScriptComponents)
 				it.second->OnUpdate();
 
+			m_Input->OnUpdate();
 			m_Renderer->OnUpdate();
 
 			m_Window->Update();

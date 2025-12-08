@@ -62,6 +62,16 @@ void SimpleScript::OnUpdate()
 		}
 		shape->UpdateWorldVertices();
 	}
+
+	if (m_Panning)
+	{
+		FT_TRACE("X: {}, Y: {}", ft::Input::GetMouseDelta().x, ft::Input::GetMouseDelta().y);
+		glm::vec2 delta = ft::Input::GetMouseDelta();
+		delta.x *= -1;
+		delta *= m_PanSpeed * (float)ft::Time::DeltaTime();
+		ft::Renderer2D::GetCamera()->position += delta;
+		ft::Renderer2D::RecalculateView();
+	}
 }
 
 void SimpleScript::OnEvent(const ft::Event& event)
@@ -82,14 +92,26 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 	{
 		auto& pressEvent = ft::As<ft::MousePressEvent>(event);
 		FT_TRACE("Mouse event: {}, mods: {}", pressEvent.Button, pressEvent.Mods);
-		ft::Renderer2D::GetCamera()->position.x += pressEvent.Button == GLFW_MOUSE_BUTTON_1 ? 5 : -5;
-		ft::Renderer2D::RecalculateView();
+		if ((pressEvent.Mods & GLFW_MOD_CONTROL) && pressEvent.Button == GLFW_MOUSE_BUTTON_1)
+			m_Panning = true;
+		//ft::Renderer2D::GetCamera()->position.x += pressEvent.Button == GLFW_MOUSE_BUTTON_1 ? 5 : -5;
+		//ft::Renderer2D::RecalculateView();
+	}
+	if (event.Type == ft::EventType::MouseRelease)
+	{
+		auto& releaseEvent = ft::As<ft::MouseReleaseEvent>(event);
+		if ((releaseEvent.Mods & GLFW_MOD_CONTROL) && releaseEvent.Button == GLFW_MOUSE_BUTTON_1)
+			m_Panning = false;
 	}
 	if (event.Type == ft::EventType::MouseScroll && ft::Input::IsCtrlDown())
 	{
 		auto& scrollEvent = ft::As<ft::MouseScrollEvent>(event);
-		FT_TRACE("Zooming {}", scrollEvent.XDelta);
-		ft::Renderer2D::GetCamera()->zoom += scrollEvent.XDelta * m_ZoomSpeed;
+		FT_TRACE("Zooming {}", scrollEvent.YDelta);
+		//float zoom = ft::Renderer2D::GetCamera()->zoom
+		m_LogZoom += scrollEvent.YDelta * m_ZoomSpeed;
+		m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);
+		ft::Renderer2D::GetCamera()->zoom = std::exp(m_LogZoom);
+		//ft::Renderer2D::GetCamera()->zoom = exp(m_Zoom / 1.442695) - 1.0;
 		ft::Renderer2D::RecalculateView();
 	}
 }

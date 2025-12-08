@@ -63,8 +63,8 @@ namespace ft {
 		});
 
 		glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
-			s_MouseDeltaX = xpos - s_MouseX;
-			s_MouseDeltaY = ypos - s_MouseY;
+			s_MouseDeltaX += xpos - s_MouseX;
+			s_MouseDeltaY += ypos - s_MouseY;
 			s_MouseX = xpos;
 			s_MouseY = ypos;
 
@@ -80,5 +80,13 @@ namespace ft {
 			MouseScrollEvent event = MouseScrollEvent((float)xoffset, (float)yoffset);
 			callback(event);
 		});
+	}
+
+	void Input::OnUpdate()
+	{
+		s_MouseDeltaX = 0.0f;
+		s_MouseDeltaY = 0.0f;
+		s_LastMouseX = s_MouseX;
+		s_LastMouseY = s_MouseY;
 	}
 }

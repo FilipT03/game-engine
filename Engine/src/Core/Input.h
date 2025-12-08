@@ -18,6 +18,8 @@ namespace ft {
 		static bool IsMouseDown(int button);
 		static glm::vec2 GetMousePosition();
 		static glm::vec2 GetMouseDelta();
+		
+		void OnUpdate();
 	private:
 		EventCallback m_EventCallback;
 		inline static bool s_KeyStates[GLFW_KEY_LAST];
