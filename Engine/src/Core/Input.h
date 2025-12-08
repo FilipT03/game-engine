@@ -7,14 +7,20 @@
 
 namespace ft {
 
-	class FT_API Input
+	class Input
 	{
 	public:
 		void Init(EventCallback eventCallback); 
 		static bool IsKeyDown(int key);
+		static bool IsCtrlDown();
+		static bool IsShiftDown();
+		static bool IsAltDown();
 		static bool IsMouseDown(int button);
 		static glm::vec2 GetMousePosition();
 		static glm::vec2 GetMouseDelta();
+		static glm::vec2 GetMouseDeltaNormalized();
+		
+		void OnUpdate();
 	private:
 		EventCallback m_EventCallback;
 		inline static bool s_KeyStates[GLFW_KEY_LAST];

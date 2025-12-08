@@ -23,20 +23,20 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
@@ -54,36 +54,33 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Debug-windows-x86_64\Engine\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Debug-windows-x86_64\Engine\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\Engine\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\Engine\</IntDir>
     <TargetName>Engine</TargetName>
-    <TargetExt>.dll</TargetExt>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Release-windows-x86_64\Engine\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Release-windows-x86_64\Engine\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\Engine\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\Engine\</IntDir>
     <TargetName>Engine</TargetName>
-    <TargetExt>.dll</TargetExt>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Dist-windows-x86_64\Engine\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Dist-windows-x86_64\Engine\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\Engine\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\Engine\</IntDir>
     <TargetName>Engine</TargetName>
-    <TargetExt>.dll</TargetExt>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_OPENGL_RENDERER;GLFW_INCLUDE_NONE;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -91,12 +88,13 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\bin\Debug-windows-x86_64\Engine\Engine.lib</ImportLibrary>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\bin\Debug-windows-x86_64\Sandbox (mkdir ..\bin\Debug-windows-x86_64\Sandbox)
-copy /B /Y ..\bin\Debug-windows-x86_64\Engine\Engine.dll ..\bin\Debug-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Debug-windows-x86_64\Sandbox (mkdir ..\build\Debug-windows-x86_64\Sandbox)
+copy /B /Y ..\build\Debug-windows-x86_64\Engine\Engine.lib ..\build\Debug-windows-x86_64\Sandbox\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,24 +102,29 @@ copy /B /Y ..\bin\Debug-windows-x86_64\Engine\Engine.dll ..\bin\Debug-windows-x8
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_OPENGL_RENDERER;GLFW_INCLUDE_NONE;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\bin\Release-windows-x86_64\Engine\Engine.lib</ImportLibrary>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\bin\Release-windows-x86_64\Sandbox (mkdir ..\bin\Release-windows-x86_64\Sandbox)
-copy /B /Y ..\bin\Release-windows-x86_64\Engine\Engine.dll ..\bin\Release-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Release-windows-x86_64\Sandbox (mkdir ..\build\Release-windows-x86_64\Sandbox)
+copy /B /Y ..\build\Release-windows-x86_64\Engine\Engine.lib ..\build\Release-windows-x86_64\Sandbox\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -129,30 +132,37 @@ copy /B /Y ..\bin\Release-windows-x86_64\Engine\Engine.dll ..\bin\Release-window
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_BUILD_DLL;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_OPENGL_RENDERER;GLFW_INCLUDE_NONE;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\bin\Dist-windows-x86_64\Engine\Engine.lib</ImportLibrary>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\bin\Dist-windows-x86_64\Sandbox (mkdir ..\bin\Dist-windows-x86_64\Sandbox)
-copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Dist-windows-x86_64\Sandbox (mkdir ..\build\Dist-windows-x86_64\Sandbox)
+copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-x86_64\Sandbox\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Components\ScriptComponent.h" />
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\AssetLoader.h" />
     <ClInclude Include="src\Core\Core.h" />
+    <ClInclude Include="src\Core\EmbedDataLoader.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Input.h" />
     <ClInclude Include="src\Core\Log.h" />
@@ -163,13 +173,35 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
     <ClInclude Include="src\Event\InputEvent.h" />
     <ClInclude Include="src\Event\WindowEvent.h" />
     <ClInclude Include="src\GameEngine.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLBuffers.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLContext.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLShader.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
+    <ClInclude Include="src\Renderer\BufferLayout.h" />
+    <ClInclude Include="src\Renderer\Buffers.h" />
+    <ClInclude Include="src\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\Renderer\Renderer2DInternal.h" />
+    <ClInclude Include="src\Renderer\RenderingContext.h" />
+    <ClInclude Include="src\Renderer\Shader.h" />
+    <ClInclude Include="src\Renderer\Shape.h" />
+    <ClInclude Include="src\Renderer\VertexArray.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\Core\AssetLoader.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLContext.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLShader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
+    <ClCompile Include="src\Renderer\Buffers.cpp" />
+    <ClCompile Include="src\Renderer\Renderer2DInternal.cpp" />
+    <ClCompile Include="src\Renderer\RenderingContext.cpp" />
+    <ClCompile Include="src\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -178,6 +210,12 @@ copy /B /Y ..\bin\Dist-windows-x86_64\Engine\Engine.dll ..\bin\Dist-windows-x86_
     <ProjectReference Include="vendor\glfw\GLFW.vcxproj">
       <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
     </ProjectReference>
+    <ProjectReference Include="vendor\glad\Glad.vcxproj">
+      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Platform\OpenGL\Shaders\Ellipse.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

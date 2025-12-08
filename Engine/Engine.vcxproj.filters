@@ -10,6 +10,15 @@
     <Filter Include="Event">
       <UniqueIdentifier>{E70B220D-5320-4ABE-1CA2-ED1D887546EF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{7CCE658F-689B-C09A-91B4-AE427DE0F528}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Components\ScriptComponent.h">
@@ -18,7 +27,13 @@
     <ClInclude Include="src\Core\Application.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\AssetLoader.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Core.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\EmbedDataLoader.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\EntryPoint.h">
@@ -49,10 +64,47 @@
       <Filter>Event</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEngine.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLBuffers.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLContext.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLShader.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\BufferLayout.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Buffers.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer2DInternal.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RenderingContext.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Shader.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Shape.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\VertexArray.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\AssetLoader.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Input.cpp">
@@ -64,6 +116,36 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLContext.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLShader.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Buffers.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer2DInternal.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\RenderingContext.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Shader.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\VertexArray.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Platform\OpenGL\Shaders\Ellipse.frag" />
   </ItemGroup>
 </Project>

@@ -30,13 +30,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
@@ -55,22 +55,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Debug-windows-x86_64\Sandbox\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Debug-windows-x86_64\Sandbox\</IntDir>
+    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\Sandbox\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\Sandbox\</IntDir>
     <TargetName>Sandbox</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Release-windows-x86_64\Sandbox\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Release-windows-x86_64\Sandbox\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\Sandbox\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\Sandbox\</IntDir>
     <TargetName>Sandbox</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\bin\Dist-windows-x86_64\Sandbox\</OutDir>
-    <IntDir>$(ProjectDir)..\bin-int\Dist-windows-x86_64\Sandbox\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\Sandbox\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\Sandbox\</IntDir>
     <TargetName>Sandbox</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
@@ -79,10 +79,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Engine\vendor\spdlog\include;..\Engine\vendor\glfw\include;..\Engine\vendor\glm;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Engine\vendor\spdlog\include;..\Engine\vendor\glfw\include;..\Engine\vendor\glad\include;..\Engine\vendor\glm;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -97,17 +97,21 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Engine\vendor\spdlog\include;..\Engine\vendor\glfw\include;..\Engine\vendor\glm;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\Engine\vendor\spdlog\include;..\Engine\vendor\glfw\include;..\Engine\vendor\glad\include;..\Engine\vendor\glm;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -115,17 +119,21 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Engine\vendor\spdlog\include;..\Engine\vendor\glfw\include;..\Engine\vendor\glm;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\Engine\vendor\spdlog\include;..\Engine\vendor\glfw\include;..\Engine\vendor\glad\include;..\Engine\vendor\glm;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

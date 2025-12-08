@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "Application.h"
 #include "Core/Time.h"
-#include "GLFW/glfw3.h"
-#include "Log.h"
-#include <thread>
+#include "Core/Log.h"
+#include "Renderer/Renderer2D.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
@@ -16,12 +15,19 @@ namespace ft {
 
 		m_Input = std::make_unique<Input>();
 		m_Input->Init([this](Event& event) { this->OnEvent(event); });
+
+		m_Renderer = std::make_unique<Renderer2DInternal>();
+		m_Renderer->Init();
+
+		Renderer2D::s_Renderer = m_Renderer.get();
+
+		m_Renderer->SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	}
 
 	Application::~Application()
 	{
 		m_Running = false;
-		for (auto& it : m_scriptComponents)
+		for (auto& it : m_ScriptComponents)
 		{
 			it.second->OnDelete();
 			delete it.second;
@@ -47,8 +53,14 @@ namespace ft {
 
 			Time::UpdateTime(time);
 
-			for (auto& it : m_scriptComponents)
+			m_Renderer->Clear();
+
+
+			for (auto& it : m_ScriptComponents)
 				it.second->OnUpdate();
+
+			m_Input->OnUpdate();
+			m_Renderer->OnUpdate();
 
 			m_Window->Update();
 
@@ -60,10 +72,10 @@ namespace ft {
 	{
 		for (uint16_t id : m_ScriptsToRemove)
 		{
-			if (!m_scriptComponents.contains(id))
+			if (!m_ScriptComponents.contains(id))
 				continue;
-			ScriptComponent* component = m_scriptComponents.at(id);
-			m_scriptComponents.erase(id);
+			ScriptComponent* component = m_ScriptComponents.at(id);
+			m_ScriptComponents.erase(id);
 			component->OnDelete();
 			delete component;
 		}
@@ -74,7 +86,7 @@ namespace ft {
 	{
 		m_Running = false;
 
-		for (auto& it : m_scriptComponents)
+		for (auto& it : m_ScriptComponents)
 			it.second->OnClose();
 	}
 
@@ -89,7 +101,8 @@ namespace ft {
 			break;
 		}
 
-		for (auto& [id, script] : m_scriptComponents)
+		m_Renderer->OnEvent(event);
+		for (auto& [id, script] : m_ScriptComponents)
 		{
 			script->OnEvent(event);
 			if (event.Category == EventCategory::KeyInput)
@@ -101,7 +114,7 @@ namespace ft {
 
 	void Application::RegisterInternal(ScriptComponent* scriptComponent)
 	{
-		m_scriptComponents.emplace(scriptComponent->GetId(), scriptComponent);
+		m_ScriptComponents.emplace(scriptComponent->GetId(), scriptComponent);
 		scriptComponent->OnRegister();
 	}
 

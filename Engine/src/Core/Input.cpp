@@ -6,9 +6,19 @@
 
 namespace ft {
 	bool Input::IsKeyDown(int key) { return s_KeyStates[key]; }
+	bool Input::IsCtrlDown() { return s_KeyStates[GLFW_KEY_LEFT_CONTROL] || s_KeyStates[GLFW_KEY_RIGHT_CONTROL]; }
+	bool Input::IsShiftDown() { return s_KeyStates[GLFW_KEY_LEFT_SHIFT] || s_KeyStates[GLFW_KEY_RIGHT_SHIFT]; }
+	bool Input::IsAltDown() { return s_KeyStates[GLFW_KEY_LEFT_ALT] || s_KeyStates[GLFW_KEY_RIGHT_ALT]; }
 	bool Input::IsMouseDown(int button) { return s_MouseStates[button]; }
+	
 	glm::vec2 Input::GetMousePosition() { return { s_MouseX, s_MouseY }; }
 	glm::vec2 Input::GetMouseDelta() { return { s_MouseDeltaX, s_MouseDeltaY }; }
+	glm::vec2 Input::GetMouseDeltaNormalized() 
+	{ 
+		glm::vec2 size = Application::Get().GetWindow().GetWindowSize();
+		return { s_MouseDeltaX / size.x, s_MouseDeltaY / size.y };
+	}
+
 
 	void Input::Init(EventCallback eventCallback)
 	{
@@ -58,8 +68,8 @@ namespace ft {
 		});
 
 		glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
-			s_MouseDeltaX = xpos - s_MouseX;
-			s_MouseDeltaY = ypos - s_MouseY;
+			s_MouseDeltaX += xpos - s_MouseX;
+			s_MouseDeltaY += ypos - s_MouseY;
 			s_MouseX = xpos;
 			s_MouseY = ypos;
 
@@ -75,5 +85,13 @@ namespace ft {
 			MouseScrollEvent event = MouseScrollEvent((float)xoffset, (float)yoffset);
 			callback(event);
 		});
+	}
+
+	void Input::OnUpdate()
+	{
+		s_MouseDeltaX = 0.0f;
+		s_MouseDeltaY = 0.0f;
+		s_LastMouseX = s_MouseX;
+		s_LastMouseY = s_MouseY;
 	}
 }

@@ -3,10 +3,12 @@
 #include "Core/Core.h"
 #include "Event/WindowEvent.h"
 #include "Event/InputEvent.h"
+#include "Renderer/RenderingContext.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace ft {
-	struct FT_API WindowProps {
+	struct WindowProps {
 		std::string title;
 		uint32_t width, height;
 		bool fullscreen;
@@ -17,13 +19,16 @@ namespace ft {
 		{}
 	};
 
-	class FT_API Window
+	class Window
 	{
 	public:
 		Window(const WindowProps& props, EventCallback eventCallback);
 		~Window();
 		
-		GLFWwindow* GetNativeWindow() { return m_Window; }
+		GLFWwindow* GetNativeWindow() const { return m_Window; }
+		WindowProps GetWindowProps() const { return m_Props; }
+		const glm::vec2 GetFrameBufferSize() const;
+		const glm::vec2 GetWindowSize() const;
 		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
 		void Update();
 
@@ -31,6 +36,7 @@ namespace ft {
 		GLFWwindow* m_Window;
 		WindowProps m_Props;
 		EventCallback m_EventCallback;
+		RenderingContext* m_Context;
 	};
 }
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Renderer/Shader.h"
+#include "Renderer/Renderer2DInternal.h"
+#include "Renderer/Renderer2D.h"
 #include "Core/Window.h"
 #include "Core/Input.h"
 #include "Components/ScriptComponent.h"
@@ -7,7 +10,7 @@
 
 namespace ft {
 
-	class FT_API Application
+	class Application
 	{
 	public:
 		Application(const WindowProps& windowProps, const int frameLimit);
@@ -23,7 +26,7 @@ namespace ft {
 			static_assert(std::is_base_of<ScriptComponent, T>::value, "Registered component must inherit ScriptComponent");
 			
 			T* script = new T();
-			script->SetId(++m_maxScriptId);
+			script->SetId(++m_MaxScriptId);
 			RegisterInternal(script);
 			return script;
 		}
@@ -43,11 +46,12 @@ namespace ft {
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;
+		std::unique_ptr<Renderer2DInternal> m_Renderer;
 
 		static Application* s_Instance;
 		
-		std::unordered_map<uint16_t, ScriptComponent*> m_scriptComponents;
-		uint16_t m_maxScriptId = 0;
+		std::unordered_map<uint16_t, ScriptComponent*> m_ScriptComponents;
+		uint16_t m_MaxScriptId = 0;
 		std::vector<uint16_t> m_ScriptsToRemove;
 	};
 
