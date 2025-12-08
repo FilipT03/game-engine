@@ -8,12 +8,14 @@ void SimpleScript::OnRegister()
 	ft::Shape* shape1 = ft::Renderer2D::AddShape<ft::Polygon>(4);
 	shape1->transform.position.x -= 30.0f;
 	shape1->transform.position.y -= 30.0f;
+	shape1->transform.scale = { 30.0f, 30.0f };
 	shape1->UpdateWorldVertices();
 	m_Shapes.push_back(shape1);
 
 	ft::Shape* shape2 = ft::Renderer2D::AddShape<ft::Polygon>(3);
 	shape2->transform.position.x += 30.0f;
 	shape2->transform.position.y -= 30.0f;
+	shape2->transform.scale = { 30.0f, 30.0f };
 	shape2->UpdateWorldVertices();
 	m_Shapes.push_back(shape2);
 
@@ -40,14 +42,14 @@ void SimpleScript::OnUpdate()
 	if (m_FpsCount >= 60)
 	{
 		double avgFps = m_FpsSum / m_FpsCount;
-		FT_INFO("Average FPS over last {} frames: {}", m_FpsCount, avgFps);
+		//FT_INFO("Average FPS over last {} frames: {}", m_FpsCount, avgFps);
 		m_FpsCount = 0;
 		m_FpsSum = 0;
 	}
 
 	for (auto shape : m_Shapes)
 	{
-		shape->transform.rotation += 2;
+		//shape->transform.rotation += 2;
 		shape->color.r = sin(ft::Time::TotalTime());
 		shape->color.g = cos(ft::Time::TotalTime());
 		shape->color.b = cos(ft::Time::TotalTime() + glm::pi<float>() / 2.0f);
@@ -56,8 +58,8 @@ void SimpleScript::OnUpdate()
 			ellipse->thickness = std::abs(sin(ft::Time::TotalTime()));
 		}
 		else {
-			shape->transform.scale.x = sin(ft::Time::TotalTime()) * 20 + 30;
-			shape->transform.scale.y = sin(ft::Time::TotalTime()) * 20 + 30;
+			//shape->transform.scale.x = sin(ft::Time::TotalTime()) * 20 + 30;
+			//shape->transform.scale.y = sin(ft::Time::TotalTime()) * 20 + 30;
 			shape->UpdateWorldVertices();
 		}
 		shape->UpdateWorldVertices();
@@ -65,12 +67,27 @@ void SimpleScript::OnUpdate()
 
 	if (m_Panning)
 	{
-		FT_TRACE("X: {}, Y: {}", ft::Input::GetMouseDeltaNormalized().x, ft::Input::GetMouseDeltaNormalized().y);
 		glm::vec2 delta = ft::Input::GetMouseDeltaNormalized();
 		delta.x *= -1;
 		delta *= m_PanSpeed;
 		ft::Renderer2D::GetCamera()->position += delta;
 		ft::Renderer2D::RecalculateView();
+	}
+	if (m_Dragging)
+	{
+		glm::vec2 currentPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+		if (ft::Input::IsShiftDown())
+		{
+			glm::vec2 delta = abs(m_StartPos - currentPos);
+			glm::vec2 deltaSign = sign(m_StartPos - currentPos);
+			if (delta.x < delta.y)
+				currentPos.y += deltaSign.y * (delta.y - delta.x);
+			else
+				currentPos.x += deltaSign.x * (delta.x - delta.y);
+		}
+		m_DrawingShape->transform.position = (m_StartPos + currentPos) / 2.0f;
+		m_DrawingShape->transform.scale = abs(m_StartPos - currentPos);
+		m_DrawingShape->UpdateWorldVertices();
 	}
 }
 
@@ -91,22 +108,33 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 	if (event.Type == ft::EventType::MousePress)
 	{
 		auto& pressEvent = ft::As<ft::MousePressEvent>(event);
-		FT_TRACE("Mouse event: {}, mods: {}", pressEvent.Button, pressEvent.Mods);
-		if ((pressEvent.Mods & GLFW_MOD_CONTROL) && pressEvent.Button == GLFW_MOUSE_BUTTON_1)
-			m_Panning = true;
+		if (pressEvent.Button == GLFW_MOUSE_BUTTON_1)
+			if (pressEvent.Mods & GLFW_MOD_CONTROL)
+				m_Panning = true;
+			else
+			{
+				m_Dragging = true;
+				m_StartPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+				m_DrawingShape = ft::Renderer2D::AddShape<ft::Rectangle>();
+				m_DrawingShape->transform.position = m_StartPos;
+				m_DrawingShape->transform.scale = glm::vec2(0.00001f);
+			}
 		//ft::Renderer2D::GetCamera()->position.x += pressEvent.Button == GLFW_MOUSE_BUTTON_1 ? 5 : -5;
 		//ft::Renderer2D::RecalculateView();
 	}
 	if (event.Type == ft::EventType::MouseRelease)
 	{
 		auto& releaseEvent = ft::As<ft::MouseReleaseEvent>(event);
-		if ((releaseEvent.Mods & GLFW_MOD_CONTROL) && releaseEvent.Button == GLFW_MOUSE_BUTTON_1)
+		if (releaseEvent.Button == GLFW_MOUSE_BUTTON_1)
+		{
 			m_Panning = false;
+			m_Dragging = false;
+			m_Shapes.push_back(m_DrawingShape);
+		}
 	}
 	if (event.Type == ft::EventType::MouseScroll && ft::Input::IsCtrlDown())
 	{
 		auto& scrollEvent = ft::As<ft::MouseScrollEvent>(event);
-		FT_TRACE("Zooming {}", scrollEvent.YDelta);
 		//float zoom = ft::Renderer2D::GetCamera()->zoom
 		m_LogZoom += scrollEvent.YDelta * m_ZoomSpeed;
 		m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);

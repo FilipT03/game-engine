@@ -23,6 +23,9 @@ namespace ft {
 		inline static void RecalculateView() {
 			s_Renderer->RecalculateView();
 		}
+		inline static glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) {
+			return s_Renderer->ScreenToWorld(screenCoordinates);
+		}
 
 	private:
 		inline static Renderer2DInternal* s_Renderer = nullptr;

@@ -39,6 +39,7 @@ namespace ft {
 		}
 		void RecalculateView();
 		Camera2D* GetCamera() { return &m_Camera; };
+		glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) const;
 
 		void OnUpdate();
 		void OnEvent(const Event& event);
