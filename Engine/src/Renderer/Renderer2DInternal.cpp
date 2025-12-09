@@ -123,11 +123,15 @@ namespace ft {
 					m_EllipseShader->SetUniform1f("uThickness", ellipse->thickness);
 					m_EllipseShader->SetUniform1f("uAA", ellipse->AA);
 
-					mode = GL_TRIANGLE_FAN;
+					mode = GL_TRIANGLES;
 					break;
 				}
 			
 				case ShapeType::Line:
+					m_BasicShader->Bind();
+
+					m_BasicShader->SetUniform4f("uColor", shape->color);
+
 					mode = GL_LINES;
 					break;
 

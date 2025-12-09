@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "Core/Log.h"
+#include "Resources/AssetManager.h"
 
 #include "Renderer/Texture.h"
 
@@ -222,14 +223,14 @@ namespace ft {
         TextureQuad(const std::string& imagePath, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
             : Rectangle(transform, color) {
             this->m_Type = ShapeType::TextureQuad;
-            m_Texture = std::unique_ptr<Texture>(Texture::Create(imagePath));
+            m_Texture = AssetManager::LoadTexture(imagePath);
             GenerateModel();
             UpdateWorldVertices();
         }
 
         Texture* const GetTexture() { return m_Texture.get(); }
     private:
-        std::unique_ptr<Texture> m_Texture;
+        std::shared_ptr<Texture> m_Texture;
     };
 }
 

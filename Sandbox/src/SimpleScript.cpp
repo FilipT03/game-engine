@@ -93,8 +93,16 @@ void SimpleScript::OnUpdate()
 			else
 				currentPos.x += deltaSign.x * (delta.x - delta.y);
 		}
-		m_DrawingShape->transform.position = (m_StartPos + currentPos) / 2.0f;
-		m_DrawingShape->transform.scale = abs(m_StartPos - currentPos);
+		if (m_DrawingShape->GetType() == ft::ShapeType::Line)
+		{
+			ft::Line* line = dynamic_cast<ft::Line*>(m_DrawingShape);
+			line->SetEnd(currentPos);
+		}
+		else
+		{
+			m_DrawingShape->transform.position = (m_StartPos + currentPos) / 2.0f;
+			m_DrawingShape->transform.scale = abs(m_StartPos - currentPos);
+		}
 		m_DrawingShape->UpdateWorldVertices();
 	}
 }
@@ -110,7 +118,23 @@ void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_G)
 		ft::Application::Get().RemoveScriptComponent(GetId());
 	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_E)
-		m_Ellipses = !m_Ellipses;
+	{
+		if (m_Ellipses)
+		{
+			m_Lines = true;
+			m_Ellipses = false;
+		}
+		else if (m_Lines)
+		{
+			m_Lines = false;
+			m_Ellipses = false;
+		} 
+		else {
+			m_Lines = false;
+			m_Ellipses = true;
+		}
+	}
+		//m_Ellipses = !m_Ellipses;
 }
 
 void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
@@ -127,6 +151,8 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 				m_StartPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
 				if (m_Ellipses)
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::Ellipse>();
+				else if (m_Lines)
+					m_DrawingShape = ft::Renderer2D::AddShape<ft::Line>(m_StartPos, m_StartPos + glm::vec2{0.0001,0.0001});
 				else
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::TextureQuad>("assets/mushroom.png");
 				m_DrawingShape->transform.position = m_StartPos;

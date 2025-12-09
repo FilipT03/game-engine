@@ -19,6 +19,7 @@ private:
 	double m_FpsCount = 0;
 	bool m_Panning = false;
 	bool m_Ellipses = false;
+	bool m_Lines = false;
 	float m_LogZoom = 0.0f;
 	glm::vec2 m_StartPos;
 	std::vector<ft::Shape*> m_Shapes;
