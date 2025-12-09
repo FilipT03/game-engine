@@ -68,7 +68,6 @@ void SimpleScript::OnUpdate()
 	if (m_Panning)
 	{
 		glm::vec2 delta = ft::Input::GetMouseDeltaNormalized();
-		FT_INFO("Delta x {} y {}", delta.x, delta.y);
 		delta.x *= -1;
 		delta *= m_PanSpeed;
 		ft::Renderer2D::GetCamera()->position += delta;
@@ -125,8 +124,6 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 				m_DrawingShape->transform.position = m_StartPos;
 				m_DrawingShape->transform.scale = glm::vec2(0.00001f);
 			}
-		//ft::Renderer2D::GetCamera()->position.x += pressEvent.Button == GLFW_MOUSE_BUTTON_1 ? 5 : -5;
-		//ft::Renderer2D::RecalculateView();
 	}
 	if (event.Type == ft::EventType::MouseRelease)
 	{
@@ -145,7 +142,6 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 	{
 		auto& scrollEvent = ft::As<ft::MouseScrollEvent>(event);
 		glm::vec2 previousPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
-		FT_TRACE("Previous {} {}", previousPos.x, previousPos.y);
 		m_LogZoom += scrollEvent.YDelta * m_ZoomSpeed;
 		m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);
 		ft::Camera2D* camera = ft::Renderer2D::GetCamera();
@@ -154,7 +150,6 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 		
 		// Zooming towards the cursor, adjust position
 		glm::vec2 newPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
-		FT_TRACE("New {} {}", newPos.x, newPos.y);
 		camera->position += (previousPos - newPos) * camera->zoom;
 		ft::Renderer2D::RecalculateView();
 	}

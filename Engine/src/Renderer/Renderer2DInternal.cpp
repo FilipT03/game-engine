@@ -101,7 +101,7 @@ namespace ft {
 		m_EllipseShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
 		m_VertexArray->Bind();
 
-		for (auto& shape : m_Shapes)
+		for (auto& [id, shape] : m_Shapes)
 		{
 			GLenum mode;
 			switch (shape->GetType())
@@ -178,6 +178,11 @@ namespace ft {
 		}
 
 		m_ViewProjection = m_Projection * m_View;
+	}
+
+	void Renderer2DInternal::RemoveShape(uint32_t shapeID)
+	{
+		//auto it = m_Shapes..
 	}
 
 	void Renderer2DInternal::RecalculateView()

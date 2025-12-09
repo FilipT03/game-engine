@@ -73,6 +73,9 @@
     <ClInclude Include="src\Platform\OpenGL\GLShader.h">
       <Filter>Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\GLTexture.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h">
       <Filter>Platform\OpenGL</Filter>
     </ClInclude>
@@ -80,6 +83,9 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Buffers.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer2D.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Renderer2DInternal.h">
@@ -94,11 +100,13 @@
     <ClInclude Include="src\Renderer\Shape.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\Texture.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Renderer\VertexArray.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Renderer\Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -125,6 +133,9 @@
     <ClCompile Include="src\Platform\OpenGL\GLShader.cpp">
       <Filter>Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\GLTexture.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp">
       <Filter>Platform\OpenGL</Filter>
     </ClCompile>
@@ -140,12 +151,12 @@
     <ClCompile Include="src\Renderer\Shader.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\Texture.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Renderer\VertexArray.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Platform\OpenGL\Shaders\Ellipse.frag" />
   </ItemGroup>
 </Project>

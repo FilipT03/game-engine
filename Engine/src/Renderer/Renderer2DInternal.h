@@ -34,9 +34,11 @@ namespace ft {
 		{
 			static_assert(std::is_base_of<Shape, ShapeType>::value, "Shape type must be derived from Shape");
 			auto shape = std::make_unique<ShapeType>(std::forward<Args>(args)...);
-			m_Shapes.push_back(std::move(shape));
-			return AddShapeInternal(m_Shapes.back().get());
+			shape->SetID(m_LastShapeId++);
+			auto [it, success] = m_Shapes.insert({ shape->GetID(), std::move(shape) });
+			return AddShapeInternal(it->second.get());
 		}
+		void RemoveShape(uint32_t shapeID);
 		void RecalculateView();
 		Camera2D* GetCamera() { return &m_Camera; };
 		glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) const;
@@ -51,7 +53,7 @@ namespace ft {
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexArray> m_VertexArray;
-		std::vector<std::unique_ptr<Shape>> m_Shapes;
+		std::map<uint32_t, std::unique_ptr<Shape>> m_Shapes;
 		uint32_t m_LastShapeId = 1;
 
 		uint32_t m_LastVertexByteOffset = 0, m_LastVertexVertexOffset = 0, m_LastIndexOffset = 0;

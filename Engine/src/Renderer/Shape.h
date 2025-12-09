@@ -72,6 +72,7 @@ namespace ft {
         uint32_t GetVertexCount() const { return modelVertices.size(); }
         uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
         ShapeType GetType() const { return m_Type; }
+        uint32_t GetID() const { return m_ID; }
 
         void SetID(uint32_t id) {
             if (m_ID)
@@ -80,7 +81,6 @@ namespace ft {
                 m_ID = id;
         }
         bool IsDirty() const { return m_Dirty; }
-
         void ResetDirty() { m_Dirty = true; }
 	protected:
         ShapeType m_Type;
@@ -170,6 +170,7 @@ namespace ft {
         int m_Sides;
     };
 
+    /// ===== Line =====
     class Line : public Shape {
     public:
         Line(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color = glm::vec4(1.0f))
@@ -210,6 +211,11 @@ namespace ft {
     private:
         glm::vec2 start;
         glm::vec2 end;
+    };
+
+    /// ===== Texture Quad =====
+    class TextureQuad : public Rectangle {
+
     };
 }
 
