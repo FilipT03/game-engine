@@ -2,7 +2,6 @@
 #include "Application.h"
 #include "Core/Time.h"
 #include "Core/Log.h"
-#include "Renderer/Renderer2D.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;

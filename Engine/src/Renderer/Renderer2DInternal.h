@@ -6,17 +6,10 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shape.h"
+#include "Renderer/Camera.h"
 #include "Event/Event.h"
 
-#define FT_VIEW_UNITS 100
-
 namespace ft {
-	struct Camera2D
-	{
-		glm::vec2 position = { 0.0f, 00.0f };
-		float zoom = 1.0f;
-	};
-
 	class Renderer2DInternal
 	{
 	public:
@@ -39,16 +32,12 @@ namespace ft {
 			return AddShapeInternal(it->second.get());
 		}
 		void RemoveShape(uint32_t shapeID);
-		void RecalculateView();
-		Camera2D* GetCamera() { return &m_Camera; };
-		glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) const;
-		glm::vec2 WorldToScreen(glm::vec2 worldCoordinates) const;
+		Camera* GetCamera() { return m_Camera.get(); };
 
 		void OnUpdate();
 		void OnEvent(const Event& event);
 	private:
 		Shape* AddShapeInternal(Shape* shape);
-		void CalculateProjectionMatrix(float width, float height);
 		void PackInterleaved(std::vector<uint8_t>& out, uint32_t vertexCount, const std::vector<const void*>& sources, const BufferLayout& layout) const;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
@@ -59,10 +48,7 @@ namespace ft {
 		uint32_t m_LastVertexByteOffset = 0, m_LastVertexVertexOffset = 0, m_LastIndexOffset = 0;
 		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader, m_TextureShader;
 
-		Camera2D m_Camera;
-		glm::mat4 m_View;
-		glm::mat4 m_Projection;
-		glm::mat4 m_ViewProjection;
+		std::unique_ptr<Camera> m_Camera;
 	};
 }
 

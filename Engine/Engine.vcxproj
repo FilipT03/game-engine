@@ -179,7 +179,11 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
     <ClInclude Include="src\Renderer\BufferLayout.h" />
     <ClInclude Include="src\Renderer\Buffers.h" />
-    <ClInclude Include="src\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\API\Renderer2D.h" />
+    <ClInclude Include="src\Renderer\Camera.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Renderer\Renderer2DInternal.h" />
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
@@ -204,6 +208,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClCompile Include="src\Platform\OpenGL\GLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
     <ClCompile Include="src\Renderer\Buffers.cpp" />
+    <ClCompile Include="src\Renderer\Camera.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Renderer\Renderer2DInternal.cpp" />
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />

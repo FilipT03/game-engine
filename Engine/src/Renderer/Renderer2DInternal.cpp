@@ -19,16 +19,17 @@
 #endif
 
 namespace ft {
-	Renderer2DInternal::Renderer2DInternal() : m_Projection(0.0f), m_View(0.0f), m_ViewProjection(0.0f) {};
+	Renderer2DInternal::Renderer2DInternal() {};
 	Renderer2DInternal::~Renderer2DInternal() {}
 
 	void Renderer2DInternal::Init()
 	{
 		#ifdef FT_OPENGL_RENDERER
 
+		m_Camera = std::make_unique<Camera>();
 		auto props = Application::Get().GetWindow().GetWindowProps();
-		CalculateProjectionMatrix(props.width, props.height);
-		RecalculateView();
+		m_Camera->CalculateProjectionMatrix(props.width, props.height);
+		m_Camera->RecalculateView();
 
 		auto basicLayout = BufferLayout({
 			{ LayoutElementType::Float2, "inWorldPosition" },
@@ -98,13 +99,13 @@ namespace ft {
 		#ifdef FT_OPENGL_RENDERER
 
 		m_BasicShader->Bind();
-		m_BasicShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
+		m_BasicShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
 		
 		m_EllipseShader->Bind();
-		m_EllipseShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
+		m_EllipseShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
 		
 		m_TextureShader->Bind();
-		m_TextureShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
+		m_TextureShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
 		m_TextureShader->SetUniform1i("uTexture", 0);
 		
 		m_VertexArray->Bind();
@@ -176,68 +177,16 @@ namespace ft {
 			glViewport(0, 0, size.x, size.y);
 			#endif
 
-			CalculateProjectionMatrix(size.x, size.y);
+			m_Camera->CalculateProjectionMatrix(size.x, size.y);
 		}
 	}
 
-	/// The smaller dimension will be 100 units, and the larger will be 100 x aspect ratio.
-	void Renderer2DInternal::CalculateProjectionMatrix(float width, float height)
-	{
-		float aspect;
-		if (width > height)
-		{
-			aspect = width / height;
-			m_Projection = glm::ortho(
-				-aspect * 0.5f * FT_VIEW_UNITS, aspect * 0.5f * FT_VIEW_UNITS,
-						 -0.5f * FT_VIEW_UNITS,			 0.5f * FT_VIEW_UNITS);
-		}
-		else
-		{
-			aspect = height / width;
-			m_Projection = glm::ortho(
-						 -0.5f * FT_VIEW_UNITS,			 0.5f * FT_VIEW_UNITS,
-				-aspect * 0.5f * FT_VIEW_UNITS, aspect * 0.5f * FT_VIEW_UNITS);
-		}
-
-		m_ViewProjection = m_Projection * m_View;
-	}
 
 	void Renderer2DInternal::RemoveShape(uint32_t shapeID)
 	{
 		m_Shapes.erase(shapeID);
 	}
 
-	void Renderer2DInternal::RecalculateView()
-	{
-		m_View = glm::translate(glm::mat4(1.0f), glm::vec3(-m_Camera.position, 0.0f));
-		m_View = glm::scale(m_View, glm::vec3(m_Camera.zoom, m_Camera.zoom, 1.0f));
-
-		m_ViewProjection = m_Projection * m_View;
-	}
-
-	glm::vec2 Renderer2DInternal::ScreenToWorld(glm::vec2 screenCoordinates) const
-	{
-		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
-		glm::vec2 ndc{};
-		ndc.x = (screenCoordinates.x / windowSize.x) * 2.0f - 1.0f;
-		ndc.y = 1.0f - (screenCoordinates.y / windowSize.y) * 2.0f;
-
-		glm::mat4 invVP = glm::inverse(m_ViewProjection);
-		glm::vec4 world = invVP * glm::vec4(ndc.x, ndc.y, 0.0f, 1.0f);
-		return glm::vec2(world.x, world.y);
-	}
-
-	glm::vec2 Renderer2DInternal::WorldToScreen(glm::vec2 worldCoordinates) const
-	{
-		glm::vec4 ndc = m_ViewProjection * glm::vec4(worldCoordinates.x, worldCoordinates.y, 0.0f, 1.0f);
-		
-		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
-		glm::vec2 screenCoords{};
-		ndc = (ndc + 1.0f) / 2.0f; // transform to range [0,1]
-		screenCoords.x = windowSize.x * ndc.x;
-		screenCoords.y = windowSize.y * (1.0f - ndc.y);
-		return screenCoords;
-	}
 
 	/// Sources should be in the same order as the layout.
 	void Renderer2DInternal::PackInterleaved(

@@ -17,17 +17,17 @@ namespace ft {
 			return s_Renderer->AddShape<ShapeType>(std::forward<Args>(args)...);
 		}
 
-		inline static Camera2D* GetCamera() {
+		inline static Camera* GetCamera() {
 			return s_Renderer->GetCamera();
 		}
-		inline static void RecalculateView() {
-			s_Renderer->RecalculateView();
-		}
 		inline static glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) {
-			return s_Renderer->ScreenToWorld(screenCoordinates);
+			return s_Renderer->GetCamera()->ScreenToWorld(screenCoordinates);
+		}
+		inline static glm::vec2 ScreenDeltaToWorld(glm::vec2 screenDelta) {
+			return s_Renderer->GetCamera()->ScreenDeltaToWorld(screenDelta);
 		}
 		inline static glm::vec2 WorldToScreen(glm::vec2 worldCoordinates) {
-			return s_Renderer->WorldToScreen(worldCoordinates);
+			return s_Renderer->GetCamera()->WorldToScreen(worldCoordinates);
 		}
 
 	private:

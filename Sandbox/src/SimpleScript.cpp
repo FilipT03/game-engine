@@ -1,5 +1,5 @@
 #include "SimpleScript.h"
-#include <Renderer/Renderer2D.h>
+#include <API/Renderer2D.h>
 
 void SimpleScript::OnRegister()
 {
@@ -44,13 +44,13 @@ void SimpleScript::OnDelete()
 
 void SimpleScript::OnUpdate()
 {
-	double fps = 1 / ft::Time::DeltaTime();
+	double fps = 1.0 / ft::Time::DeltaTime();
 	m_FpsCount++;
 	m_FpsSum += fps;
 	if (m_FpsCount >= 60)
 	{
 		double avgFps = m_FpsSum / m_FpsCount;
-		//FT_INFO("Average FPS over last {} frames: {}", m_FpsCount, avgFps);
+		FT_INFO("Average FPS over last {} frames: {}", m_FpsCount, avgFps);
 		m_FpsCount = 0;
 		m_FpsSum = 0;
 	}
@@ -68,18 +68,15 @@ void SimpleScript::OnUpdate()
 		else {
 			//shape->transform.scale.x = sin(ft::Time::TotalTime()) * 20 + 30;
 			//shape->transform.scale.y = sin(ft::Time::TotalTime()) * 20 + 30;
-			shape->UpdateWorldVertices();
 		}
 		shape->UpdateWorldVertices();
 	}
 
 	if (m_Panning)
 	{
-		glm::vec2 delta = ft::Input::GetMouseDeltaNormalized();
-		delta.x *= -1;
-		delta *= m_PanSpeed;
-		ft::Renderer2D::GetCamera()->position += delta;
-		ft::Renderer2D::RecalculateView();
+		glm::vec2 delta = ft::Input::GetMouseDelta();
+		glm::vec2 worldDelta = ft::Renderer2D::ScreenDeltaToWorld(delta);
+		ft::Renderer2D::GetCamera()->Translate(-worldDelta);
 	}
 	if (m_Dragging)
 	{
@@ -178,13 +175,11 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 		glm::vec2 previousPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
 		m_LogZoom += scrollEvent.YDelta * m_ZoomSpeed;
 		m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);
-		ft::Camera2D* camera = ft::Renderer2D::GetCamera();
-		camera->zoom = std::exp(m_LogZoom);
-		ft::Renderer2D::RecalculateView();
+		ft::Camera* camera = ft::Renderer2D::GetCamera();
+		camera->SetZoom(std::exp(m_LogZoom));
 		
 		// Zooming towards the cursor, adjust position
 		glm::vec2 newPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
-		camera->position += (previousPos - newPos) * camera->zoom;
-		ft::Renderer2D::RecalculateView();
+		camera->Translate(previousPos - newPos);
 	}
 }
