@@ -26,6 +26,14 @@ void SimpleScript::OnRegister()
 	shape3->color = glm::vec4(0.7f, 0.3f, 0.4f, 1.0f);
 	shape3->UpdateWorldVertices();
 	m_Shapes.push_back(shape3);
+
+	ft::Shape* tex = ft::Renderer2D::AddShape<ft::TextureQuad>("assets/test.bmp");
+	tex->transform.scale.x = 40;
+	tex->transform.scale.y = 40;
+	tex->color = glm::vec4(0.7f, 0.3f, 0.4f, 1.0f);
+	tex->UpdateWorldVertices();
+	m_Shapes.push_back(tex);
+
 	//AddShape(Line(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
 }
 
@@ -120,7 +128,7 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 				if (m_Ellipses)
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::Ellipse>();
 				else
-					m_DrawingShape = ft::Renderer2D::AddShape<ft::Rectangle>();
+					m_DrawingShape = ft::Renderer2D::AddShape<ft::TextureQuad>("assets/mushroom.png");
 				m_DrawingShape->transform.position = m_StartPos;
 				m_DrawingShape->transform.scale = glm::vec2(0.00001f);
 			}

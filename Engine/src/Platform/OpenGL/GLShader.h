@@ -15,6 +15,7 @@ namespace ft {
 		void Bind() const override;
 		void Unbind() const override;
 
+		void SetUniform1i(const std::string& name, int value) const override;
 		void SetUniform1f(const std::string& name, float value) const override;
 		void SetUniform3f(const std::string& name, const glm::vec3& value) const override;
 		void SetUniform4f(const std::string& name, const glm::vec4& value) const override;

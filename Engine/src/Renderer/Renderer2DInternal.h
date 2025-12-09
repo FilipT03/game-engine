@@ -57,7 +57,7 @@ namespace ft {
 		uint32_t m_LastShapeId = 1;
 
 		uint32_t m_LastVertexByteOffset = 0, m_LastVertexVertexOffset = 0, m_LastIndexOffset = 0;
-		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader;
+		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader, m_TextureShader;
 
 		Camera2D m_Camera;
 		glm::mat4 m_View;

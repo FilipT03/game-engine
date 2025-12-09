@@ -15,6 +15,7 @@
 #include "Platform/OpenGL/Shaders/Basic.vert"
 #include "Platform/OpenGL/Shaders/Basic.frag"
 #include "Platform/OpenGL/Shaders/Ellipse.frag"
+#include "Platform/OpenGL/Shaders/Texture.frag"
 #endif
 
 namespace ft {
@@ -44,6 +45,7 @@ namespace ft {
 
 		m_BasicShader = std::unique_ptr<Shader>(Shader::Create(basicVert, basicFrag));
 		m_EllipseShader = std::unique_ptr<Shader>(Shader::Create(basicVert, ellipseFrag));
+		m_TextureShader = std::unique_ptr<Shader>(Shader::Create(basicVert, textureFrag));
 
 		#endif
 	}
@@ -97,8 +99,14 @@ namespace ft {
 
 		m_BasicShader->Bind();
 		m_BasicShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
+		
 		m_EllipseShader->Bind();
 		m_EllipseShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
+		
+		m_TextureShader->Bind();
+		m_TextureShader->SetUniformMatrix4fv("uViewProjection", m_ViewProjection);
+		m_TextureShader->SetUniform1i("uTexture", 0);
+		
 		m_VertexArray->Bind();
 
 		for (auto& [id, shape] : m_Shapes)
@@ -122,12 +130,22 @@ namespace ft {
 				case ShapeType::Line:
 					mode = GL_LINES;
 					break;
-			
+
+				case ShapeType::TextureQuad:
+				{
+					m_TextureShader->Bind();
+					TextureQuad* textureQuad = dynamic_cast<TextureQuad*>(shape.get());
+					textureQuad->GetTexture()->Bind(0);
+
+					mode = GL_TRIANGLES;
+					break;
+				}
 				default:
 					m_BasicShader->Bind();
+
 					m_BasicShader->SetUniform4f("uColor", shape->color);
 				
-					mode = GL_TRIANGLE_FAN;
+					mode = GL_TRIANGLES;
 					break;
 			}
 
@@ -182,7 +200,7 @@ namespace ft {
 
 	void Renderer2DInternal::RemoveShape(uint32_t shapeID)
 	{
-		//auto it = m_Shapes..
+		m_Shapes.erase(shapeID);
 	}
 
 	void Renderer2DInternal::RecalculateView()

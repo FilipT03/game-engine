@@ -104,6 +104,11 @@ namespace ft {
 		glUseProgram(0);
 	}
 
+	void GLShader::SetUniform1i(const std::string& name, int value) const
+	{
+		glUniform1i(glGetUniformLocation(m_ID, name.c_str()), value);
+	}
+
 	void GLShader::SetUniform1f(const std::string& name, float value) const
 	{
 		glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);

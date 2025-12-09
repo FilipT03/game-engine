@@ -1,10 +1,10 @@
 //!#version 330 core
 #ifdef FT_GLSL_INCLUDE
-std::string ellipseFrag = R"(
+std::string textureFrag = R"(
 
 #version 330 core
 
-uniform vec4 uTexture;
+uniform sampler2D uTexture;
 
 in vec2 chPosition;
 
@@ -13,7 +13,8 @@ uniform vec4 uColor;
 
 void main()
 {
-    outCol = texture(chPosition, uTexture);
+    //outColor = vec4(chPosition+0.5, 0.0, 1.0);
+    outColor = texture(uTexture, chPosition+0.5);
 }
 
 

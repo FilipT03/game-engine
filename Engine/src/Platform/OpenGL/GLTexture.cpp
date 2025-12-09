@@ -12,6 +12,7 @@ namespace ft {
         if (m_ID == 0)
             return;
 
+        glBindTexture(GL_TEXTURE_2D, m_ID);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

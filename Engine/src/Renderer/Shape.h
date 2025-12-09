@@ -3,6 +3,8 @@
 #include "Core/Core.h"
 #include "Core/Log.h"
 
+#include "Renderer/Texture.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -21,7 +23,7 @@ namespace ft {
 			: position(position), rotation(rotation), scale(scale), zIndex(zIndex) {}
     };
 
-    enum class ShapeType { Rectangle, Ellipse, Triangle, Polygon, Line, Other };
+    enum class ShapeType { Rectangle, Ellipse, Triangle, Polygon, Line, Other, TextureQuad };
 
     /// ===== Shape =====
     class Shape {
@@ -81,7 +83,8 @@ namespace ft {
                 m_ID = id;
         }
         bool IsDirty() const { return m_Dirty; }
-        void ResetDirty() { m_Dirty = true; }
+        void ResetDirty() { m_Dirty = false; }
+        void MarkDirty() { m_Dirty = true; }
 	protected:
         ShapeType m_Type;
     private:
@@ -215,7 +218,18 @@ namespace ft {
 
     /// ===== Texture Quad =====
     class TextureQuad : public Rectangle {
+    public:
+        TextureQuad(const std::string& imagePath, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+            : Rectangle(transform, color) {
+            this->m_Type = ShapeType::TextureQuad;
+            m_Texture = std::unique_ptr<Texture>(Texture::Create(imagePath));
+            GenerateModel();
+            UpdateWorldVertices();
+        }
 
+        Texture* const GetTexture() { return m_Texture.get(); }
+    private:
+        std::unique_ptr<Texture> m_Texture;
     };
 }
 
