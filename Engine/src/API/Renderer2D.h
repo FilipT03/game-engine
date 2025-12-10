@@ -6,35 +6,46 @@ namespace ft {
 	class Renderer2D {
 	public:
 		inline static void Clear() { 
-			s_Renderer->Clear(); 
+			Renderer2DInternal::Clear();
 		}
 		inline static void SetClearColor(float r, float g, float b, float a) {
-			s_Renderer->SetClearColor(r, g, b, a);
+			Renderer2DInternal::SetClearColor(r, g, b, a);
 		}
 
 		template <typename ShapeType, typename... Args>
 		inline static Shape* AddShape(Args&&... args) {
-			return s_Renderer->AddShape<ShapeType>(std::forward<Args>(args)...);
+			return s_WorldRenderer->AddShape<ShapeType>(std::forward<Args>(args)...);
 		}
 		inline static void RemoveShape(uint32_t shapeID) {
-			s_Renderer->RemoveShape(shapeID);
+			s_WorldRenderer->RemoveShape(shapeID);
 		}
 
-		inline static Camera* GetCamera() {
-			return s_Renderer->GetCamera();
+		template <typename ShapeType, typename... Args>
+		inline static Shape* AddUIShape(Args&&... args) {
+			return s_UIRenderer->AddShape<ShapeType>(std::forward<Args>(args)...);
+		}
+		inline static void RemoveUIShape(uint32_t shapeID) {
+			s_UIRenderer->RemoveShape(shapeID);
+		}
+
+		inline static WorldCamera2D* GetCamera() {
+			WorldCamera2D* worldCamera = dynamic_cast<WorldCamera2D*>(s_WorldRenderer->GetCamera());
+			FT_ASSERT(worldCamera, "Renderer2D expects s_worldRenderer to have a 2D world camera");
+			return worldCamera;
 		}
 		inline static glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) {
-			return s_Renderer->GetCamera()->ScreenToWorld(screenCoordinates);
+			return GetCamera()->ScreenToWorld(screenCoordinates);
 		}
 		inline static glm::vec2 ScreenDeltaToWorld(glm::vec2 screenDelta) {
-			return s_Renderer->GetCamera()->ScreenDeltaToWorld(screenDelta);
+			return GetCamera()->ScreenDeltaToWorld(screenDelta);
 		}
 		inline static glm::vec2 WorldToScreen(glm::vec2 worldCoordinates) {
-			return s_Renderer->GetCamera()->WorldToScreen(worldCoordinates);
+			return  GetCamera()->WorldToScreen(worldCoordinates);
 		}
 
 	private:
-		inline static Renderer2DInternal* s_Renderer = nullptr;
+		inline static Renderer2DInternal* s_WorldRenderer = nullptr;
+		inline static Renderer2DInternal* s_UIRenderer = nullptr;
 		friend class Application;
 	};
 }

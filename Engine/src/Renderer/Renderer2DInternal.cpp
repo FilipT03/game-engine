@@ -19,14 +19,17 @@
 #endif
 
 namespace ft {
-	Renderer2DInternal::Renderer2DInternal() {};
+	Renderer2DInternal::Renderer2DInternal(RendererType type) : m_Type(type) {};
 	Renderer2DInternal::~Renderer2DInternal() {}
 
 	void Renderer2DInternal::Init()
 	{
 		#ifdef FT_OPENGL_RENDERER
 
-		m_Camera = std::make_unique<Camera>();
+		if (m_Type == RendererType::World)
+			m_Camera = std::make_unique<WorldCamera2D>();
+		else
+			m_Camera = std::make_unique<UICamera>();
 		auto props = Application::Get().GetWindow().GetWindowProps();
 		m_Camera->CalculateProjectionMatrix(props.width, props.height);
 		m_Camera->RecalculateView();
@@ -73,7 +76,7 @@ namespace ft {
 
 	Shape* Renderer2DInternal::AddShapeInternal(Shape* shape)
 	{
-		uint32_t size = shape->GetVertexByteSize() * 2;
+		uint32_t size = shape->GetVertexByteSize() * m_VertexArray->GetBufferLayout().GetElementCount();
 		uint32_t count = shape->GetVertexCount();
 		
 		shape->vertexByteOffset = m_LastVertexByteOffset;
@@ -97,6 +100,8 @@ namespace ft {
 	void Renderer2DInternal::OnUpdate()
 	{
 		#ifdef FT_OPENGL_RENDERER
+
+		glDisable(GL_DEPTH_TEST);
 
 		m_BasicShader->Bind();
 		m_BasicShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
@@ -167,7 +172,7 @@ namespace ft {
 		#endif
 	}
 
-	void Renderer2DInternal::OnEvent(const Event& event)
+	bool Renderer2DInternal::OnEvent(const Event& event)
 	{
 		if (event.Type == EventType::WindowResize)
 		{
@@ -179,6 +184,7 @@ namespace ft {
 
 			m_Camera->CalculateProjectionMatrix(size.x, size.y);
 		}
+		return false;
 	}
 
 

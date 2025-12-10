@@ -34,6 +34,15 @@ void SimpleScript::OnRegister()
 	tex->UpdateWorldVertices();
 	m_Shapes.push_back(tex);
 
+
+	ft::Shape* button = ft::Renderer2D::AddUIShape<ft::Rectangle>();
+	button->transform.scale.x = 300;
+	button->transform.scale.y = 50;
+	button->transform.position = {500, 500};
+	button->color = glm::vec4(0.7f, 0.3f, 0.4f, 1.0f);
+	button->UpdateWorldVertices();
+	m_UIElements.push_back(button);
+
 	//AddShape(Line(glm::vec2{-0.4,0}, glm::vec2{ +0.4,0 }));
 }
 
@@ -104,16 +113,17 @@ void SimpleScript::OnUpdate()
 	}
 }
 
-void SimpleScript::OnEvent(const ft::Event& event)
+bool SimpleScript::OnEvent(const ft::Event& event)
 {
+	return false;
 }
 
-void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
+bool SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 {
 	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_ESCAPE)
 		ft::Application::Get().Close();
 	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_G)
-		ft::Application::Get().RemoveScriptComponent(GetId());
+		ft::Application::Get().RemoveModule(GetId());
 	if (event.Type == ft::EventType::KeyPress && event.Key == GLFW_KEY_E)
 	{
 		if (m_Ellipses)
@@ -131,9 +141,10 @@ void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 			m_Ellipses = true;
 		}
 	}
+	return false;
 }
 
-void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
+bool SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 {
 	if (event.Type == ft::EventType::MousePress)
 	{
@@ -180,11 +191,12 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 		glm::vec2 previousPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
 		m_LogZoom += scrollEvent.YDelta * m_ZoomSpeed;
 		m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);
-		ft::Camera* camera = ft::Renderer2D::GetCamera();
+		ft::WorldCamera2D* camera = ft::Renderer2D::GetCamera();
 		camera->SetZoom(std::exp(m_LogZoom));
 		
 		// Zooming towards the cursor, adjust position
 		glm::vec2 newPos = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
 		camera->Translate(previousPos - newPos);
 	}
+	return false;
 }

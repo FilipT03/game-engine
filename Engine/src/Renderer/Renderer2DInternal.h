@@ -6,21 +6,25 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shape.h"
-#include "Renderer/Camera.h"
+#include "Renderer/Camera2D.h"
 #include "Event/Event.h"
 
 namespace ft {
+	enum class RendererType {
+		World, UI
+	};
+
 	class Renderer2DInternal
 	{
 	public:
-		Renderer2DInternal();
+		Renderer2DInternal(RendererType type);
 		~Renderer2DInternal();
 
 		void Init();
 		void Shutdown();
 		
-		void Clear();
-		void SetClearColor(float r, float g, float b, float a);
+		static void Clear();
+		static void SetClearColor(float r, float g, float b, float a);
 
 		template <typename ShapeType, typename... Args>
 		Shape* AddShape(Args&&... args)
@@ -32,10 +36,10 @@ namespace ft {
 			return AddShapeInternal(it->second.get());
 		}
 		void RemoveShape(uint32_t shapeID);
-		Camera* GetCamera() { return m_Camera.get(); };
+		Camera2D* GetCamera() { return m_Camera.get(); };
 
 		void OnUpdate();
-		void OnEvent(const Event& event);
+		bool OnEvent(const Event& event);
 	private:
 		Shape* AddShapeInternal(Shape* shape);
 		void PackInterleaved(std::vector<uint8_t>& out, uint32_t vertexCount, const std::vector<const void*>& sources, const BufferLayout& layout) const;
@@ -48,7 +52,7 @@ namespace ft {
 		uint32_t m_LastVertexByteOffset = 0, m_LastVertexVertexOffset = 0, m_LastIndexOffset = 0;
 		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader, m_TextureShader;
 
-		std::unique_ptr<Camera> m_Camera;
+		RendererType m_Type;
+		std::unique_ptr<Camera2D> m_Camera;
 	};
 }
-
