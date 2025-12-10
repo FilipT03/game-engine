@@ -131,7 +131,6 @@ void SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 			m_Ellipses = true;
 		}
 	}
-		//m_Ellipses = !m_Ellipses;
 }
 
 void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
@@ -154,6 +153,12 @@ void SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::TextureQuad>("assets/mushroom.png");
 				m_DrawingShape->transform.position = m_StartPos;
 				m_DrawingShape->transform.scale = glm::vec2(0.00001f);
+			}
+		if (pressEvent.Button == GLFW_MOUSE_BUTTON_2)
+			if (m_Dragging)
+			{
+				m_Dragging = false;
+				ft::Renderer2D::RemoveShape(m_DrawingShape->GetID());
 			}
 	}
 	if (event.Type == ft::EventType::MouseRelease)

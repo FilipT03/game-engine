@@ -16,6 +16,9 @@ namespace ft {
 		inline static Shape* AddShape(Args&&... args) {
 			return s_Renderer->AddShape<ShapeType>(std::forward<Args>(args)...);
 		}
+		inline static void RemoveShape(uint32_t shapeID) {
+			s_Renderer->RemoveShape(shapeID);
+		}
 
 		inline static Camera* GetCamera() {
 			return s_Renderer->GetCamera();
