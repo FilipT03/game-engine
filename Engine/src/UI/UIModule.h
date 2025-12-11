@@ -10,7 +10,7 @@ namespace ft {
 	class UIModule : public Module
 	{
 	public:
-		UIModule(Renderer2DInternal* UIRenderer) {}
+		UIModule() {}
 
 		void OnUpdate() override;
 		void OnRegister() override {}
@@ -20,13 +20,13 @@ namespace ft {
 		bool OnMouseEvent(const MouseEvent& e) override;
 
 		template <typename ElementType, typename... Args>
-		UIElement* AddElement(Args&&... args)
+		ElementType* AddElement(Args&&... args)
 		{
 			static_assert(std::is_base_of<UIElement, ElementType>::value, "Element type must be derived from UIElement");
 			auto element = std::make_unique<ElementType>(std::forward<Args>(args)...);
 			element->SetID(m_LastElementID++);
 			auto [it, success] = m_UIElements.insert({ element->GetID(), std::move(element) });
-			return AddElementInternal(it->second.get());
+			return static_cast<ElementType*> (AddElementInternal(it->second.get()));
 		}
 		void RemoveElement(uint32_t elementID);
 	private:

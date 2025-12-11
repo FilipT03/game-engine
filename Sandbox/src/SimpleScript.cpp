@@ -13,7 +13,7 @@ void SimpleScript::OnRegister()
 	shape1->UpdateWorldVertices();
 	m_Shapes.push_back(shape1);
 
-	ft::Shape* shape2 = ft::Renderer2D::AddShape<ft::Polygon>(3);
+	ft::Shape* shape2 = ft::Renderer2D::AddShape<ft::Polygon>(5);
 	shape2->transform.position.x += 30.0f;
 	shape2->transform.position.y -= 30.0f;
 	shape2->transform.scale = { 30.0f, 30.0f };
@@ -36,12 +36,17 @@ void SimpleScript::OnRegister()
 	m_Shapes.push_back(tex);
 
 
-	ft::UIElement* button = ft::UI::AddElement<ft::Button>("assets/test.bmp", ft::Rect(200, 75, 300, 50));
+	ft::Panel* panel = ft::UI::AddElement<ft::Panel>("assets/mushroom.png", ft::Rect(0, 0, 1920, 300), glm::vec4(0.3f, 0.6f, 0.2f, 1.0f));
+	m_UIElements.push_back(panel);
+
+	ft::Button* button = ft::UI::AddElement<ft::Button>("assets/test.bmp", ft::Rect(900, 75, 300, 50));
 	//button->color = glm::vec4(0.7f, 0.3f, 0.4f, 1.0f);
 	m_UIElements.push_back(button);
-	dynamic_cast<ft::Button*>(button)->SetClickCallback([]() {
+	button->SetClickCallback([]() {
 		FT_INFO("Pressed button!");
 	});
+
+
 }
 
 void SimpleScript::OnDelete()
@@ -76,7 +81,7 @@ void SimpleScript::OnUpdate()
 			//shape->transform.scale.x = sin(ft::Time::TotalTime()) * 20 + 30;
 			//shape->transform.scale.y = sin(ft::Time::TotalTime()) * 20 + 30;
 		}
-		shape->UpdateWorldVertices();
+		//shape->UpdateWorldVertices();
 	}
 
 	if (m_Panning)
@@ -158,7 +163,7 @@ bool SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::Ellipse>();
 				else if (m_Lines)
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::Line>(m_StartPos, m_StartPos + glm::vec2{ 0.0001,0.0001 });
-				else;
+				else
 					m_DrawingShape = ft::Renderer2D::AddShape<ft::TextureQuad>("assets/mushroom.png");
 				m_DrawingShape->transform.position = m_StartPos;
 				m_DrawingShape->transform.scale = glm::vec2(0.00001f);

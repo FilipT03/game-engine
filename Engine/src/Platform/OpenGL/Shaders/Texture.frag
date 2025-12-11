@@ -10,11 +10,16 @@ in vec2 chPosition;
 
 layout(location = 0) out vec4 outColor;
 uniform vec4 uColor;
+uniform int uFlipY;
 
 void main()
 {
-    //outColor = vec4(chPosition+0.5, 0.0, 1.0);
-    outColor = texture(uTexture, chPosition+0.5) * uColor;
+    vec2 uv = chPosition + 0.5;
+
+    if (uFlipY == 1)
+        uv.y = 1.0 - uv.y;
+
+    outColor = texture(uTexture, uv) * uColor;
 }
 
 

@@ -3,7 +3,7 @@
 #include "Core/Core.h"
 #include "Renderer/Texture.h"
 #include "Renderer/Shape.h"
-#include "Renderer/Renderer2DInternal.h"
+#include "API/Renderer2D.h"
 #include "Event/InputEvent.h"
 
 namespace ft {
@@ -19,11 +19,13 @@ namespace ft {
 	public:
 		UIElement(Rect rect) : m_Rect(rect), m_ID(0), m_Shape(nullptr) {}
 		virtual ~UIElement() = default;
-		virtual bool OnMouseEvent(const MouseEvent& e) { return false; }
+		virtual bool OnMouseEvent(const MouseEvent& e);
 		virtual void OnUpdate() {}
 		
 		virtual void RegisterShape() {};
-		virtual void RemoveShape() {};
+		virtual void RemoveShape() {
+			Renderer2D::RemoveUIShape(m_Shape->GetID());
+		};
 
 		uint32_t GetID() const { return m_ID; }
 		void SetID(uint32_t id) {
@@ -33,6 +35,7 @@ namespace ft {
 				m_ID = id;
 		}
 		bool InBounds(float x, float y) const;
+		bool InBounds(const glm::vec2& xy) const { return InBounds(xy.x, xy.y); }
 		const Rect& GetRect() const { return m_Rect; }
 		void SetRect(Rect rect);
 		
@@ -42,6 +45,7 @@ namespace ft {
 		Rect m_Rect;
 		uint32_t m_ID;
 		Shape* m_Shape;
+		bool m_RegisteredShape = false;
 	};
 
 	class Button : public UIElement
@@ -53,7 +57,6 @@ namespace ft {
 
 		void SetClickCallback(ClickCallback callback) { m_ClickCallback = callback; }
 		void RegisterShape() override;
-		void RemoveShape() override;
 
 		void SetTints(const glm::vec4& activeTint =  glm::vec4(1.0f),
 					  const glm::vec4& pressTint =   glm::vec4(0.8f, 0.8f, 0.8f, 1.0f),
@@ -77,6 +80,19 @@ namespace ft {
 		ClickCallback m_ClickCallback;
 		
 		bool m_IsHovered, m_IsPressed;
+	};
+
+	class Panel : public UIElement
+	{
+	public:
+		Panel(const std::string& texturePath, Rect rect, const glm::vec4& color = glm::vec4(1.0f));
+		Panel(Rect rect, const glm::vec4& color = glm::vec4(1.0f));
+		void RegisterShape() override;
+
+		void SetColor(const glm::vec4& color) { m_Color = color; }
+	private:
+		std::shared_ptr<Texture> m_Texture;
+		glm::vec4 m_Color;
 	};
 }
 

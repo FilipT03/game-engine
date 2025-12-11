@@ -5,28 +5,38 @@
 #include "API/Renderer2D.h"
 
 namespace ft {
+	/// ============ UI Element ============
 	bool UIElement::InBounds(float x, float y) const {
-		float difX = abs(x - m_Rect.x);
-		float difY = abs(y - m_Rect.y);
-		return difX <= m_Rect.width  / 2
-			&& difY <= m_Rect.height / 2;
+		return x >= m_Rect.x && y >= m_Rect.y
+			&& x <= m_Rect.x + m_Rect.width
+			&& y <= m_Rect.y + m_Rect.height;
 	}
 
 	Transform UIElement::GenerateTransform() const { // TODO: Add other pixel scalings
 		Transform transform = Transform();
-		transform.position = glm::vec2(m_Rect.x, m_Rect.y);
+		transform.position = glm::vec2(m_Rect.x + m_Rect.width / 2.0, m_Rect.y + m_Rect.height / 2.0);
 		transform.scale = glm::vec2(m_Rect.width, m_Rect.height);
 		return transform;
 	}
 
 	void UIElement::SetRect(Rect rect) {
 		m_Rect = rect;
+		if (m_Shape == nullptr) return;
 		m_Shape->transform = GenerateTransform();
 		m_Shape->UpdateWorldVertices();
 	}
 
+	bool UIElement::OnMouseEvent(const MouseEvent& e)
+	{
+		if (e.type == EventType::MousePress)
+			return InBounds(Input::GetMousePosition());
+		return false;
+	}
+
+	/// ============ Button ============
 	Button::Button(const std::string& texturePath, Rect rect) : UIElement(rect), m_IsPressed(false), m_IsHovered(false) {
 		m_Texture = AssetManager::LoadTexture(texturePath);
+		m_ClickCallback = [] {};
 		SetTints();
 	}
 
@@ -42,18 +52,15 @@ namespace ft {
 			break;
 		}
 		case EventType::MousePress:
-			glm::vec2 position = Input::GetMousePosition();
-			m_IsPressed = InBounds(position.x, position.y);
+			m_IsPressed = InBounds(Input::GetMousePosition());
 			consumed = m_IsPressed;
 			break;
 		case EventType::MouseRelease:
-			position = Input::GetMousePosition();
-			bool inBounds = InBounds(position.x, position.y);
+			bool inBounds = InBounds(Input::GetMousePosition());
 			if (m_IsPressed && inBounds) 
 			{
 				m_ClickCallback();
 				consumed = true;
-				break;
 			}
 			m_IsPressed = false;
 			break;
@@ -74,13 +81,31 @@ namespace ft {
 
 	void Button::RegisterShape()
 	{
+		if (m_RegisteredShape)
+			return;
 		Transform transform = GenerateTransform();
 		m_Shape = Renderer2D::AddUIShape<TextureQuad>(m_Texture, transform, m_ActiveTint);
+		m_RegisteredShape = true;
 	}
 
-	void Button::RemoveShape()
+
+	/// ============ Panel ============
+	Panel::Panel(Rect rect, const glm::vec4& color) : UIElement(rect), m_Color(color) {}
+
+	Panel::Panel(const std::string& texturePath, Rect rect, const glm::vec4& color) : UIElement(rect), m_Color(color)
 	{
+		m_Texture = AssetManager::LoadTexture(texturePath);
+	}
+
+	void Panel::RegisterShape()
+	{
+		if (m_RegisteredShape)
+			return;
 		Transform transform = GenerateTransform();
-		Renderer2D::RemoveUIShape(m_Shape->GetID());
+		if (m_Texture == nullptr)
+			m_Shape = Renderer2D::AddUIShape<Rectangle>(transform, m_Color);
+		else
+			m_Shape = Renderer2D::AddUIShape<TextureQuad>(m_Texture, transform, m_Color);
+		m_RegisteredShape = true;
 	}
 }

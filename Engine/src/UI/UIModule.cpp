@@ -18,9 +18,9 @@ namespace ft {
 
 	bool UIModule::OnMouseEvent(const MouseEvent& e)
 	{
-		for (auto& [id, element] : m_UIElements)
+		for (auto it = m_UIElements.rbegin(); it != m_UIElements.rend(); ++it)
 		{
-			bool stop = element->OnMouseEvent(e);
+			bool stop = it->second->OnMouseEvent(e);
 			if (stop) return true;
 		}
 		return false;

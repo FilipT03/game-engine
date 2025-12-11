@@ -10,7 +10,7 @@ namespace ft {
 	{
 	public:
 		template <typename ElementType, typename... Args>
-		inline static UIElement* AddElement(Args&&... args) {
+		inline static ElementType* AddElement(Args&&... args) {
 			return s_UIModule->AddElement<ElementType>(std::forward<Args>(args)...);
 		}
 		inline static void RemoveElement(uint32_t elementID) {

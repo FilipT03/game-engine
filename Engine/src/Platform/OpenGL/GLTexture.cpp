@@ -36,13 +36,13 @@ namespace ft {
 	void GLTexture::LoadFromFile(const std::string& imagePath)
 	{
         int width, height, channelCount;
+        stbi_set_flip_vertically_on_load(1);
         unsigned char* imageData = stbi_load(imagePath.c_str(), &width, &height, &channelCount, 0);
         if (imageData != NULL)
         {
             m_Width = width;
             m_Height = height;
             m_ChannelCount = channelCount;
-            stbi__vertical_flip(imageData, m_Width, m_Height, m_ChannelCount);
 
             GLint internalFormat = -1;
             switch (m_ChannelCount) {

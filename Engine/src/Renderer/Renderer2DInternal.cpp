@@ -76,17 +76,27 @@ namespace ft {
 
 	Shape* Renderer2DInternal::AddShapeInternal(Shape* shape)
 	{
-		uint32_t size = shape->GetVertexByteSize() * m_VertexArray->GetBufferLayout().GetElementCount();
+		uint32_t stride = m_VertexArray->GetBufferLayout().GetStride();
 		uint32_t count = shape->GetVertexCount();
+		uint32_t size = count * stride;
 		
 		shape->vertexByteOffset = m_LastVertexByteOffset;
 		m_LastVertexByteOffset += size;
 
 		shape->vertexOffset = m_LastVertexVertexOffset;
 		m_LastVertexVertexOffset += count;
-		
+	
+		if (shape->worldVertices.size() != count) {
+			FT_ENGINE_WARN("World vertices of shape {} not initialized!", shape->GetID());
+			shape->UpdateWorldVertices();
+		}
+
 		std::vector<uint8_t> data;
-		PackInterleaved(data, shape->GetVertexCount(), { shape->worldVertices.data(), shape->modelVertices.data()}, m_VertexArray->GetBufferLayout());
+		PackInterleaved(data, count, { shape->worldVertices.data(), shape->modelVertices.data()}, m_VertexArray->GetBufferLayout());
+
+		if (data.size() != size) {
+			FT_ENGINE_ERROR("Data packing mismatch. Expected {} bytes, got {}", size, data.size());
+		}
 		m_VertexBuffer->SetData(shape->vertexByteOffset, size, data.data());
 
 		size = shape->GetIndexByteSize();
@@ -114,6 +124,8 @@ namespace ft {
 		m_TextureShader->SetUniform1i("uTexture", 0);
 		
 		m_VertexArray->Bind();
+		m_VertexBuffer->Bind();
+		m_IndexBuffer->Bind();
 
 		for (auto& [id, shape] : m_Shapes)
 		{
@@ -145,6 +157,8 @@ namespace ft {
 				{
 					m_TextureShader->Bind();
 					m_TextureShader->SetUniform4f("uColor", shape->color);
+					int flipY = m_Type == RendererType::UI ? 1 : 0;
+					m_TextureShader->SetUniform1i("uFlipY", flipY);
 					TextureQuad* textureQuad = dynamic_cast<TextureQuad*>(shape.get());
 					textureQuad->GetTexture()->Bind(0);
 
@@ -153,7 +167,6 @@ namespace ft {
 				}
 				default:
 					m_BasicShader->Bind();
-
 					m_BasicShader->SetUniform4f("uColor", shape->color);
 				
 					mode = GL_TRIANGLES;
@@ -164,11 +177,11 @@ namespace ft {
 			{
 				std::vector<uint8_t> data;
 				PackInterleaved(data, shape->GetVertexCount(), { shape->worldVertices.data(), shape->modelVertices.data() }, m_VertexArray->GetBufferLayout());
-				m_VertexBuffer->SetData(shape->vertexByteOffset, shape->GetVertexByteSize() * 2, data.data());
+				m_VertexBuffer->SetData(shape->vertexByteOffset, shape->GetVertexCount() * m_VertexArray->GetBufferLayout().GetStride(), data.data());
 				shape->ResetDirty();
 			}
 
-			glDrawElementsBaseVertex(mode, shape->indices.size(), GL_UNSIGNED_INT, (void*)shape->indexOffset, shape->vertexOffset);
+			glDrawElementsBaseVertex(mode, shape->indices.size(), GL_UNSIGNED_INT, (void*)(intptr_t)shape->indexOffset, shape->vertexOffset);
 		}
 		#endif
 	}

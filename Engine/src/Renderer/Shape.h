@@ -71,7 +71,7 @@ namespace ft {
             m_Dirty = true;
         }
 
-        uint32_t GetVertexByteSize() const { return sizeof(float) * worldVertices.size() * 2; }
+        uint32_t GetVertexByteSize() const { return sizeof(glm::vec2) * worldVertices.size(); }
         uint32_t GetVertexCount() const { return modelVertices.size(); }
         uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
         ShapeType GetType() const { return m_Type; }

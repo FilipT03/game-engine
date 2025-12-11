@@ -28,7 +28,7 @@ namespace ft {
 
 		Renderer2D::SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
-		UIModule* uiModule = RegisterEngineModule<UIModule>(m_UIRenderer.get());
+		UIModule* uiModule = RegisterEngineModule<UIModule>();
 		UI::s_UIModule = uiModule;
 	}
 
