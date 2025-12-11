@@ -146,13 +146,14 @@ namespace ft {
 				}
 			
 				case ShapeType::Line:
+				{
 					m_BasicShader->Bind();
-
 					m_BasicShader->SetUniform4f("uColor", shape->color);
 
+					Line* line = dynamic_cast<Line*>(shape.get());
 					mode = GL_LINES;
 					break;
-
+				}
 				case ShapeType::TextureQuad:
 				{
 					m_TextureShader->Bind();
@@ -168,8 +169,11 @@ namespace ft {
 				default:
 					m_BasicShader->Bind();
 					m_BasicShader->SetUniform4f("uColor", shape->color);
-				
-					mode = GL_TRIANGLES;
+
+					if (shape->isOutline)
+						mode = GL_LINE_LOOP;
+					else
+						mode = GL_TRIANGLE_FAN;
 					break;
 			}
 

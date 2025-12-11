@@ -71,6 +71,8 @@ namespace ft {
 		void SetHoverTint(const glm::vec4& tint)   { m_HoverTint = tint; }
 		void SetActiveTint(const glm::vec4& tint)  { m_ActiveTint = tint; }
 		void SetDisableTint(const glm::vec4& tint) { m_DisableTint = tint; }
+		
+		void SetTexture(const std::string& texturePath);
 
 	private:
 		void UpdateColor() const;

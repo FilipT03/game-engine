@@ -24,7 +24,7 @@ namespace ft {
 			: position(position), rotation(rotation), scale(scale), zIndex(zIndex) {}
     };
 
-    enum class ShapeType { Rectangle, Ellipse, Triangle, Polygon, Line, Other, TextureQuad };
+    enum class ShapeType { Rectangle, Ellipse, Polygon, Line, Other, TextureQuad };
 
     /// ===== Shape =====
     class Shape {
@@ -35,6 +35,7 @@ namespace ft {
 
         Transform transform;
         glm::vec4 color;
+        bool isOutline = false;
 
         std::vector<glm::vec2> modelVertices;
         std::vector<glm::vec2> worldVertices;
@@ -161,12 +162,9 @@ namespace ft {
 			}
             
             indices.clear();
-            indices.reserve(3 * (m_Sides - 2));
-            for (int i = 1; i < m_Sides - 1; ++i) {
-				indices.push_back(0);
+            indices.reserve(m_Sides);
+            for (int i = 0; i < m_Sides; ++i)
 				indices.push_back(i);
-				indices.push_back(i + 1);
-			}
         }
 
         int GetSides() const { return m_Sides; }
@@ -178,17 +176,19 @@ namespace ft {
     class Line : public Shape {
     public:
         Line(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color = glm::vec4(1.0f))
-            : Shape(Transform(), color, ShapeType::Line), start(start), end(end)
+            : Shape(Transform(), color, ShapeType::Line), m_Start(start), m_End(end)
         {
             GenerateModel();
             UpdateWorldVertices();
         }
 
-        void GenerateModel() override {
-            glm::vec2 center = (start + end) * 0.5f;
+        bool dashedLine = false;
 
-            float length = glm::distance(start, end);
-            float angle = atan2(end.y - start.y, end.x - start.x);
+        void GenerateModel() override {
+            glm::vec2 center = (m_Start + m_End) * 0.5f;
+
+            float length = glm::distance(m_Start, m_End);
+            float angle = atan2(m_End.y - m_Start.y, m_End.x - m_Start.x);
 
             modelVertices = {
                 {-0.5f, 0.0f},
@@ -203,18 +203,18 @@ namespace ft {
         }
 
         void SetStart(const glm::vec2& start) {
-            this->start = start;
+            this->m_Start = start;
             GenerateModel();
         }
 
         void SetEnd(const glm::vec2& end) {
-            this->end = end;
+            this->m_End = end;
             GenerateModel();
         }
 
     private:
-        glm::vec2 start;
-        glm::vec2 end;
+        glm::vec2 m_Start;
+        glm::vec2 m_End;
     };
 
     /// ===== Texture Quad =====

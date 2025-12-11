@@ -88,6 +88,12 @@ namespace ft {
 		m_RegisteredShape = true;
 	}
 
+	void Button::SetTexture(const std::string& texturePath)
+	{
+		m_Texture = AssetManager::LoadTexture(texturePath);
+		TextureQuad* quad = dynamic_cast<TextureQuad*>(m_Shape);
+		quad->SetTexture(m_Texture);
+	}
 
 	/// ============ Panel ============
 	Panel::Panel(Rect rect, const glm::vec4& color) : UIElement(rect), m_Color(color) {}
