@@ -21,9 +21,9 @@ namespace ft {
 	{
 	public:
 		WindowResizeEvent(int width, int height) 
-			: Width(width), Height(height), WindowEvent(EventType::WindowResize)
+			: width(width), height(height), WindowEvent(EventType::WindowResize)
 		{}
-		const int Width = 0, Height = 0;
+		const int width = 0, height = 0;
 	};
 }
 

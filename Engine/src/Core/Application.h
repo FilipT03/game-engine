@@ -31,12 +31,12 @@ namespace ft {
 			return module;
 		}
 
-		template <class T>
-		T* RegisterEngineModule()
+		template <class T, typename... Args>
+		T* RegisterEngineModule(Args&&... args)
 		{
 			static_assert(std::is_base_of<Module, T>::value, "Registered module must inherit Module");
 
-			T* module = new T();
+			T* module = new T(std::forward<Args>(args)...);
 			module->SetId(++m_MaxModuleId);
 			RegisterEngineInternal(module);
 			return module;

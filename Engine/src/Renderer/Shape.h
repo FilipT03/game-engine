@@ -220,15 +220,19 @@ namespace ft {
     /// ===== Texture Quad =====
     class TextureQuad : public Rectangle {
     public:
-        TextureQuad(const std::string& imagePath, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+        TextureQuad(std::shared_ptr<Texture> texture, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
             : Rectangle(transform, color) {
             this->m_Type = ShapeType::TextureQuad;
-            m_Texture = AssetManager::LoadTexture(imagePath);
+            m_Texture = texture;
             GenerateModel();
             UpdateWorldVertices();
         }
 
-        Texture* const GetTexture() { return m_Texture.get(); }
+        TextureQuad(const std::string& imagePath, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+            : TextureQuad(AssetManager::LoadTexture(imagePath), transform, color) {}
+
+        Texture* GetTexture() const { return m_Texture.get(); }
+        void const SetTexture(std::shared_ptr<Texture> texture) { m_Texture = texture; }
     private:
         std::shared_ptr<Texture> m_Texture;
     };

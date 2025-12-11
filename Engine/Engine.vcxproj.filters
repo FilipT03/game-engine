@@ -107,6 +107,8 @@
     <ClInclude Include="src\Resources\AssetManager.h" />
     <ClInclude Include="src\Renderer\Camera2D.h" />
     <ClInclude Include="src\UI\UIModule.h" />
+    <ClInclude Include="src\UI\UIElement.h" />
+    <ClInclude Include="src\API\UI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -161,6 +163,7 @@
     <ClCompile Include="src\Resources\AssetManager.cpp" />
     <ClCompile Include="src\Renderer\Camera2D.cpp" />
     <ClCompile Include="src\UI\UIModule.cpp" />
+    <ClCompile Include="src\UI\UIElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Platform\OpenGL\Shaders\Texture.frag" />

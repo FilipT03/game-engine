@@ -24,12 +24,12 @@ namespace ft {
 	{
 	public:
 		~Event() {}
-		const EventType Type = EventType::None;
-		const EventCategory Category = EventCategory::None;
+		const EventType type = EventType::None;
+		const EventCategory category = EventCategory::None;
 
 	protected:
 		Event() {}
-		Event(EventType type, EventCategory category) : Type(type), Category(category) {}
+		Event(EventType type, EventCategory category) : type(type), category(category) {}
 	};
 
 	typedef std::function<void(Event&)> EventCallback;

@@ -1,5 +1,6 @@
 #pragma once
 #include<GameEngine.h>
+#include<UI/UIElement.h>
 
 class SimpleScript : public ft::Module
 {
@@ -22,7 +23,8 @@ private:
 	bool m_Lines = false;
 	float m_LogZoom = 0.0f;
 	glm::vec2 m_StartPos;
-	std::vector<ft::Shape*> m_Shapes, m_UIElements;
+	std::vector<ft::Shape*> m_Shapes;
+	std::vector<ft::UIElement*> m_UIElements;
 
 	bool m_Dragging = false;
 	ft::Shape* m_DrawingShape;

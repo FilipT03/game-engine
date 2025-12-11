@@ -3,6 +3,7 @@
 #include "Core/Time.h"
 #include "Core/Log.h"
 #include "UI/UIModule.h"
+#include "API/UI.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
@@ -25,15 +26,21 @@ namespace ft {
 		Renderer2D::s_WorldRenderer = m_WorldRenderer.get();
 		Renderer2D::s_UIRenderer = m_UIRenderer.get();
 
-		RegisterEngineModule<UIModule>();
-
 		Renderer2D::SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+
+		UIModule* uiModule = RegisterEngineModule<UIModule>(m_UIRenderer.get());
+		UI::s_UIModule = uiModule;
 	}
 
 	Application::~Application()
 	{
 		m_Running = false;
 		for (auto& it : m_UserModules)
+		{
+			it.second->OnDelete();
+			delete it.second;
+		}
+		for (auto& it : m_EngineModules)
 		{
 			it.second->OnDelete();
 			delete it.second;
@@ -62,6 +69,10 @@ namespace ft {
 			Renderer2D::Clear();
 
 
+			for (auto& it : m_EngineModules) {
+				it.second->OnUpdate();
+			}
+
 			for (auto& it : m_UserModules)
 				it.second->OnUpdate();
 
@@ -80,12 +91,20 @@ namespace ft {
 	{
 		for (uint16_t id : m_ModulesToRemove)
 		{
-			if (!m_UserModules.contains(id))
-				continue;
-			Module* module = m_UserModules.at(id);
-			m_UserModules.erase(id);
-			module->OnDelete();
-			delete module;
+			if (m_UserModules.contains(id))
+			{
+				Module* module = m_UserModules.at(id);
+				m_UserModules.erase(id);
+				module->OnDelete();
+				delete module;
+			}
+			else if (m_EngineModules.contains(id))
+			{
+				Module* module = m_EngineModules.at(id);
+				m_EngineModules.erase(id);
+				module->OnDelete();
+				delete module;
+			}
 		}
 		m_ModulesToRemove.clear();
 	}
@@ -101,7 +120,7 @@ namespace ft {
 	void Application::OnEvent(Event& event)
 	{
 		bool stop = false;
-		switch (event.Type)
+		switch (event.type)
 		{
 		case EventType::WindowClose:
 			Close();
@@ -114,14 +133,27 @@ namespace ft {
 		if (stop) return;
 		stop = m_WorldRenderer->OnEvent(event);
 		if (stop) return;
+
+		for (auto& [id, module] : m_EngineModules)
+		{
+			stop = module->OnEvent(event);
+			if (stop) return;
+			if (event.category == EventCategory::KeyInput)
+				stop = module->OnKeyEvent(static_cast<KeyEvent&>(event));
+			if (stop) return;
+			if (event.category == EventCategory::MouseInput)
+				stop = module->OnMouseEvent(static_cast<MouseEvent&>(event));
+			if (stop) return;
+		}
+
 		for (auto& [id, module] : m_UserModules)
 		{
 			stop = module->OnEvent(event);
 			if (stop) return;
-			if (event.Category == EventCategory::KeyInput)
+			if (event.category == EventCategory::KeyInput)
 				stop = module->OnKeyEvent(static_cast<KeyEvent&>(event));
 			if (stop) return;
-			if (event.Category == EventCategory::MouseInput)
+			if (event.category == EventCategory::MouseInput)
 				stop = module->OnMouseEvent(static_cast<MouseEvent&>(event));
 			if (stop) return;
 		}

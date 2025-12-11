@@ -14,7 +14,7 @@ uniform vec4 uColor;
 void main()
 {
     //outColor = vec4(chPosition+0.5, 0.0, 1.0);
-    outColor = texture(uTexture, chPosition+0.5);
+    outColor = texture(uTexture, chPosition+0.5) * uColor;
 }
 
 

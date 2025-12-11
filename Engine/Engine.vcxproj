@@ -158,6 +158,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\API\UI.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Core\Module.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\AssetLoader.h" />
@@ -195,6 +199,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="src\UI\UIElement.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\UI\UIModule.h">
       <SubType>
       </SubType>
@@ -225,6 +233,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Resources\AssetManager.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIElement.cpp">
       <SubType>
       </SubType>
     </ClCompile>

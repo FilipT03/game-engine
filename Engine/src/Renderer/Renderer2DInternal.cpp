@@ -144,6 +144,7 @@ namespace ft {
 				case ShapeType::TextureQuad:
 				{
 					m_TextureShader->Bind();
+					m_TextureShader->SetUniform4f("uColor", shape->color);
 					TextureQuad* textureQuad = dynamic_cast<TextureQuad*>(shape.get());
 					textureQuad->GetTexture()->Bind(0);
 
@@ -174,7 +175,7 @@ namespace ft {
 
 	bool Renderer2DInternal::OnEvent(const Event& event)
 	{
-		if (event.Type == EventType::WindowResize)
+		if (event.type == EventType::WindowResize)
 		{
 			glm::vec2 size = Application::Get().GetWindow().GetFrameBufferSize();
 			
@@ -215,10 +216,10 @@ namespace ft {
 				const auto& element = elements[a];
 				const uint8_t* source = (const uint8_t*)sources[a];
 
-				const uint8_t* sourcePtr = source + v * element.Size;
-				uint8_t* destinationPtr = destination + element.Offset;
+				const uint8_t* sourcePtr = source + v * element.size;
+				uint8_t* destinationPtr = destination + element.offset;
 
-				std::memcpy(destinationPtr, sourcePtr, element.Size);
+				std::memcpy(destinationPtr, sourcePtr, element.size);
 			}
 
 			destination += stride;
