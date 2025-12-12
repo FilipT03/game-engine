@@ -163,7 +163,7 @@ namespace ft {
 					TextureQuad* textureQuad = dynamic_cast<TextureQuad*>(shape.get());
 					textureQuad->GetTexture()->Bind(0);
 
-					mode = GL_TRIANGLES;
+					mode = GL_TRIANGLE_FAN;
 					break;
 				}
 				default:
@@ -171,7 +171,10 @@ namespace ft {
 					m_BasicShader->SetUniform4f("uColor", shape->color);
 
 					if (shape->isOutline)
+					{
 						mode = GL_LINE_LOOP;
+						glLineWidth(5.0f);
+					}
 					else
 						mode = GL_TRIANGLE_FAN;
 					break;

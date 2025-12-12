@@ -2,9 +2,15 @@
 #include <API/Renderer2D.h>
 #include <API/UI.h>
 
+
 void SimpleScript::OnRegister()
 {
 	FT_TRACE("Registered SimpleScript");
+
+	m_DrawingCursor = ft::Application::Get().GetWindow().LoadImageToCursor("assets/cursor.png");
+	m_TransformCursor = ft::Application::Get().GetWindow().LoadImageToCursor("assets/transformCursor.png");
+	glfwSetCursor(ft::Application::Get().GetWindow().GetNativeWindow(), m_DrawingCursor);
+
 
 	ft::Panel* panel = ft::UI::AddElement<ft::Panel>("assets/sideBar.png", ft::Rect(0, 84, 300, 831));
 	m_UIElements.push_back(panel);
@@ -34,6 +40,9 @@ void SimpleScript::OnRegister()
 	ft::Renderer2D::AddUIShape<ft::Polygon>(4, ft::Transform({ 83, 167 + j * 133 }, { 100, 100 }, 45), glm::vec4(0, 0, 0, 1));
 	ft::Renderer2D::AddUIShape<ft::Polygon>(4, ft::Transform({ 217, 167 + j * 133 }, { 100, 100 }, 45), glm::vec4(0, 0, 0, 1))->isOutline = true;
 	j++;
+
+	ft::Panel* namePanel = ft::UI::AddElement<ft::Panel>("assets/namePanel.png", ft::Rect(1680, 0, 240, 150));
+	m_UIElements.push_back(namePanel);
 
 	buttons[0]->SetClickCallback([&tool = m_Tool, &modifier = m_ToolModifier]() {
 		tool = Tool::Rectangle;
@@ -68,15 +77,23 @@ void SimpleScript::OnRegister()
 		mode ^= SpecialMode::Rotating;
 	});
 	buttons[10]->SetTexture("assets/transformButton.png");
-	buttons[10]->SetClickCallback([&mode = m_InteractionMode]() {
+	buttons[10]->SetClickCallback([&mode = m_InteractionMode, this]() {
 		if (mode == InteractionMode::Drawing)
+		{
 			mode = InteractionMode::Transforming;
+			this->SetCursor(false);
+		}
 		else
+		{
 			mode = InteractionMode::Drawing;
+			this->CancelSelection();
+			this->SetCursor(true);
+		}
 	});
 	buttons[11]->SetTexture("assets/clearButton.png");
 	buttons[11]->SetClickCallback([this]() {
 		this->ClearShapes();
+		this->CancelSelection();
 	});
 
 	ft::Renderer2D::SetClearColor(0.1, 0.1, 0.1, 0.1);
@@ -100,7 +117,7 @@ void SimpleScript::OnUpdate()
 		m_FpsSum = 0;
 	}
 
-	for (auto shape : m_Shapes)
+	for (auto& [id, shape] : m_Shapes)
 	{
 		if (m_SpecialMode & SpecialMode::Rotating)
 			shape->transform.rotation -= 2;
@@ -122,6 +139,12 @@ void SimpleScript::OnUpdate()
 		//}
 		if (m_SpecialMode & SpecialMode::Rotating)
 			shape->UpdateWorldVertices();
+	}
+
+	if ((m_SpecialMode & SpecialMode::Rotating) && m_SelectionBox != nullptr)
+	{
+		m_SelectionBox->transform.rotation -= 2;
+		m_SelectionBox->UpdateWorldVertices();
 	}
 
 	if (m_Panning)
@@ -155,6 +178,29 @@ void SimpleScript::OnUpdate()
 		}
 		m_DrawingShape->UpdateWorldVertices();
 	}
+	if (m_SelectionBox != nullptr)
+		m_SelectionBox->color.a = m_TransformingMode == TransformingMode::None ? 1 : 0;
+
+	if (m_TransformingMode == TransformingMode::Moving && m_SelectedShape != 0)
+	{
+		m_Shapes[m_SelectedShape]->transform.position = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+		m_Shapes[m_SelectedShape]->UpdateWorldVertices();
+	}
+	if (m_TransformingMode == TransformingMode::Rotating && m_SelectedShape != 0)
+	{
+		glm::vec2 shapeScreen = ft::Renderer2D::WorldToScreen(m_Shapes[m_SelectedShape]->transform.position);
+		glm::vec2 distance = ft::Renderer2D::ScreenDeltaToWorld(shapeScreen - ft::Input::GetMousePosition());
+		float scalar = glm::length(distance);
+		m_Shapes[m_SelectedShape]->transform.rotation = (scalar / FT_VIEW_UNITS) * 360;
+		m_Shapes[m_SelectedShape]->UpdateWorldVertices();
+	}
+	if (m_TransformingMode == TransformingMode::Scaling && m_SelectedShape != 0 && m_SelectionBox != nullptr)
+	{
+		glm::vec2 shapeScreen = ft::Renderer2D::WorldToScreen(m_Shapes[m_SelectedShape]->transform.position);
+		glm::vec2 distance = ft::Renderer2D::ScreenDeltaToWorld(shapeScreen - ft::Input::GetMousePosition());
+		m_Shapes[m_SelectedShape]->transform.scale = m_SelectionBox->transform.scale *  (distance / (FT_VIEW_UNITS / 7.0f));
+		m_Shapes[m_SelectedShape]->UpdateWorldVertices();
+	}
 }
 
 bool SimpleScript::OnEvent(const ft::Event& event)
@@ -166,8 +212,44 @@ bool SimpleScript::OnKeyEvent(const ft::KeyEvent& event)
 {
 	if (event.type == ft::EventType::KeyPress && event.key == GLFW_KEY_ESCAPE)
 		ft::Application::Get().Close();
-	if (event.type == ft::EventType::KeyPress && event.key == GLFW_KEY_G)
+	if (event.type == ft::EventType::KeyPress && event.key == GLFW_KEY_P)
 		ft::Application::Get().RemoveModule(GetId());
+	if (event.type == ft::EventType::KeyPress && event.key == GLFW_KEY_G && m_SelectedShape != 0)
+	{
+		if (m_TransformingMode == TransformingMode::Moving)
+			m_TransformingMode = TransformingMode::None;
+		else
+			m_TransformingMode = TransformingMode::Moving;
+		if (m_SelectionBox != nullptr)
+		{
+			m_SelectionBox->transform = m_Shapes[m_SelectedShape]->transform;
+			m_SelectionBox->UpdateWorldVertices();
+		}
+	}
+	if (event.type == ft::EventType::KeyPress && event.key == GLFW_KEY_R && m_SelectedShape != 0)
+	{
+		if (m_TransformingMode == TransformingMode::Rotating)
+			m_TransformingMode = TransformingMode::None;
+		else
+			m_TransformingMode = TransformingMode::Rotating;
+		if (m_SelectionBox != nullptr)
+		{
+			m_SelectionBox->transform = m_Shapes[m_SelectedShape]->transform;
+			m_SelectionBox->UpdateWorldVertices();
+		}
+	}
+	if (event.type == ft::EventType::KeyPress && event.key == GLFW_KEY_S && m_SelectedShape != 0)
+	{
+		if (m_TransformingMode == TransformingMode::Scaling)
+			m_TransformingMode = TransformingMode::None;
+		else
+			m_TransformingMode = TransformingMode::Scaling;
+		if (m_SelectionBox != nullptr)
+		{
+			m_SelectionBox->transform = m_Shapes[m_SelectedShape]->transform;
+			m_SelectionBox->UpdateWorldVertices();
+		}
+	}
 	return false;
 }
 
@@ -217,6 +299,42 @@ bool SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 					m_DrawingShape->isOutline = false;
 
 			}
+			else if (m_InteractionMode == InteractionMode::Transforming)
+			{
+				if (m_TransformingMode != TransformingMode::None)
+				{
+					m_TransformingMode = TransformingMode::None;
+					m_SelectionBox->transform = m_Shapes[m_SelectedShape]->transform;
+					m_SelectionBox->color.a = 1;
+					m_SelectionBox->UpdateWorldVertices();
+					return true;
+				}
+				bool selected = false;
+				for(auto it = m_Shapes.rbegin(); it != m_Shapes.rend(); ++it)
+				{
+					glm::vec2 world = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+					glm::vec2 diff = glm::abs(world - it->second->transform.position);
+					if (diff.x <= it->second->transform.scale.x / 2.0 && diff.y <= it->second->transform.scale.y / 2.0)
+					{
+						m_TransformingPressed = true;
+						m_SelectingShape = it->second->GetID();
+						selected = true;
+						if (m_SelectionBox != nullptr)
+						{
+							ft::Renderer2D::RemoveShape(m_SelectionBox->GetID());
+							m_SelectionBox = nullptr;
+							m_SelectedShape = 0;
+							m_TransformingMode = TransformingMode::None;
+						}
+						break;
+					}
+				}
+				if (!selected)
+				{
+					CancelSelection();
+				}
+				return selected;
+			}
 		if (pressEvent.button == GLFW_MOUSE_BUTTON_2)
 			if (m_Drawing)
 			{
@@ -233,7 +351,32 @@ bool SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 			if (m_Drawing)
 			{
 				m_Drawing = false;
-				m_Shapes.push_back(m_DrawingShape);
+				m_Shapes.insert({ m_DrawingShape->GetID(), m_DrawingShape });
+			}
+			else if (m_TransformingPressed)
+			{
+				if (m_SelectingShape == 0)
+					return false;
+				ft::Shape* shape = m_Shapes[m_SelectingShape];
+
+				glm::vec2 world = ft::Renderer2D::ScreenToWorld(ft::Input::GetMousePosition());
+				glm::vec2 diff = glm::abs(world - shape->transform.position);
+				if (diff.x <= shape->transform.scale.x / 2.0 && diff.y <= shape->transform.scale.y / 2.0)
+				{
+					m_SelectedShape = shape->GetID();
+					m_SelectionBox = ft::Renderer2D::AddShape<ft::Rectangle>();
+					m_SelectionBox->transform = shape->transform;
+					m_SelectionBox->color = { 0.4, 0.4, 1, 1 };
+					m_SelectionBox->isOutline = true;
+					m_SelectionBox->UpdateWorldVertices();
+					m_SelectingShape = 0;
+					m_TransformingPressed = false;
+					m_TransformingMode = TransformingMode::None;
+					return true;
+				}
+				m_SelectingShape = 0;
+				m_TransformingPressed = false;
+				m_TransformingMode = TransformingMode::None;
 			}
 		}
 	}
@@ -255,7 +398,28 @@ bool SimpleScript::OnMouseEvent(const ft::MouseEvent& event)
 
 void SimpleScript::ClearShapes()
 {
-	for (auto& shape : m_Shapes)
+	for (auto& [id, shape] : m_Shapes)
 		ft::Renderer2D::RemoveShape(shape->GetID());
 	m_Shapes.clear();
+}
+
+void SimpleScript::CancelSelection()
+{
+	m_SelectedShape = 0;
+	m_SelectingShape = 0;
+	m_TransformingMode == TransformingMode::None;
+	if (m_SelectionBox != nullptr)
+	{
+		ft::Renderer2D::RemoveShape(m_SelectionBox->GetID());
+		m_SelectionBox = nullptr;
+	}
+	m_TransformingPressed = false;
+}
+
+void SimpleScript::SetCursor(bool drawing)
+{
+	if (drawing)
+		glfwSetCursor(ft::Application::Get().GetWindow().GetNativeWindow(), m_DrawingCursor);
+	else
+		glfwSetCursor(ft::Application::Get().GetWindow().GetNativeWindow(), m_TransformCursor);
 }
