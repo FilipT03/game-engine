@@ -115,7 +115,6 @@ namespace ft {
 			image.height = TextureHeight;
 			image.pixels = ImageData;
 
-			// Tacka na površini slike kursora koja se ponaša kao hitboks
 			int hotspotX = TextureWidth / 5;
 			int hotspotY = TextureHeight / 6;
 
@@ -124,9 +123,8 @@ namespace ft {
 			return cursor;
 		}
 		else {
-			std::cout << "Kursor nije ucitan! Putanja kursora: " << imagePath << std::endl;
+			FT_ENGINE_ERROR("Cursor failed to load from path: {}", imagePath);
 			stbi_image_free(ImageData);
-
 		}
 	}
 }
