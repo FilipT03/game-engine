@@ -15,10 +15,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F4C124E3-60A1-A37E-69B9-2E55D5170AE0}</ProjectGuid>
+    <ProjectGuid>{E5FDE191-D1CB-D597-BA5F-46BEA6CCB1FC}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Sandbox</RootNamespace>
+    <RootNamespace>GeometryTool2D</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -55,23 +55,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\Sandbox\</OutDir>
-    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\Sandbox\</IntDir>
-    <TargetName>Sandbox</TargetName>
+    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\GeometryTool2D\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\GeometryTool2D\</IntDir>
+    <TargetName>GeometryTool2D</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\Sandbox\</OutDir>
-    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\Sandbox\</IntDir>
-    <TargetName>Sandbox</TargetName>
+    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\GeometryTool2D\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\GeometryTool2D\</IntDir>
+    <TargetName>GeometryTool2D</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\Sandbox\</OutDir>
-    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\Sandbox\</IntDir>
-    <TargetName>Sandbox</TargetName>
+    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\GeometryTool2D\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\GeometryTool2D\</IntDir>
+    <TargetName>GeometryTool2D</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -140,7 +140,7 @@
     <ClInclude Include="src\SimpleScript.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SandboxApp.cpp" />
+    <ClCompile Include="src\GeometryTool2DApp.cpp" />
     <ClCompile Include="src\SimpleScript.cpp" />
   </ItemGroup>
   <ItemGroup>

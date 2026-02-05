@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Components">
-      <UniqueIdentifier>{6B7DD516-5735-1764-C03C-F0BFAC13B254}</UniqueIdentifier>
+    <Filter Include="API">
+      <UniqueIdentifier>{FFD1870B-6BDB-877C-F456-9E7C605F937C}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
@@ -19,10 +19,19 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{7CCE658F-689B-C09A-91B4-AE427DE0F528}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{000BCD17-6C75-818E-B5B3-3234215D5FE3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Module.h">
-      <Filter>Components</Filter>
+    <ClInclude Include="src\API\Renderer2D.h">
+      <Filter>API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\UI.h">
+      <Filter>API</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Application.h">
       <Filter>Core</Filter>
@@ -40,6 +49,9 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Log.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Module.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Time.h">
@@ -82,7 +94,7 @@
     <ClInclude Include="src\Renderer\Buffers.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\Renderer2D.h">
+    <ClInclude Include="src\Renderer\Camera2D.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Renderer2DInternal.h">
@@ -103,12 +115,16 @@
     <ClInclude Include="src\Renderer\VertexArray.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Resources\AssetManager.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\UIElement.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\UIModule.h">
+      <Filter>UI</Filter>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Resources\AssetManager.h" />
-    <ClInclude Include="src\Renderer\Camera2D.h" />
-    <ClInclude Include="src\UI\UIModule.h" />
-    <ClInclude Include="src\UI\UIElement.h" />
-    <ClInclude Include="src\API\UI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -144,6 +160,9 @@
     <ClCompile Include="src\Renderer\Buffers.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\Camera2D.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Renderer\Renderer2DInternal.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -159,13 +178,15 @@
     <ClCompile Include="src\Renderer\VertexArray.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Resources\AssetManager.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIElement.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIModule.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Resources\AssetManager.cpp" />
-    <ClCompile Include="src\Renderer\Camera2D.cpp" />
-    <ClCompile Include="src\UI\UIModule.cpp" />
-    <ClCompile Include="src\UI\UIElement.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Platform\OpenGL\Shaders\Texture.frag" />
   </ItemGroup>
 </Project>

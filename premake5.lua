@@ -1,6 +1,6 @@
 workspace "GameEngine"
 	architecture "x64"
-	startproject "Sandbox"
+	startproject "GeometryTool2D"
 
 	configurations
 	{
@@ -63,8 +63,8 @@ project "Engine"
 
 		postbuildcommands
 		{
-			("{MKDIR} ../build/" .. outputdir .. "/Sandbox"),
-			("{COPYFILE} %{cfg.buildtarget.relpath} ../build/" .. outputdir .. "/Sandbox/%{cfg.buildtarget.name}")
+			("{MKDIR} ../build/" .. outputdir .. "/GeometryTool2D"),
+			("{COPYFILE} %{cfg.buildtarget.relpath} ../build/" .. outputdir .. "/GeometryTool2D/%{cfg.buildtarget.name}")
  		}
 
 	filter "configurations:Debug"
@@ -82,8 +82,8 @@ project "Engine"
 		runtime "Release"
 		optimize "On"
 
-project "Sandbox"
-	location "Sandbox"
+project "GeometryTool2D"
+	location "GeometryTool2D"
 	kind "ConsoleApp"
 
 	language "C++"

@@ -3,17 +3,17 @@
 
 #include "SimpleScript.h"
 
-class Sandbox : public ft::Application
+class GeometryTool2D : public ft::Application
 {
 public:
-	Sandbox() : ft::Application(ft::WindowProps("App", 1920, 1080, true), 75)
+	GeometryTool2D() : ft::Application(ft::WindowProps("App", 1920, 1080, true), 75)
 	{
 		SimpleScript* ss = RegisterModule<SimpleScript>();
 	}
-	~Sandbox() {}
+	~GeometryTool2D() {}
 };
 
 ft::Application* ft::CreateApplication()
 {
-	return new Sandbox();
+	return new GeometryTool2D();
 }
