@@ -14,6 +14,7 @@ namespace ft {
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
+		virtual void SetUniform1i(const std::string& name, int value) const = 0;
 		virtual void SetUniform1f(const std::string& name, float value) const = 0;
 		virtual void SetUniform3f(const std::string& name, const glm::vec3& value) const = 0;
 		virtual void SetUniform4f(const std::string& name, const glm::vec4& value) const = 0;

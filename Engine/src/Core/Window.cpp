@@ -4,6 +4,8 @@
 #include "Platform/OpenGL/GLContext.h"
 #include <glm/glm.hpp>
 
+#include <stb_image.h>
+
 namespace ft {
 
 	Window::Window(const WindowProps& props, EventCallback eventCallback) : m_Props(props)
@@ -96,5 +98,33 @@ namespace ft {
 	{
 		m_Context->SwapBuffers();
 		glfwPollEvents();
+	}
+
+	GLFWcursor* Window::LoadImageToCursor(const std::string& imagePath) const
+	{
+		int TextureWidth;
+		int TextureHeight;
+		int TextureChannels;
+
+		unsigned char* ImageData = stbi_load(imagePath.c_str(), &TextureWidth, &TextureHeight, &TextureChannels, 0);
+
+		if (ImageData != NULL)
+		{
+			GLFWimage image;
+			image.width = TextureWidth;
+			image.height = TextureHeight;
+			image.pixels = ImageData;
+
+			int hotspotX = TextureWidth / 5;
+			int hotspotY = TextureHeight / 6;
+
+			GLFWcursor* cursor = glfwCreateCursor(&image, hotspotX, hotspotY);
+			stbi_image_free(ImageData);
+			return cursor;
+		}
+		else {
+			FT_ENGINE_ERROR("Cursor failed to load from path: {}", imagePath);
+			stbi_image_free(ImageData);
+		}
 	}
 }

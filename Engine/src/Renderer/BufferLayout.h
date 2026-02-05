@@ -59,16 +59,16 @@ namespace ft {
 
 	struct LayoutElement
 	{
-		LayoutElementType Type;
-		std::string Name;
-		uint32_t Size;
-		uint32_t Offset;
-		bool Normalized;
+		LayoutElementType type;
+		std::string name;
+		uint32_t size;
+		uint32_t offset;
+		bool normalized;
 
 		LayoutElement(LayoutElementType type, std::string name, bool normalized = false)
-			: Type(type), Name(name), Size(LayoutElementTypeSize(Type)), Offset(0), Normalized(normalized) {}
+			: type(type), name(name), size(LayoutElementTypeSize(type)), offset(0), normalized(normalized) {}
 
-		uint32_t GetComponentCount() const { return LayoutElementTypeCount(Type); }
+		uint32_t GetComponentCount() const { return LayoutElementTypeCount(type); }
 	};
 
 	class BufferLayout
@@ -79,9 +79,9 @@ namespace ft {
 			uint32_t offset = 0;
 			for (auto& element : m_Elements)
 			{
-				element.Offset = offset;
-				offset += element.Size;
-				m_Stride += element.Size;
+				element.offset = offset;
+				offset += element.size;
+				m_Stride += element.size;
 				m_ComponentCount += element.GetComponentCount();
 			}
 		}

@@ -32,6 +32,7 @@ namespace ft {
 		static std::unique_ptr<Window> Create(const WindowProps& props, EventCallback eventCallback);
 		void Update();
 
+		GLFWcursor* LoadImageToCursor(const std::string& imagePath) const;
 	private:
 		GLFWwindow* m_Window;
 		WindowProps m_Props;

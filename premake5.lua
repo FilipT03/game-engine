@@ -1,6 +1,6 @@
 workspace "GameEngine"
 	architecture "x64"
-	startproject "Sandbox"
+	startproject "GeometryTool2D"
 
 	configurations
 	{
@@ -38,6 +38,7 @@ project "Engine"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
+		"%{prj.name}/vendor/stb-image",
 		"%{prj.name}/vendor/glfw/include",
 		"%{prj.name}/vendor/glad/include",
 		"%{prj.name}/vendor/glm"
@@ -62,8 +63,8 @@ project "Engine"
 
 		postbuildcommands
 		{
-			("{MKDIR} ../build/" .. outputdir .. "/Sandbox"),
-			("{COPYFILE} %{cfg.buildtarget.relpath} ../build/" .. outputdir .. "/Sandbox/%{cfg.buildtarget.name}")
+			("{MKDIR} ../build/" .. outputdir .. "/GeometryTool2D"),
+			("{COPYFILE} %{cfg.buildtarget.relpath} ../build/" .. outputdir .. "/GeometryTool2D/%{cfg.buildtarget.name}")
  		}
 
 	filter "configurations:Debug"
@@ -81,8 +82,8 @@ project "Engine"
 		runtime "Release"
 		optimize "On"
 
-project "Sandbox"
-	location "Sandbox"
+project "GeometryTool2D"
+	location "GeometryTool2D"
 	kind "ConsoleApp"
 
 	language "C++"
@@ -103,6 +104,7 @@ project "Sandbox"
 	includedirs
 	{
 		"Engine/vendor/spdlog/include",
+		"Engine/vendor/stb-image",
 		"Engine/vendor/glfw/include",
 		"Engine/vendor/glad/include",
 		"Engine/vendor/glm",

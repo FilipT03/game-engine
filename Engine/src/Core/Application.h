@@ -2,10 +2,10 @@
 
 #include "Renderer/Shader.h"
 #include "Renderer/Renderer2DInternal.h"
-#include "Renderer/Renderer2D.h"
+#include "API/Renderer2D.h"
 #include "Core/Window.h"
 #include "Core/Input.h"
-#include "Components/ScriptComponent.h"
+#include "Core/Module.h"
 #include "Event/Event.h"
 
 namespace ft {
@@ -21,24 +21,36 @@ namespace ft {
 		void OnEvent(Event& event);
 
 		template <class T>
-		T* RegisterScriptComponent()
+		T* RegisterModule()
 		{
-			static_assert(std::is_base_of<ScriptComponent, T>::value, "Registered component must inherit ScriptComponent");
+			static_assert(std::is_base_of<Module, T>::value, "Registered module must inherit Module");
 			
-			T* script = new T();
-			script->SetId(++m_MaxScriptId);
-			RegisterInternal(script);
-			return script;
+			T* module = new T();
+			module->SetId(++m_MaxModuleId);
+			RegisterInternal(module);
+			return module;
 		}
 
-		void RemoveScriptComponent(uint16_t componentId);
-		void RemoveScriptComponent(ScriptComponent* component);
+		template <class T, typename... Args>
+		T* RegisterEngineModule(Args&&... args)
+		{
+			static_assert(std::is_base_of<Module, T>::value, "Registered module must inherit Module");
+
+			T* module = new T(std::forward<Args>(args)...);
+			module->SetId(++m_MaxModuleId);
+			RegisterEngineInternal(module);
+			return module;
+		}
+
+		void RemoveModule(uint16_t moduleId);
+		void RemoveModule(Module* module);
 
 		static Application& Get() { return *s_Instance; };
 		Window& GetWindow() { return *m_Window; };
 
 	private:
-		void RegisterInternal(ScriptComponent* scriptComponent);
+		void RegisterEngineInternal(Module* module);
+		void RegisterInternal(Module* module);
 		void ProcessPendingRemovals();
 
 		bool m_Running = true;
@@ -46,13 +58,13 @@ namespace ft {
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;
-		std::unique_ptr<Renderer2DInternal> m_Renderer;
+		std::unique_ptr<Renderer2DInternal> m_WorldRenderer, m_UIRenderer;
 
 		static Application* s_Instance;
 		
-		std::unordered_map<uint16_t, ScriptComponent*> m_ScriptComponents;
-		uint16_t m_MaxScriptId = 0;
-		std::vector<uint16_t> m_ScriptsToRemove;
+		std::unordered_map<uint16_t, Module*> m_UserModules, m_EngineModules;
+		uint16_t m_MaxModuleId = 0;
+		std::vector<uint16_t> m_ModulesToRemove;
 	};
 
 	// Should be defined by the client application

@@ -54,8 +54,8 @@ namespace ft {
 		for (auto& element : m_Layout.GetElements())
 		{
 			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index, element.GetComponentCount(), GLTypeFromLayoutElementType(element.Type), 
-				element.Normalized ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.Offset);
+			glVertexAttribPointer(index, element.GetComponentCount(), GLTypeFromLayoutElementType(element.type), 
+				element.normalized ? GL_TRUE : GL_FALSE, m_Layout.GetStride(), (const void*)element.offset);
 			index++;
 		}
 	}

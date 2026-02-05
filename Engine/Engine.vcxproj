@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_OPENGL_RENDERER;GLFW_INCLUDE_NONE;FT_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\stb-image;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -93,8 +93,8 @@
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\build\Debug-windows-x86_64\Sandbox (mkdir ..\build\Debug-windows-x86_64\Sandbox)
-copy /B /Y ..\build\Debug-windows-x86_64\Engine\Engine.lib ..\build\Debug-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Debug-windows-x86_64\GeometryTool2D (mkdir ..\build\Debug-windows-x86_64\GeometryTool2D)
+copy /B /Y ..\build\Debug-windows-x86_64\Engine\Engine.lib ..\build\Debug-windows-x86_64\GeometryTool2D\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -103,7 +103,7 @@ copy /B /Y ..\build\Debug-windows-x86_64\Engine\Engine.lib ..\build\Debug-window
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_OPENGL_RENDERER;GLFW_INCLUDE_NONE;FT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\stb-image;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -123,8 +123,8 @@ copy /B /Y ..\build\Debug-windows-x86_64\Engine\Engine.lib ..\build\Debug-window
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\build\Release-windows-x86_64\Sandbox (mkdir ..\build\Release-windows-x86_64\Sandbox)
-copy /B /Y ..\build\Release-windows-x86_64\Engine\Engine.lib ..\build\Release-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Release-windows-x86_64\GeometryTool2D (mkdir ..\build\Release-windows-x86_64\GeometryTool2D)
+copy /B /Y ..\build\Release-windows-x86_64\Engine\Engine.lib ..\build\Release-windows-x86_64\GeometryTool2D\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -133,7 +133,7 @@ copy /B /Y ..\build\Release-windows-x86_64\Engine\Engine.lib ..\build\Release-wi
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FT_PLATFORM_WINDOWS;FT_OPENGL_RENDERER;GLFW_INCLUDE_NONE;FT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\stb-image;vendor\glfw\include;vendor\glad\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -153,19 +153,20 @@ copy /B /Y ..\build\Release-windows-x86_64\Engine\Engine.lib ..\build\Release-wi
       <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST ..\build\Dist-windows-x86_64\Sandbox (mkdir ..\build\Dist-windows-x86_64\Sandbox)
-copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-x86_64\Sandbox\$(TargetFileName)</Command>
+      <Command>IF NOT EXIST ..\build\Dist-windows-x86_64\GeometryTool2D (mkdir ..\build\Dist-windows-x86_64\GeometryTool2D)
+copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-x86_64\GeometryTool2D\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Components\ScriptComponent.h" />
+    <ClInclude Include="src\API\Renderer2D.h" />
+    <ClInclude Include="src\API\UI.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\AssetLoader.h" />
     <ClInclude Include="src\Core\Core.h" />
-    <ClInclude Include="src\Core\EmbedDataLoader.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Input.h" />
     <ClInclude Include="src\Core\Log.h" />
+    <ClInclude Include="src\Core\Module.h" />
     <ClInclude Include="src\Core\Time.h" />
     <ClInclude Include="src\Core\Timer.h" />
     <ClInclude Include="src\Core\Window.h" />
@@ -176,15 +177,20 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Platform\OpenGL\GLBuffers.h" />
     <ClInclude Include="src\Platform\OpenGL\GLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\GLShader.h" />
+    <ClInclude Include="src\Platform\OpenGL\GLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
     <ClInclude Include="src\Renderer\BufferLayout.h" />
     <ClInclude Include="src\Renderer\Buffers.h" />
-    <ClInclude Include="src\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\Renderer\Camera2D.h" />
     <ClInclude Include="src\Renderer\Renderer2DInternal.h" />
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
     <ClInclude Include="src\Renderer\Shape.h" />
+    <ClInclude Include="src\Renderer\Texture.h" />
     <ClInclude Include="src\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Resources\AssetManager.h" />
+    <ClInclude Include="src\UI\UIElement.h" />
+    <ClInclude Include="src\UI\UIModule.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -196,12 +202,18 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLShader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\GLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
     <ClCompile Include="src\Renderer\Buffers.cpp" />
+    <ClCompile Include="src\Renderer\Camera2D.cpp" />
     <ClCompile Include="src\Renderer\Renderer2DInternal.cpp" />
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Renderer\Texture.cpp" />
     <ClCompile Include="src\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Resources\AssetManager.cpp" />
+    <ClCompile Include="src\UI\UIElement.cpp" />
+    <ClCompile Include="src\UI\UIModule.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -213,9 +225,6 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ProjectReference Include="vendor\glad\Glad.vcxproj">
       <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Platform\OpenGL\Shaders\Ellipse.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,9 +8,9 @@ namespace ft {
 	class KeyEvent : public Event
 	{
 	public:
-		const int Key, Mods;
+		const int key, mods;
 	protected:
-		KeyEvent(int key, int mods, EventType type) : Key(key), Mods(mods), Event(type, EventCategory::KeyInput) {};
+		KeyEvent(int key, int mods, EventType type) : key(key), mods(mods), Event(type, EventCategory::KeyInput) {};
 	};
 
 	class KeyPressEvent : public KeyEvent
@@ -42,28 +42,28 @@ namespace ft {
 	class MousePressEvent : public MouseEvent
 	{
 	public:
-		const int Button, Mods;
-		MousePressEvent(int button, int mods) : Button(button), Mods(mods), MouseEvent(EventType::MousePress) {}
+		const int button, mods;
+		MousePressEvent(int button, int mods) : button(button), mods(mods), MouseEvent(EventType::MousePress) {}
 	};
 
 	class MouseReleaseEvent : public MouseEvent
 	{
 	public:
-		const int Button, Mods;
-		MouseReleaseEvent(int button, int mods) : Button(button), Mods(mods), MouseEvent(EventType::MouseRelease) {}
+		const int button, mods;
+		MouseReleaseEvent(int button, int mods) : button(button), mods(mods), MouseEvent(EventType::MouseRelease) {}
 	};
 
 	class MouseMoveEvent : public MouseEvent
 	{
 	public:
-		const float X, Y;
-		MouseMoveEvent(float x, float y) : X(x), Y(y), MouseEvent(EventType::MouseMove) {}
+		const float x, y;
+		MouseMoveEvent(float x, float y) : x(x), y(y), MouseEvent(EventType::MouseMove) {}
 	};
 
 	class MouseScrollEvent : public MouseEvent
 	{
 	public:
-		const float XDelta, YDelta;
-		MouseScrollEvent(float xDelta, float yDelta) : XDelta(xDelta), YDelta(yDelta), MouseEvent(EventType::MouseScroll) {}
+		const float xDelta, yDelta;
+		MouseScrollEvent(float xDelta, float yDelta) : xDelta(xDelta), yDelta(yDelta), MouseEvent(EventType::MouseScroll) {}
 	};
 }

@@ -6,61 +6,53 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shape.h"
+#include "Renderer/Camera2D.h"
 #include "Event/Event.h"
 
-#define FT_VIEW_UNITS 100
-
 namespace ft {
-	struct Camera2D
-	{
-		glm::vec2 position = { 0.0f, 00.0f };
-		float zoom = 1.0f;
+	enum class RendererType {
+		World, UI
 	};
 
 	class Renderer2DInternal
 	{
 	public:
-		Renderer2DInternal();
+		Renderer2DInternal(RendererType type);
 		~Renderer2DInternal();
 
 		void Init();
 		void Shutdown();
 		
-		void Clear();
-		void SetClearColor(float r, float g, float b, float a);
+		static void Clear();
+		static void SetClearColor(float r, float g, float b, float a);
 
 		template <typename ShapeType, typename... Args>
 		Shape* AddShape(Args&&... args)
 		{
 			static_assert(std::is_base_of<Shape, ShapeType>::value, "Shape type must be derived from Shape");
 			auto shape = std::make_unique<ShapeType>(std::forward<Args>(args)...);
-			m_Shapes.push_back(std::move(shape));
-			return AddShapeInternal(m_Shapes.back().get());
+			shape->SetID(m_LastShapeId++);
+			auto [it, success] = m_Shapes.insert({ shape->GetID(), std::move(shape) });
+			return AddShapeInternal(it->second.get());
 		}
-		void RecalculateView();
-		Camera2D* GetCamera() { return &m_Camera; };
-		glm::vec2 ScreenToWorld(glm::vec2 screenCoordinates) const;
-		glm::vec2 WorldToScreen(glm::vec2 worldCoordinates) const;
+		void RemoveShape(uint32_t shapeID);
+		Camera2D* GetCamera() { return m_Camera.get(); };
 
 		void OnUpdate();
-		void OnEvent(const Event& event);
+		bool OnEvent(const Event& event);
 	private:
 		Shape* AddShapeInternal(Shape* shape);
-		void CalculateProjectionMatrix(float width, float height);
 		void PackInterleaved(std::vector<uint8_t>& out, uint32_t vertexCount, const std::vector<const void*>& sources, const BufferLayout& layout) const;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexArray> m_VertexArray;
-		std::vector<std::unique_ptr<Shape>> m_Shapes;
+		std::map<uint32_t, std::unique_ptr<Shape>> m_Shapes;
 		uint32_t m_LastShapeId = 1;
 
 		uint32_t m_LastVertexByteOffset = 0, m_LastVertexVertexOffset = 0, m_LastIndexOffset = 0;
-		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader;
+		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader, m_TextureShader;
 
-		Camera2D m_Camera;
-		glm::mat4 m_View;
-		glm::mat4 m_Projection;
-		glm::mat4 m_ViewProjection;
+		RendererType m_Type;
+		std::unique_ptr<Camera2D> m_Camera;
 	};
 }
-

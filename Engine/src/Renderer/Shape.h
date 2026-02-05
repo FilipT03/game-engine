@@ -2,6 +2,9 @@
 
 #include "Core/Core.h"
 #include "Core/Log.h"
+#include "Resources/AssetManager.h"
+
+#include "Renderer/Texture.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -21,7 +24,7 @@ namespace ft {
 			: position(position), rotation(rotation), scale(scale), zIndex(zIndex) {}
     };
 
-    enum class ShapeType { Rectangle, Ellipse, Triangle, Polygon, Line, Other };
+    enum class ShapeType { Rectangle, Ellipse, Polygon, Line, Other, TextureQuad };
 
     /// ===== Shape =====
     class Shape {
@@ -32,6 +35,7 @@ namespace ft {
 
         Transform transform;
         glm::vec4 color;
+        bool isOutline = false;
 
         std::vector<glm::vec2> modelVertices;
         std::vector<glm::vec2> worldVertices;
@@ -68,10 +72,11 @@ namespace ft {
             m_Dirty = true;
         }
 
-        uint32_t GetVertexByteSize() const { return sizeof(float) * worldVertices.size() * 2; }
+        uint32_t GetVertexByteSize() const { return sizeof(glm::vec2) * worldVertices.size(); }
         uint32_t GetVertexCount() const { return modelVertices.size(); }
         uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
         ShapeType GetType() const { return m_Type; }
+        uint32_t GetID() const { return m_ID; }
 
         void SetID(uint32_t id) {
             if (m_ID)
@@ -80,8 +85,8 @@ namespace ft {
                 m_ID = id;
         }
         bool IsDirty() const { return m_Dirty; }
-
-        void ResetDirty() { m_Dirty = true; }
+        void ResetDirty() { m_Dirty = false; }
+        void MarkDirty() { m_Dirty = true; }
 	protected:
         ShapeType m_Type;
     private:
@@ -106,7 +111,7 @@ namespace ft {
 				{  0.5,  0.5 },
 				{ -0.5,  0.5 }
 			};
-			indices = { 0, 1, 2, 0, 2, 3 };
+			indices = { 0, 1, 2, 3 };
 		}
     };
 
@@ -157,12 +162,9 @@ namespace ft {
 			}
             
             indices.clear();
-            indices.reserve(3 * (m_Sides - 2));
-            for (int i = 1; i < m_Sides - 1; ++i) {
-				indices.push_back(0);
+            indices.reserve(m_Sides);
+            for (int i = 0; i < m_Sides; ++i)
 				indices.push_back(i);
-				indices.push_back(i + 1);
-			}
         }
 
         int GetSides() const { return m_Sides; }
@@ -170,20 +172,23 @@ namespace ft {
         int m_Sides;
     };
 
+    /// ===== Line =====
     class Line : public Shape {
     public:
         Line(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color = glm::vec4(1.0f))
-            : Shape(Transform(), color, ShapeType::Line), start(start), end(end)
+            : Shape(Transform(), color, ShapeType::Line), m_Start(start), m_End(end)
         {
             GenerateModel();
             UpdateWorldVertices();
         }
 
-        void GenerateModel() override {
-            glm::vec2 center = (start + end) * 0.5f;
+        bool dashedLine = false;
 
-            float length = glm::distance(start, end);
-            float angle = atan2(end.y - start.y, end.x - start.x);
+        void GenerateModel() override {
+            glm::vec2 center = (m_Start + m_End) * 0.5f;
+
+            float length = glm::distance(m_Start, m_End);
+            float angle = atan2(m_End.y - m_Start.y, m_End.x - m_Start.x);
 
             modelVertices = {
                 {-0.5f, 0.0f},
@@ -198,18 +203,38 @@ namespace ft {
         }
 
         void SetStart(const glm::vec2& start) {
-            this->start = start;
+            this->m_Start = start;
             GenerateModel();
         }
 
         void SetEnd(const glm::vec2& end) {
-            this->end = end;
+            this->m_End = end;
             GenerateModel();
         }
 
     private:
-        glm::vec2 start;
-        glm::vec2 end;
+        glm::vec2 m_Start;
+        glm::vec2 m_End;
+    };
+
+    /// ===== Texture Quad =====
+    class TextureQuad : public Rectangle {
+    public:
+        TextureQuad(std::shared_ptr<Texture> texture, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+            : Rectangle(transform, color) {
+            this->m_Type = ShapeType::TextureQuad;
+            m_Texture = texture;
+            GenerateModel();
+            UpdateWorldVertices();
+        }
+
+        TextureQuad(const std::string& imagePath, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+            : TextureQuad(AssetManager::LoadTexture(imagePath), transform, color) {}
+
+        Texture* GetTexture() const { return m_Texture.get(); }
+        void const SetTexture(std::shared_ptr<Texture> texture) { m_Texture = texture; }
+    private:
+        std::shared_ptr<Texture> m_Texture;
     };
 }
 

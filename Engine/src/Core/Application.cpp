@@ -2,7 +2,8 @@
 #include "Application.h"
 #include "Core/Time.h"
 #include "Core/Log.h"
-#include "Renderer/Renderer2D.h"
+#include "UI/UIModule.h"
+#include "API/UI.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
@@ -16,18 +17,30 @@ namespace ft {
 		m_Input = std::make_unique<Input>();
 		m_Input->Init([this](Event& event) { this->OnEvent(event); });
 
-		m_Renderer = std::make_unique<Renderer2DInternal>();
-		m_Renderer->Init();
+		m_WorldRenderer = std::make_unique<Renderer2DInternal>(RendererType::World);
+		m_WorldRenderer->Init();
 
-		Renderer2D::s_Renderer = m_Renderer.get();
+		m_UIRenderer = std::make_unique<Renderer2DInternal>(RendererType::UI);
+		m_UIRenderer->Init();
 
-		m_Renderer->SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+		Renderer2D::s_WorldRenderer = m_WorldRenderer.get();
+		Renderer2D::s_UIRenderer = m_UIRenderer.get();
+
+		Renderer2D::SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+
+		UIModule* uiModule = RegisterEngineModule<UIModule>();
+		UI::s_UIModule = uiModule;
 	}
 
 	Application::~Application()
 	{
 		m_Running = false;
-		for (auto& it : m_ScriptComponents)
+		for (auto& it : m_UserModules)
+		{
+			it.second->OnDelete();
+			delete it.second;
+		}
+		for (auto& it : m_EngineModules)
 		{
 			it.second->OnDelete();
 			delete it.second;
@@ -53,14 +66,20 @@ namespace ft {
 
 			Time::UpdateTime(time);
 
-			m_Renderer->Clear();
+			Renderer2D::Clear();
 
 
-			for (auto& it : m_ScriptComponents)
+			for (auto& it : m_EngineModules) {
+				it.second->OnUpdate();
+			}
+
+			for (auto& it : m_UserModules)
 				it.second->OnUpdate();
 
 			m_Input->OnUpdate();
-			m_Renderer->OnUpdate();
+			
+			m_WorldRenderer->OnUpdate();
+			m_UIRenderer->OnUpdate();
 
 			m_Window->Update();
 
@@ -70,29 +89,38 @@ namespace ft {
 
 	void Application::ProcessPendingRemovals()
 	{
-		for (uint16_t id : m_ScriptsToRemove)
+		for (uint16_t id : m_ModulesToRemove)
 		{
-			if (!m_ScriptComponents.contains(id))
-				continue;
-			ScriptComponent* component = m_ScriptComponents.at(id);
-			m_ScriptComponents.erase(id);
-			component->OnDelete();
-			delete component;
+			if (m_UserModules.contains(id))
+			{
+				Module* module = m_UserModules.at(id);
+				m_UserModules.erase(id);
+				module->OnDelete();
+				delete module;
+			}
+			else if (m_EngineModules.contains(id))
+			{
+				Module* module = m_EngineModules.at(id);
+				m_EngineModules.erase(id);
+				module->OnDelete();
+				delete module;
+			}
 		}
-		m_ScriptsToRemove.clear();
+		m_ModulesToRemove.clear();
 	}
 
 	void Application::Close()
 	{
 		m_Running = false;
 
-		for (auto& it : m_ScriptComponents)
+		for (auto& it : m_UserModules)
 			it.second->OnClose();
 	}
 
 	void Application::OnEvent(Event& event)
 	{
-		switch (event.Type)
+		bool stop = false;
+		switch (event.type)
 		{
 		case EventType::WindowClose:
 			Close();
@@ -101,30 +129,55 @@ namespace ft {
 			break;
 		}
 
-		m_Renderer->OnEvent(event);
-		for (auto& [id, script] : m_ScriptComponents)
+		stop = m_UIRenderer->OnEvent(event);
+		if (stop) return;
+		stop = m_WorldRenderer->OnEvent(event);
+		if (stop) return;
+
+		for (auto& [id, module] : m_EngineModules)
 		{
-			script->OnEvent(event);
-			if (event.Category == EventCategory::KeyInput)
-				script->OnKeyEvent(static_cast<KeyEvent&>(event));
-			if (event.Category == EventCategory::MouseInput)
-				script->OnMouseEvent(static_cast<MouseEvent&>(event));
+			stop = module->OnEvent(event);
+			if (stop) return;
+			if (event.category == EventCategory::KeyInput)
+				stop = module->OnKeyEvent(static_cast<KeyEvent&>(event));
+			if (stop) return;
+			if (event.category == EventCategory::MouseInput)
+				stop = module->OnMouseEvent(static_cast<MouseEvent&>(event));
+			if (stop) return;
+		}
+
+		for (auto& [id, module] : m_UserModules)
+		{
+			stop = module->OnEvent(event);
+			if (stop) return;
+			if (event.category == EventCategory::KeyInput)
+				stop = module->OnKeyEvent(static_cast<KeyEvent&>(event));
+			if (stop) return;
+			if (event.category == EventCategory::MouseInput)
+				stop = module->OnMouseEvent(static_cast<MouseEvent&>(event));
+			if (stop) return;
 		}
 	}
 
-	void Application::RegisterInternal(ScriptComponent* scriptComponent)
+	void Application::RegisterInternal(Module* module)
 	{
-		m_ScriptComponents.emplace(scriptComponent->GetId(), scriptComponent);
-		scriptComponent->OnRegister();
+		m_UserModules.emplace(module->GetId(), module);
+		module->OnRegister();
 	}
 
-	void Application::RemoveScriptComponent(uint16_t scriptId)
+	void Application::RegisterEngineInternal(Module* module)
 	{
-		m_ScriptsToRemove.push_back(scriptId);
+		m_EngineModules.emplace(module->GetId(), module);
+		module->OnRegister();
 	}
 
-	void Application::RemoveScriptComponent(ScriptComponent* component)
+	void Application::RemoveModule(uint16_t moduleId)
 	{
-		RemoveScriptComponent(component -> GetId());
+		m_ModulesToRemove.push_back(moduleId);
+	}
+
+	void Application::RemoveModule(Module* module)
+	{
+		RemoveModule(module-> GetId());
 	}
 }
