@@ -97,10 +97,10 @@
     <ClInclude Include="src\Renderer\Camera.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Renderer2DInternal.h">
+    <ClInclude Include="src\Renderer\2D\Renderer2DInternal.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Renderer3DInternal.h">
+    <ClInclude Include="src\Renderer\3D\Renderer3DInternal.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RenderingContext.h">
@@ -109,7 +109,7 @@
     <ClInclude Include="src\Renderer\Shader.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Shape.h">
+    <ClInclude Include="src\Renderer\2D\Shape.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Texture.h">
@@ -128,6 +128,7 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Renderer\3D\Mesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -166,10 +167,10 @@
     <ClCompile Include="src\Renderer\Camera.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Renderer2DInternal.cpp">
+    <ClCompile Include="src\Renderer\2D\Renderer2DInternal.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Renderer3DInternal.cpp">
+    <ClCompile Include="src\Renderer\3D\Renderer3DInternal.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\RenderingContext.cpp">
@@ -194,5 +195,6 @@
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Renderer\3D\Mesh.cpp" />
   </ItemGroup>
 </Project>

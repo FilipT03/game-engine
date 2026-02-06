@@ -11,13 +11,13 @@
 
 namespace ft {
 
-    /// ===== Transform =====
-    struct Transform {
+    /// ===== Transform2D =====
+    struct Transform2D {
         glm::vec2 position;
         glm::vec2 scale;
         float rotation;
         float zIndex;
-		Transform(const glm::vec2& position = glm::vec2(0.0f), 
+		Transform2D(const glm::vec2& position = glm::vec2(0.0f), 
 				  const glm::vec2& scale = glm::vec2(1.0f), 
 						float rotation = 0.0f, 
 						float zIndex = 0.0f) 
@@ -29,11 +29,11 @@ namespace ft {
     /// ===== Shape =====
     class Shape {
     public:
-        Shape(const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f), const ShapeType type = ShapeType::Other)
+        Shape(const Transform2D& transform = Transform2D(), const glm::vec4& color = glm::vec4(1.0f), const ShapeType type = ShapeType::Other)
             : transform(transform), color(color), m_Type(type), m_ID(0) {}
         virtual ~Shape() = default;
 
-        Transform transform;
+        Transform2D transform;
         glm::vec4 color;
         bool isOutline = false;
 
@@ -98,7 +98,7 @@ namespace ft {
     /// ===== Rectangle =====
     class Rectangle : public Shape {
     public:
-        Rectangle(const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+        Rectangle(const Transform2D& transform = Transform2D(), const glm::vec4& color = glm::vec4(1.0f))
             : Shape(transform, color, ShapeType::Rectangle){
             GenerateModel();
             UpdateWorldVertices();
@@ -118,7 +118,7 @@ namespace ft {
     /// ===== Ellipse =====
     class Ellipse : public Shape {
     public:
-        Ellipse(float thickness = 0, float AA = 0.01, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+        Ellipse(float thickness = 0, float AA = 0.01, const Transform2D& transform = Transform2D(), const glm::vec4& color = glm::vec4(1.0f))
             : Shape(transform, color, ShapeType::Ellipse), thickness(thickness), AA(AA) {
             GenerateModel();
             UpdateWorldVertices();
@@ -141,7 +141,7 @@ namespace ft {
     /// ===== Polygon =====
     class Polygon : public Shape {
     public:
-        Polygon(int sides, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+        Polygon(int sides, const Transform2D& transform = Transform2D(), const glm::vec4& color = glm::vec4(1.0f))
             : m_Sides(sides), Shape(transform, color, ShapeType::Polygon) {
             GenerateModel();
             UpdateWorldVertices();
@@ -176,7 +176,7 @@ namespace ft {
     class Line : public Shape {
     public:
         Line(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color = glm::vec4(1.0f))
-            : Shape(Transform(), color, ShapeType::Line), m_Start(start), m_End(end)
+            : Shape(Transform2D(), color, ShapeType::Line), m_Start(start), m_End(end)
         {
             GenerateModel();
             UpdateWorldVertices();
@@ -220,7 +220,7 @@ namespace ft {
     /// ===== Texture Quad =====
     class TextureQuad : public Rectangle {
     public:
-        TextureQuad(std::shared_ptr<Texture> texture, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+        TextureQuad(std::shared_ptr<Texture> texture, const Transform2D& transform = Transform2D(), const glm::vec4& color = glm::vec4(1.0f))
             : Rectangle(transform, color) {
             this->m_Type = ShapeType::TextureQuad;
             m_Texture = texture;
@@ -228,7 +228,7 @@ namespace ft {
             UpdateWorldVertices();
         }
 
-        TextureQuad(const std::string& imagePath, const Transform& transform = Transform(), const glm::vec4& color = glm::vec4(1.0f))
+        TextureQuad(const std::string& imagePath, const Transform2D& transform = Transform2D(), const glm::vec4& color = glm::vec4(1.0f))
             : TextureQuad(AssetManager::LoadTexture(imagePath), transform, color) {}
 
         Texture* GetTexture() const { return m_Texture.get(); }

@@ -40,7 +40,7 @@ namespace ft {
 		void SetRect(Rect rect);
 		
 	protected:
-		Transform GenerateTransform() const;
+		Transform2D GenerateTransform() const;
 
 		Rect m_Rect;
 		uint32_t m_ID;

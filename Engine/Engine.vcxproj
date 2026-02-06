@@ -182,11 +182,15 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Renderer\BufferLayout.h" />
     <ClInclude Include="src\Renderer\Buffers.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
-    <ClInclude Include="src\Renderer\Renderer2DInternal.h" />
-    <ClInclude Include="src\Renderer\Renderer3DInternal.h" />
+    <ClInclude Include="src\Renderer\3D\Mesh.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\2D\Renderer2DInternal.h" />
+    <ClInclude Include="src\Renderer\3D\Renderer3DInternal.h" />
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
-    <ClInclude Include="src\Renderer\Shape.h" />
+    <ClInclude Include="src\Renderer\2D\Shape.h" />
     <ClInclude Include="src\Renderer\Texture.h" />
     <ClInclude Include="src\Renderer\VertexArray.h" />
     <ClInclude Include="src\Resources\AssetManager.h" />
@@ -205,10 +209,14 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClCompile Include="src\Platform\OpenGL\GLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp" />
+    <ClCompile Include="src\Renderer\3D\Mesh.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Renderer\Buffers.cpp" />
     <ClCompile Include="src\Renderer\Camera.cpp" />
-    <ClCompile Include="src\Renderer\Renderer2DInternal.cpp" />
-    <ClCompile Include="src\Renderer\Renderer3DInternal.cpp" />
+    <ClCompile Include="src\Renderer\2D\Renderer2DInternal.cpp" />
+    <ClCompile Include="src\Renderer\3D\Renderer3DInternal.cpp" />
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
     <ClCompile Include="src\Renderer\Texture.cpp" />

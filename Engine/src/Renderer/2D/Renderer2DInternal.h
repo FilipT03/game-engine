@@ -5,7 +5,7 @@
 #include "Renderer/BufferLayout.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/Shape.h"
+#include "Renderer/2D/Shape.h"
 #include "Renderer/Camera.h"
 #include "Event/Event.h"
 
