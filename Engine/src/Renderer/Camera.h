@@ -7,10 +7,10 @@
 #define FT_VIEW_UNITS 100
 
 namespace ft {
-	class Camera2D
+	class Camera
 	{
 	public:
-		Camera2D();
+		Camera();
 
 		virtual void CalculateProjectionMatrix(float width, float height) = 0;
 		virtual void RecalculateView() = 0;
@@ -25,7 +25,14 @@ namespace ft {
 		glm::mat4 m_ViewProjection;
 	};
 
-	class WorldCamera2D : public Camera2D
+	class UICamera : public Camera
+	{
+	public:
+		void CalculateProjectionMatrix(float width, float height);
+		void RecalculateView();
+	};
+
+	class WorldCamera2D : public Camera
 	{
 	public:
 		void CalculateProjectionMatrix(float width, float height);
@@ -56,16 +63,56 @@ namespace ft {
 	private:
 		float m_Left = 0, m_Right = 0, m_Top = 0, m_Bottom = 0;
 
-
 		glm::vec2 m_Position = { 0.0f, 0.0f };
 		float m_Zoom = 1.0f;
 	};
 
-	class UICamera : public Camera2D
+	class WorldCamera3D : public Camera
 	{
 	public:
 		void CalculateProjectionMatrix(float width, float height);
 		void RecalculateView();
+
+		glm::vec3 ScreenToWorld(glm::vec2 screenCoordinates) const;
+		glm::vec3 ScreenDeltaToWorld(glm::vec2 screenDelta) const;
+		glm::vec2 WorldToScreen(glm::vec3 worldCoordinates) const;
+
+		glm::vec3 GetPosition() const { return m_Position; }
+		glm::vec3 GetLookAt() const { return m_LookAt; }
+		glm::vec3 GetUp() const { return m_Up; }
+		float GetFov() const { return m_Fov; }
+
+		void SetFov(float fov)
+		{
+			m_Fov = fov;
+			RecalculateView();
+		}
+		void SetPosition(const glm::vec3& position)
+		{
+			m_Position = position;
+			RecalculateView();
+		}
+		void Translate(const glm::vec3& deltaPosition)
+		{
+			m_Position += deltaPosition;
+			RecalculateView();
+		}
+		void SetLookAt(const glm::vec3& lookAt)
+		{
+			m_LookAt = lookAt;
+			RecalculateView();
+		}
+		void SetUp(const glm::vec3& up)
+		{
+			m_Up = up;
+			RecalculateView();
+		}
+
+	private:
+		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_LookAt = { 0.0f, 0.0f, -1.0f };
+		glm::vec3 m_Up = { 0.0f, 1.0f, 0.0f };
+		float m_Fov = 90.0f;
 	};
 }
 

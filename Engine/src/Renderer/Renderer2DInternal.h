@@ -6,7 +6,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shape.h"
-#include "Renderer/Camera2D.h"
+#include "Renderer/Camera.h"
 #include "Event/Event.h"
 
 namespace ft {
@@ -36,7 +36,7 @@ namespace ft {
 			return AddShapeInternal(it->second.get());
 		}
 		void RemoveShape(uint32_t shapeID);
-		Camera2D* GetCamera() { return m_Camera.get(); };
+		Camera* GetCamera() { return m_Camera.get(); };
 
 		void OnUpdate();
 		bool OnEvent(const Event& event);
@@ -53,6 +53,6 @@ namespace ft {
 		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader, m_TextureShader;
 
 		RendererType m_Type;
-		std::unique_ptr<Camera2D> m_Camera;
+		std::unique_ptr<Camera> m_Camera;
 	};
 }

@@ -94,10 +94,13 @@
     <ClInclude Include="src\Renderer\Buffers.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Camera2D.h">
+    <ClInclude Include="src\Renderer\Camera.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Renderer2DInternal.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer3DInternal.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RenderingContext.h">
@@ -160,10 +163,13 @@
     <ClCompile Include="src\Renderer\Buffers.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Camera2D.cpp">
+    <ClCompile Include="src\Renderer\Camera.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\Renderer2DInternal.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer3DInternal.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\RenderingContext.cpp">

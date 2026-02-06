@@ -1,10 +1,24 @@
 #include "pch.h"
-#include "Camera2D.h"
+#include "Camera.h"
 #include "Core/Application.h"
 
 namespace ft {
 	/// ============ Camera 2D ============
-	Camera2D::Camera2D() : m_Projection(0.0f), m_View(0.0f), m_ViewProjection(0.0f) {};
+	Camera::Camera() : m_Projection(0.0f), m_View(0.0f), m_ViewProjection(0.0f) {};
+
+
+	/// ============ UI Camera ============
+	void UICamera::CalculateProjectionMatrix(float width, float height)
+	{
+		m_Projection = glm::ortho(0.0f, width, height, 0.0f);
+		m_ViewProjection = m_Projection;
+	}
+
+	void UICamera::RecalculateView()
+	{
+		m_View = glm::mat4(1.0f);
+		m_ViewProjection = m_Projection;
+	}
 
 
 	/// ============ World Camera 2D ============
@@ -75,16 +89,55 @@ namespace ft {
 		m_ViewProjection = m_Projection * m_View;
 	}
 
-	/// ============ UI Camera ============
-	void UICamera::CalculateProjectionMatrix(float width, float height)
+
+	/// ============ World Camera 3D ============
+	glm::vec3 WorldCamera3D::ScreenToWorld(glm::vec2 screenCoordinates) const
 	{
-		m_Projection = glm::ortho(0.0f, width, height, 0.0f);
-		m_ViewProjection = m_Projection;
+		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
+		glm::vec2 ndc{};
+		ndc.x = (screenCoordinates.x / windowSize.x) * 2.0f - 1.0f;
+		ndc.y = 1.0f - (screenCoordinates.y / windowSize.y) * 2.0f;
+
+		glm::mat4 invVP = glm::inverse(m_ViewProjection);
+		glm::vec4 world = invVP * glm::vec4(ndc.x, ndc.y, 0.0f, 1.0f);
+		return glm::vec3(world.x, world.y, 0.0f);
 	}
 
-	void UICamera::RecalculateView()
+	glm::vec3 WorldCamera3D::ScreenDeltaToWorld(glm::vec2 screenDelta) const
 	{
-		m_View = glm::mat4(1.0f);
-		m_ViewProjection = m_Projection;
+		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
+
+		float w =  screenDelta.x / windowSize.x;
+		float h = -screenDelta.y / windowSize.y;
+
+		return glm::vec3(screenDelta.x * w / m_Fov, -screenDelta.y * h / m_Fov, 0.0f);
+	}
+
+	glm::vec2 WorldCamera3D::WorldToScreen(glm::vec3 worldCoordinates) const
+	{
+		glm::vec4 ndc = m_ViewProjection * glm::vec4(worldCoordinates.x, worldCoordinates.y, 0.0f, 1.0f);
+
+		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
+		glm::vec2 screenCoords{};
+		ndc = (ndc + 1.0f) / 2.0f; // transform to range [0,1]
+		screenCoords.x = windowSize.x * ndc.x;
+		screenCoords.y = windowSize.y * (1.0f - ndc.y);
+		return screenCoords;
+	}
+
+	void WorldCamera3D::CalculateProjectionMatrix(float width, float height)
+	{
+		float aspect;
+		aspect = height / width;
+		m_Projection = glm::perspective(glm::radians(m_Fov), aspect, 0.1f, 100.0f);
+
+		m_ViewProjection = m_Projection * m_View;
+	}
+
+	void WorldCamera3D::RecalculateView()
+	{
+		m_View = glm::lookAt(m_Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		m_ViewProjection = m_Projection * m_View;
 	}
 }
