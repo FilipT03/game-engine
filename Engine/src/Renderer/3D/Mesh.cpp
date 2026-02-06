@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Mesh.h"
+#include "Math/Vector.h"
 
 namespace ft {
 	Mesh::Mesh(const Transform3D& transform = Transform3D()) : transform(transform), m_ID(0) {}
@@ -68,5 +69,15 @@ namespace ft {
 			glm::vec3 normal = glm::cross(a, b);
 			normals.push_back(glm::normalize(normal));
 		}
+	}
+
+	void Mesh::CalculateModelMatrix()
+	{
+		modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, transform.position);
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), Vector::Right);
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), Vector::Up);
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), Vector::Forward);
+		modelMatrix = glm::scale(modelMatrix, transform.scale);
 	}
 }

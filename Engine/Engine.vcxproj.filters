@@ -129,6 +129,8 @@
     </ClInclude>
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Renderer\3D\Mesh.h" />
+    <ClInclude Include="src\Math\Constants.h" />
+    <ClInclude Include="src\Math\Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -196,5 +198,6 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Renderer\3D\Mesh.cpp" />
+    <ClCompile Include="src\Math\Vector.cpp" />
   </ItemGroup>
 </Project>

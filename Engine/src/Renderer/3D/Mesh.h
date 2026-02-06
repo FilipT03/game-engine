@@ -32,8 +32,9 @@ namespace ft {
 		std::vector<glm::vec3> vertices;
 		std::vector<uint32_t> indices;
 		std::vector<glm::vec3> normals;
-
+		
 		uint32_t vertexOffset = 0, vertexByteOffset = 0, indexOffset = 0;
+		glm::mat4 modelMatrix;
 
 		uint32_t GetVertexCount() const { return vertices.size(); }
 		uint32_t GetIndexCount() const { return indices.size(); }
@@ -48,6 +49,7 @@ namespace ft {
 		}
 
 		void CalculateNormals();
+		void CalculateModelMatrix();
 
 		static Mesh CreateCube(const Transform3D& transform = Transform3D());
 		static Mesh CreateSphere(const Transform3D& transform = Transform3D(), uint32_t segmentCount = 36, uint32_t stackCount = 18);
