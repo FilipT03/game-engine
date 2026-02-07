@@ -1,6 +1,6 @@
 //!#version 330 core
 #ifdef FT_GLSL_INCLUDE
-std::string textureFrag = R"(
+static std::string textureFrag = R"(
 
 #version 330 core
 
