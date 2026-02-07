@@ -2,6 +2,8 @@
 
 #include "Core/Core.h"
 #include "Core/Log.h"
+#include "MeshData.h"
+#include "RenderMesh.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -21,25 +23,23 @@ namespace ft {
 			: position(position), rotation(rotation), scale(scale), zIndex(zIndex) {}
 	};
 
+	/// ===== Mesh =====
 	class Mesh
 	{
 	public:
-		Mesh(const Transform3D& transform);
-		~Mesh() = default;
+		Mesh(const Transform3D& transform, const glm::vec4& color);
+		Mesh(MeshData data, const Transform3D& transform, const glm::vec4& color);
 
 		Transform3D transform;
-
-		std::vector<glm::vec3> vertices;
-		std::vector<uint32_t> indices;
-		std::vector<glm::vec3> normals;
+		glm::vec4 color;
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		
-		uint32_t vertexOffset = 0, vertexByteOffset = 0, indexOffset = 0;
-		glm::mat4 modelMatrix;
-
-		uint32_t GetVertexCount() const { return vertices.size(); }
-		uint32_t GetIndexCount() const { return indices.size(); }
-		uint32_t GetIndexByteSize() const { return sizeof(uint32_t) * indices.size(); }
 		uint32_t GetID() const { return m_ID; }
+		MeshData* GetData() { 
+			MarkDirty(); 
+			return m_Data.get(); 
+		}
+		RenderMesh* GetRenderMesh() { return m_RenderMesh.get(); }
 
 		void SetID(uint32_t id) {
 			if (m_ID)
@@ -47,9 +47,12 @@ namespace ft {
 			else
 				m_ID = id;
 		}
+		bool IsDirty() const { return m_Dirty; }
+		void ResetDirty() { m_Dirty = false; }
+		void MarkDirty() { m_Dirty = true; }
 
-		void CalculateNormals();
 		void CalculateModelMatrix();
+		void BakeToRenderMesh();
 
 		static Mesh CreateCube(const Transform3D& transform = Transform3D());
 		static Mesh CreateSphere(const Transform3D& transform = Transform3D(), uint32_t segmentCount = 36, uint32_t stackCount = 18);
@@ -58,6 +61,9 @@ namespace ft {
 		static Mesh CreatePlane(const Transform3D& transform = Transform3D());
 
 	private:
+		std::unique_ptr<MeshData> m_Data;
+		std::unique_ptr<RenderMesh> m_RenderMesh;
+
 		bool m_Dirty = false;
 		uint32_t m_ID;
 	};

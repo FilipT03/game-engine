@@ -3,72 +3,70 @@
 #include "Math/Vector.h"
 
 namespace ft {
-	Mesh::Mesh(const Transform3D& transform = Transform3D()) : transform(transform), m_ID(0) {}
+	Mesh::Mesh(
+		const Transform3D& transform = Transform3D(),
+		const glm::vec4& color = glm::vec4(1.0f)) 
+		: transform(transform), color(color), m_ID(0) 
+	{
+		m_Data = std::make_unique<MeshData>();
+		m_RenderMesh = std::make_unique<RenderMesh>();
+		CalculateModelMatrix();
+		BakeToRenderMesh();
+	}
+
+	Mesh::Mesh(
+		MeshData data,
+		const Transform3D& transform = Transform3D(),
+		const glm::vec4& color = glm::vec4(1.0f))
+		: transform(transform), color(color), m_ID(0)
+	{
+		m_Data = std::make_unique<MeshData>(std::move(data));
+		m_RenderMesh = std::make_unique<RenderMesh>();
+		CalculateModelMatrix();
+		BakeToRenderMesh();
+	}
+
+	void Mesh::BakeToRenderMesh()
+	{
+		RenderMesh* renderMesh = GetRenderMesh();
+		renderMesh->vertices.clear();
+		renderMesh->indices.clear();
+
+		uint32_t v = 0; // global vertex index
+		for (uint32_t f = 0; f < m_Data->polygonSizes.size(); f++) {
+			uint32_t polygonSize = m_Data->polygonSizes[f];
+			for (uint32_t i = 0; i < polygonSize; i++) {
+				uint32_t vertexIndex = m_Data->indices[v + i];
+				renderMesh->vertices.push_back(Vertex(m_Data->positions[vertexIndex], m_Data->faceNormals[f]));
+			}
+			for (uint32_t i = 2; i < polygonSize; i++) {
+				renderMesh->indices.push_back(v);
+				renderMesh->indices.push_back(v + i - 1);
+				renderMesh->indices.push_back(v + i);
+			}
+			v += polygonSize;
+		}
+	}
 
 	Mesh Mesh::CreateCube(const Transform3D& transform)
-	{
-		Mesh mesh(transform);
-		
-		mesh.vertices = {};
-		mesh.indices = {};
-		for (int i = 0; i < 8; i++) {
-			mesh.vertices.push_back({
-				(i & 1) ? 0.5f : -0.5f,
-				(i & 2) ? 0.5f : -0.5f,
-				(i & 4) ? 0.5f : -0.5f });
-		}
-
-		for (int i = 0; i < 6; i++) {
-			int offset = i * 4;
-			mesh.indices.push_back(offset + 0);
-			mesh.indices.push_back(offset + 1);
-			mesh.indices.push_back(offset + 2);
-			mesh.indices.push_back(offset + 0);
-			mesh.indices.push_back(offset + 2);
-			mesh.indices.push_back(offset + 3);
-		}
-
-		mesh.CalculateNormals();
-
-		return mesh;
+	{	
+		return Mesh(MeshData::CreateCube(), transform);
 	}
 	Mesh Mesh::CreateSphere(const Transform3D& transform, uint32_t segmentCount, uint32_t stackCount)
 	{
-		return Mesh();
+		return Mesh(transform);
 	}
 	Mesh Mesh::CreateCylinder(const Transform3D& transform, uint32_t segmentCount, float height)
 	{
-		return Mesh();
+		return Mesh(transform);
 	}
 	Mesh Mesh::CreateTetrahedron(const Transform3D& transform)
 	{
-		return Mesh();
+		return Mesh(transform);
 	}
 	Mesh Mesh::CreatePlane(const Transform3D& transform)
 	{
-		Mesh mesh(transform);
-
-		mesh.vertices = {
-			{-0.5f, 0.0f, -0.5f},
-			{ 0.5f, 0.0f, -0.5f},
-			{ 0.5f, 0.0f,  0.5f},
-			{-0.5f, 0.0f,  0.5f}
-		};
-		mesh.indices = { 0, 1, 2, 0, 2, 3 };
-		mesh.CalculateNormals();
-
-		return mesh;
-	}
-
-	void Mesh::CalculateNormals()
-	{
-		normals = {};
-		for (int i = 0; i < indices.size(); i += 3) {
-			glm::vec3 a = vertices[indices[i + 1]] - vertices[indices[i]];
-			glm::vec3 b = vertices[indices[i + 2]] - vertices[indices[i + 1]];
-			glm::vec3 normal = glm::cross(a, b);
-			normals.push_back(glm::normalize(normal));
-		}
+		return Mesh(MeshData::CreatePlane(), transform);
 	}
 
 	void Mesh::CalculateModelMatrix()
