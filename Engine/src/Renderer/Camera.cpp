@@ -127,16 +127,48 @@ namespace ft {
 
 	void WorldCamera3D::CalculateProjectionMatrix(float width, float height)
 	{
-		float aspect;
-		aspect = height / width;
-		m_Projection = glm::perspective(glm::radians(m_Fov), aspect, 0.1f, 100.0f);
+		if (m_ProjectionMode == ProjectionMode::Perspective)
+		{
+			float aspect = width / height;
+			m_Projection = glm::perspective(glm::radians(m_Fov), aspect, 0.1f, 100.0f);
+		}
+		else
+		{
+			// Same as WorldCamera2D
+			float aspect;
+			if (width > height)
+			{
+				aspect = width / height;
+				m_Left = -aspect * 0.5f * FT_VIEW_UNITS;
+				m_Right = aspect * 0.5f * FT_VIEW_UNITS;
+				m_Bottom = -0.5f * FT_VIEW_UNITS;
+				m_Top = 0.5f * FT_VIEW_UNITS;
+			}
+			else
+			{
+				aspect = height / width;
+				m_Left = -0.5f * FT_VIEW_UNITS;
+				m_Right = 0.5f * FT_VIEW_UNITS;
+				m_Bottom = -aspect * 0.5f * FT_VIEW_UNITS;
+				m_Top = aspect * 0.5f * FT_VIEW_UNITS;
+			}
+			m_Projection = glm::ortho(m_Left, m_Right, m_Bottom, m_Top);
+		}
 
 		m_ViewProjection = m_Projection * m_View;
 	}
 
 	void WorldCamera3D::RecalculateView()
 	{
-		m_View = glm::lookAt(m_Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		if (m_ProjectionMode == ProjectionMode::Perspective)
+			m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
+		else
+		{
+			float zoom = 1.0f / tan(glm::radians(m_Fov) * 0.5f);
+			m_View = glm::scale(glm::mat4(1.0f), glm::vec3(zoom, zoom, 1.0f));
+			m_View = glm::translate(m_View, -m_Position);
+		}
+
 
 		m_ViewProjection = m_Projection * m_View;
 	}

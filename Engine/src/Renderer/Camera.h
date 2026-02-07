@@ -1,12 +1,18 @@
 #pragma once
 
 #include "Core/Core.h"
+#include "Math/Vector.h"
 
 #include <glm/glm.hpp>
 
 #define FT_VIEW_UNITS 100
 
 namespace ft {
+	enum class ProjectionMode {
+		Perspective,
+		Orthographic
+	};
+
 	class Camera
 	{
 	public:
@@ -78,7 +84,7 @@ namespace ft {
 		glm::vec2 WorldToScreen(glm::vec3 worldCoordinates) const;
 
 		glm::vec3 GetPosition() const { return m_Position; }
-		glm::vec3 GetLookAt() const { return m_LookAt; }
+		glm::vec3 GetLookAt() const { return m_Front; }
 		glm::vec3 GetUp() const { return m_Up; }
 		float GetFov() const { return m_Fov; }
 
@@ -97,9 +103,9 @@ namespace ft {
 			m_Position += deltaPosition;
 			RecalculateView();
 		}
-		void SetLookAt(const glm::vec3& lookAt)
+		void SetFront(const glm::vec3& front)
 		{
-			m_LookAt = lookAt;
+			m_Front = front;
 			RecalculateView();
 		}
 		void SetUp(const glm::vec3& up)
@@ -109,10 +115,14 @@ namespace ft {
 		}
 
 	private:
-		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 m_LookAt = { 0.0f, 0.0f, -1.0f };
-		glm::vec3 m_Up = { 0.0f, 1.0f, 0.0f };
+		float m_Left = 0, m_Right = 0, m_Top = 0, m_Bottom = 0;
+
+		glm::vec3 m_Position = Vector::Zero;
+		glm::vec3 m_Front = Vector::Forward;
+		glm::vec3 m_Up = Vector::Up;
 		float m_Fov = 90.0f;
+
+		ProjectionMode m_ProjectionMode = ProjectionMode::Perspective;
 	};
 }
 

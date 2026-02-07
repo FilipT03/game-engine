@@ -23,9 +23,6 @@ namespace ft {
 		void Init();
 		void Shutdown();
 		
-		static void Clear();
-		static void SetClearColor(float r, float g, float b, float a);
-
 		template <typename ShapeType, typename... Args>
 		Shape* AddShape(Args&&... args)
 		{
@@ -42,7 +39,6 @@ namespace ft {
 		bool OnEvent(const Event& event);
 	private:
 		Shape* AddShapeInternal(Shape* shape);
-		void PackInterleaved(std::vector<uint8_t>& out, uint32_t vertexCount, const std::vector<const void*>& sources, const BufferLayout& layout) const;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexArray> m_VertexArray;

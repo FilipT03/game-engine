@@ -131,6 +131,12 @@
     <ClInclude Include="src\Renderer\3D\Mesh.h" />
     <ClInclude Include="src\Math\Constants.h" />
     <ClInclude Include="src\Math\Vector.h" />
+    <ClInclude Include="src\API\Renderer3D.h" />
+    <ClInclude Include="src\Renderer\RendererCommon.h" />
+    <ClInclude Include="src\Renderer\3D\MeshData.h" />
+    <ClInclude Include="src\Renderer\3D\RenderMesh.h" />
+    <ClInclude Include="src\Renderer\3D\LightSource.h" />
+    <ClInclude Include="src\Platform\OpenGL\Shaders\BasicMesh.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -199,5 +205,7 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Renderer\3D\Mesh.cpp" />
     <ClCompile Include="src\Math\Vector.cpp" />
+    <ClCompile Include="src\Renderer\RendererCommon.cpp" />
+    <ClCompile Include="src\Renderer\3D\MeshData.cpp" />
   </ItemGroup>
 </Project>

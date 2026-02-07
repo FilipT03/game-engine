@@ -159,6 +159,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\API\Renderer2D.h" />
+    <ClInclude Include="src\API\Renderer3D.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\API\UI.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\AssetLoader.h" />
@@ -187,6 +191,22 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Platform\OpenGL\GLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\GLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\Shaders\BasicMesh.frag">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\LightSource.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\MeshData.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\RenderMesh.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Renderer\BufferLayout.h" />
     <ClInclude Include="src\Renderer\Buffers.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
@@ -196,6 +216,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     </ClInclude>
     <ClInclude Include="src\Renderer\2D\Renderer2DInternal.h" />
     <ClInclude Include="src\Renderer\3D\Renderer3DInternal.h" />
+    <ClInclude Include="src\Renderer\RendererCommon.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\Renderer\RenderingContext.h" />
     <ClInclude Include="src\Renderer\Shader.h" />
     <ClInclude Include="src\Renderer\2D\Shape.h" />
@@ -225,10 +249,18 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="src\Renderer\3D\MeshData.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Renderer\Buffers.cpp" />
     <ClCompile Include="src\Renderer\Camera.cpp" />
     <ClCompile Include="src\Renderer\2D\Renderer2DInternal.cpp" />
     <ClCompile Include="src\Renderer\3D\Renderer3DInternal.cpp" />
+    <ClCompile Include="src\Renderer\RendererCommon.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Renderer\RenderingContext.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
     <ClCompile Include="src\Renderer\Texture.cpp" />

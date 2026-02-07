@@ -2,7 +2,7 @@
 
 #include "Core/Core.h"
 #include "Renderer/Texture.h"
-#include "Renderer/Shape.h"
+#include "Renderer/2D/Shape.h"
 #include "API/Renderer2D.h"
 #include "Event/InputEvent.h"
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "UIElement.h"
 #include "Core/Input.h"
-#include "Renderer/Renderer2DInternal.h"
+#include "Renderer/2D/Renderer2DInternal.h"
 #include "API/Renderer2D.h"
 
 namespace ft {
