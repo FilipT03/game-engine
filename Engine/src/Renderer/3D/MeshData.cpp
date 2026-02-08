@@ -10,7 +10,7 @@ namespace ft {
 		faceNormals.clear();
 	}
 
-	void MeshData::CalculateNormals(bool smooth)
+	void MeshData::CalculateNormals()
 	{
 		faceNormals.clear();
 		// f - face index, v - vertex index
@@ -45,7 +45,67 @@ namespace ft {
 		};
 		data.polygonSizes = { 4, 4, 4, 4, 4, 4 };
 
-		data.CalculateNormals(false);
+		data.CalculateNormals();
+		return data;
+	}
+
+	MeshData MeshData::CreateSphere(uint32_t segmentCount, uint32_t ringCount)
+	{
+		if (segmentCount < 3) segmentCount = 3;
+		if (ringCount < 3) ringCount = 3;
+
+		MeshData data;
+		float radius = 0.5f;
+		data.positions = { {0.0f, radius, 0.0f} }; // Top vertex
+		for (int ring = 1; ring < ringCount; ring++)
+		{
+			float phi = (float)ring / ringCount * glm::pi<float>(); // angle from the Y axis [0, pi]
+			for (int segment = 0; segment < segmentCount; segment++) 
+			{
+				float theta = (float)segment / segmentCount * glm::two_pi<float>(); // angle around the Y axis [0, 2pi]
+				data.positions.push_back({
+					radius * glm::sin(phi) * glm::cos(theta),
+					radius * glm::cos(phi),
+					radius * glm::sin(phi) * glm::sin(theta)
+				});
+			}
+		}
+		data.positions.push_back({ 0.0f, -radius, 0.0f }); // Bottom vertex
+		
+		// Top cap
+		for (int segment = 0; segment < segmentCount; segment++) {
+			data.indices.push_back(0);
+			data.indices.push_back(1 + (segment + 1) % segmentCount);
+			data.indices.push_back(1 + segment);
+			data.polygonSizes.push_back(3);
+		}
+		// Middle rings
+		for (int ring = 0; ring < ringCount - 2; ring++) {
+			for (int segment = 0; segment < segmentCount; segment++) {
+				// 1 0
+				// 3 2
+				int point0 = 1 + ring * segmentCount + segment;
+				int point1 = 1 + ring * segmentCount + (segment + 1) % segmentCount;
+				int point2 = 1 + (ring + 1) * segmentCount + segment;
+				int point3 = 1 + (ring + 1) * segmentCount + (segment + 1) % segmentCount;
+
+				data.indices.push_back(point0);
+				data.indices.push_back(point1);
+				data.indices.push_back(point3);
+				data.indices.push_back(point2);
+				data.polygonSizes.push_back(4);
+			}
+		}
+		// Bottom cap
+		int bottomIndex = (int)data.positions.size() - 1;
+		for (int segment = 0; segment < segmentCount; segment++) {
+			data.indices.push_back(bottomIndex);
+			data.indices.push_back(1 + (ringCount - 2) * segmentCount + segment);
+			data.indices.push_back(1 + (ringCount - 2) * segmentCount + (segment + 1) % segmentCount);
+			data.polygonSizes.push_back(3);
+		}
+
+		data.CalculateNormals();
 		return data;
 	}
 
@@ -61,7 +121,7 @@ namespace ft {
 		data.indices = { 0, 1, 2, 3 };
 		data.polygonSizes = { 4 };
 
-		data.CalculateNormals(false);
+		data.CalculateNormals();
 		return data;
 	}
 }

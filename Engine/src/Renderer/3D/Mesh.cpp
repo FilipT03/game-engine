@@ -52,9 +52,9 @@ namespace ft {
 	{	
 		return Mesh(MeshData::CreateCube(), transform);
 	}
-	Mesh Mesh::CreateSphere(const Transform3D& transform, uint32_t segmentCount, uint32_t stackCount)
+	Mesh Mesh::CreateSphere(const Transform3D& transform, uint32_t segmentCount, uint32_t ringCount)
 	{
-		return Mesh(transform);
+		return Mesh(MeshData::CreateSphere(segmentCount, ringCount), transform);
 	}
 	Mesh Mesh::CreateCylinder(const Transform3D& transform, uint32_t segmentCount, float height)
 	{
