@@ -34,6 +34,22 @@ namespace ft {
 	void GLVertexBuffer::SetData(uint32_t offset, uint32_t size, const void* data)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+		if (offset + size > m_Size) {
+			uint32_t old_size = m_Size;
+			while (offset + size > m_Size)
+				m_Size *= 2;
+			uint32_t tempBuffer;
+			glGenBuffers(1, &tempBuffer);
+			glBindBuffer(GL_COPY_WRITE_BUFFER, tempBuffer);
+			glBufferData(GL_COPY_WRITE_BUFFER, old_size, nullptr, GL_STREAM_COPY);
+			glCopyBufferSubData(GL_ARRAY_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, old_size);
+			
+			glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+			glBufferData(GL_ARRAY_BUFFER, m_Size, nullptr, GL_DYNAMIC_DRAW);
+			glCopyBufferSubData(GL_COPY_WRITE_BUFFER, GL_ARRAY_BUFFER, 0, 0, old_size);
+
+			glDeleteBuffers(1, &tempBuffer);
+		}
 		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 	};
 
@@ -44,7 +60,7 @@ namespace ft {
 
 
 	/// Index Buffer
-	GLIndexBuffer::GLIndexBuffer(const uint32_t* data, uint32_t count) : m_Count(count)
+	GLIndexBuffer::GLIndexBuffer(const uint32_t* data, uint32_t count) : m_Count(count), m_Size(count * sizeof(uint32_t))
 	{
 		glGenBuffers(1, &m_ID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
@@ -52,7 +68,7 @@ namespace ft {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW);
 	};
 
-	GLIndexBuffer::GLIndexBuffer(uint32_t size) : m_Count(size / sizeof(uint32_t))
+	GLIndexBuffer::GLIndexBuffer(uint32_t size) : m_Count(size / sizeof(uint32_t)), m_Size(size)
 	{
 		glGenBuffers(1, &m_ID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
@@ -73,6 +89,23 @@ namespace ft {
 	void GLIndexBuffer::SetData(uint32_t offset, uint32_t size, const uint32_t* data)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
+		if (offset + size > m_Size) {
+			uint32_t old_size = m_Size;
+			while (offset + size > m_Size)
+				m_Size *= 2;
+			m_Count = m_Size / sizeof(uint32_t);
+			uint32_t tempBuffer;
+			glGenBuffers(1, &tempBuffer);
+			glBindBuffer(GL_COPY_WRITE_BUFFER, tempBuffer);
+			glBufferData(GL_COPY_WRITE_BUFFER, old_size, nullptr, GL_STREAM_COPY);
+			glCopyBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, old_size);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Size, nullptr, GL_DYNAMIC_DRAW);
+			glCopyBufferSubData(GL_COPY_WRITE_BUFFER, GL_ELEMENT_ARRAY_BUFFER, 0, 0, old_size);
+
+			glDeleteBuffers(1, &tempBuffer);
+		}
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
 	};
 

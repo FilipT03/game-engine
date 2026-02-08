@@ -40,6 +40,7 @@ namespace ft {
 		private:
 			uint32_t m_ID;
 			uint32_t m_Count;
+			uint32_t m_Size;
 	};
 }
 
