@@ -4,6 +4,8 @@
 #include "Core/Log.h"
 #include "UI/UIModule.h"
 #include "API/UI.h"
+#include "API/Renderer2D.h"
+#include "API/Renderer3D.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
@@ -28,6 +30,7 @@ namespace ft {
 
 		Renderer2D::s_WorldRenderer = m_WorldRenderer2D.get();
 		Renderer2D::s_UIRenderer = m_UIRenderer.get();
+		Renderer3D::s_Renderer = m_Renderer3D.get();
 
 		Renderer2D::SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 

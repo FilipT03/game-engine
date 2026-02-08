@@ -3,7 +3,6 @@
 #include "Renderer/Shader.h"
 #include "Renderer/3D/Renderer3DInternal.h"
 #include "Renderer/2D/Renderer2DInternal.h"
-#include "API/Renderer2D.h"
 #include "Core/Window.h"
 #include "Core/Input.h"
 #include "Core/Module.h"

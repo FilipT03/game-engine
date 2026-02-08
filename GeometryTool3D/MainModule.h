@@ -10,7 +10,7 @@ public:
 	void OnDelete() {};
 	void OnUpdate() {};
 	bool OnEvent(const ft::Event& event) { return false; };
-	bool OnKeyEvent(const ft::KeyEvent& event) { return false; };
+	bool OnKeyEvent(const ft::KeyEvent& event);
 	bool OnMouseEvent(const ft::MouseEvent& event) { return false; };
 
 private:

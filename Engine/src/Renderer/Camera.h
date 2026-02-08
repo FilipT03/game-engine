@@ -88,34 +88,39 @@ namespace ft {
 		glm::vec3 GetUp() const { return m_Up; }
 		float GetFov() const { return m_Fov; }
 
-		void SetFov(float fov)
-		{
+		void SetFov(float fov) {
 			m_Fov = fov;
 			RecalculateView();
 		}
-		void SetPosition(const glm::vec3& position)
-		{
+		void SetPosition(const glm::vec3& position) {
 			m_Position = position;
 			RecalculateView();
 		}
-		void Translate(const glm::vec3& deltaPosition)
-		{
+		void Translate(const glm::vec3& deltaPosition) {
 			m_Position += deltaPosition;
 			RecalculateView();
 		}
-		void SetFront(const glm::vec3& front)
-		{
-			m_Front = front;
+		void SetFront(const glm::vec3& front) {
+			m_Front = glm::normalize(front);
 			RecalculateView();
 		}
-		void SetUp(const glm::vec3& up)
-		{
-			m_Up = up;
+		void SetUp(const glm::vec3& up) {
+			m_Up = glm::normalize(up);
 			RecalculateView();
 		}
 
+		ProjectionMode GetProjectionMode() const { return m_ProjectionMode; }
+		void SetProjectionMode(ProjectionMode mode) {
+			m_ProjectionMode = mode;
+			RecalculateView();
+			CalculateProjectionMatrix(m_Width, m_Height); // Use last width and height
+		}
+
+
 	private:
 		float m_Left = 0, m_Right = 0, m_Top = 0, m_Bottom = 0;
+		float m_Width = 0, m_Height = 0;
+		float m_Near = 0.1f, m_Far = 100.0f;
 
 		glm::vec3 m_Position = Vector::Zero;
 		glm::vec3 m_Front = Vector::Forward;

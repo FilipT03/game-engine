@@ -23,7 +23,7 @@ namespace ft {
 
 		Mesh* AddMesh(Mesh&& mesh);
 		void RemoveMesh(uint32_t meshID);
-		Camera* GetCamera() { return m_Camera.get(); };
+		WorldCamera3D* GetCamera() { return m_Camera.get(); };
 		LightSource* GetLightSource() { return m_LightSource.get(); };
 
 		void OnUpdate();
