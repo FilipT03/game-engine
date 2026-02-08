@@ -65,9 +65,9 @@ namespace ft {
 	{
 		return Mesh(MeshData::CreateCylinder(segmentCount), transform);
 	}
-	Mesh Mesh::CreateTetrahedron(const Transform3D& transform)
+	Mesh Mesh::CreateCone(const Transform3D& transform, uint32_t segmentCount)
 	{
-		return Mesh(transform);
+		return Mesh(MeshData::CreateCone(segmentCount), transform);
 	}
 	Mesh Mesh::CreatePlane(const Transform3D& transform)
 	{

@@ -56,6 +56,7 @@ namespace ft {
 		//Mesh mesh = Mesh::CreateCube(Transform3D(glm::vec3(0, -2, 0), Vector::One * 2.0f));
 		//Mesh mesh = Mesh::CreateSphere(Transform3D(glm::vec3(0, -2, -2), Vector::One * 4.0f), 160, 180);
 		Mesh mesh = Mesh::CreateCylinder(Transform3D(glm::vec3(0, -3, -2), Vector::One * 4.0f, Vector::Forward * 30.0f), 30);
+		//Mesh mesh = Mesh::CreateCone(Transform3D(glm::vec3(0, -3, -2), Vector::One * 4.0f, Vector::Forward * 30.0f), 30);
 		mesh.color = glm::vec4(0.2f, 0.8f, 0.8f, 1.0f);
 		AddMesh(std::move(mesh));
 #endif

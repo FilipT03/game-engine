@@ -40,7 +40,7 @@ namespace ft {
 		static MeshData CreateCube();
 		static MeshData CreateSphere(uint32_t segmentCount, uint32_t ringCount);
 		static MeshData CreateCylinder(uint32_t segmentCount);
-		static MeshData CreateTetrahedron();
+		static MeshData CreateCone(uint32_t segmentCount);
 		static MeshData CreatePlane();
 	private:
 		SmoothingMode m_SmoothingMode = SmoothingMode::Flat;

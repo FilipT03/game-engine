@@ -57,7 +57,7 @@ namespace ft {
 		static Mesh CreateCube(const Transform3D& transform = Transform3D());
 		static Mesh CreateSphere(const Transform3D& transform = Transform3D(), uint32_t segmentCount = 36, uint32_t ringCount = 18);
 		static Mesh CreateCylinder(const Transform3D& transform = Transform3D(), uint32_t segmentCount = 36);
-		static Mesh CreateTetrahedron(const Transform3D& transform = Transform3D());
+		static Mesh CreateCone(const Transform3D& transform = Transform3D(), uint32_t segmentCount = 36);
 		static Mesh CreatePlane(const Transform3D& transform = Transform3D());
 
 	private:

@@ -49,13 +49,6 @@ namespace ft {
 				}
 				v += polygonSizes[f];
 			}
-			//for (size_t i = 0; i < vertexToFaceMap.size(); i++) {
-			//	glm::vec3 normalSum(0.0f);
-			//	for (uint32_t faceIndex : vertexToFaceMap[i])
-			//		normalSum += faceNormals[faceIndex];
-			//	
-			//	vertexNormals.push_back(glm::normalize(normalSum));
-			//}
 		}
 	}
 
@@ -207,7 +200,46 @@ namespace ft {
 			data.indices.push_back(segmentCount + i);
 		data.polygonSizes.push_back(segmentCount);
 
-		data.m_SmoothingMode = SmoothingMode::SmoothByAngle; // TODO: Add angle based smoothing
+		data.m_SmoothingMode = SmoothingMode::SmoothByAngle;
+		data.CalculateNormals();
+		return data;
+	}
+
+	MeshData MeshData::CreateCone(uint32_t segmentCount)
+	{
+		if (segmentCount < 3) segmentCount = 3;
+
+		MeshData data;
+		float radius = 0.5f;
+		for (int segment = 0; segment < segmentCount; segment++)
+		{
+			float theta = glm::two_pi<float>() * (float)segment / (float)segmentCount; // angle around the Y axis [0, 2pi]
+			data.positions.push_back({
+				radius * glm::cos(theta),
+				-0.5f,
+				radius * glm::sin(theta)
+				});
+		}
+		data.positions.push_back({ 0.0f, 0.5f, 0.0f }); // Top vertex
+
+		// Trinagles
+		int topIndex = (int)data.positions.size() - 1;
+		for (int segment = 0; segment < segmentCount; segment++) {
+			int next = (segment + 1) % segmentCount;
+			int point0 = segment;
+			int point1 = next;
+
+			data.indices.push_back(point1);
+			data.indices.push_back(point0);
+			data.indices.push_back(topIndex);
+			data.polygonSizes.push_back(3);
+		}
+		// Bottom circle
+		for (int i = 0; i < segmentCount; i++)
+			data.indices.push_back(i);
+		data.polygonSizes.push_back(segmentCount);
+
+		data.m_SmoothingMode = SmoothingMode::SmoothByAngle;
 		data.CalculateNormals();
 		return data;
 	}
