@@ -8,11 +8,12 @@ class MainModule : public ft::Module
 public:
 	void OnRegister();
 	void OnDelete() {};
-	void OnUpdate() {};
+	void OnUpdate();
 	bool OnEvent(const ft::Event& event) { return false; };
 	bool OnKeyEvent(const ft::KeyEvent& event);
 	bool OnMouseEvent(const ft::MouseEvent& event) { return false; };
 
 private:
+	ft::Mesh* test_mesh;
 };
 

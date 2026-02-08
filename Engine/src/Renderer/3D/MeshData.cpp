@@ -52,6 +52,7 @@ namespace ft {
 		}
 	}
 
+
 	void MeshData::CalculateVertexToFaceMap()
 	{
 		vertexToFaceMap.clear();
@@ -65,6 +66,7 @@ namespace ft {
 			v += polygonSizes[f];
 		}
 	}
+
 
 	MeshData MeshData::CreateCube()
 	{
@@ -89,6 +91,7 @@ namespace ft {
 		data.CalculateNormals();
 		return data;
 	}
+
 
 	MeshData MeshData::CreateSphere(uint32_t segmentCount, uint32_t ringCount)
 	{
@@ -155,6 +158,7 @@ namespace ft {
 		return data;
 	}
 
+
 	MeshData MeshData::CreateCylinder(uint32_t segmentCount)
 	{
 		if (segmentCount < 3) segmentCount = 3;
@@ -205,6 +209,7 @@ namespace ft {
 		return data;
 	}
 
+
 	MeshData MeshData::CreateCone(uint32_t segmentCount)
 	{
 		if (segmentCount < 3) segmentCount = 3;
@@ -243,6 +248,7 @@ namespace ft {
 		data.CalculateNormals();
 		return data;
 	}
+
 
 	MeshData MeshData::CreatePlane()
 	{
