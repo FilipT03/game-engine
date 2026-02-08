@@ -38,8 +38,8 @@ namespace ft {
 			for (uint32_t i = 0; i < polygonSize; i++) {
 				uint32_t vertexIndex = m_Data->indices[v + i];
 				glm::vec3 normal;
-				if (m_Data->GetSmoothingMode() == SmoothingMode::Smooth)
-					normal = m_Data->vertexNormals[vertexIndex];
+				if (m_Data->IsSmoothingEnabled())
+					normal = m_Data->cornerNormals[v + i];
 				else
 					normal = m_Data->faceNormals[f];
 				renderMesh->vertices.push_back(Vertex(m_Data->positions[vertexIndex], normal));
@@ -61,9 +61,9 @@ namespace ft {
 	{
 		return Mesh(MeshData::CreateSphere(segmentCount, ringCount), transform);
 	}
-	Mesh Mesh::CreateCylinder(const Transform3D& transform, uint32_t segmentCount, float height)
+	Mesh Mesh::CreateCylinder(const Transform3D& transform, uint32_t segmentCount)
 	{
-		return Mesh(transform);
+		return Mesh(MeshData::CreateCylinder(segmentCount), transform);
 	}
 	Mesh Mesh::CreateTetrahedron(const Transform3D& transform)
 	{

@@ -127,6 +127,9 @@ namespace ft {
 
 	void WorldCamera3D::CalculateProjectionMatrix(float width, float height)
 	{
+		if (width == 0 || height == 0)
+			return;
+
 		m_Width = width;
 		m_Height = height;
 		if (m_ProjectionMode == ProjectionMode::Perspective)

@@ -24,17 +24,38 @@ namespace ft {
 			v += polygonSizes[f];
 		}
 
-		if (m_SmoothingMode == SmoothingMode::Smooth)
+		if (m_SmoothingMode == SmoothingMode::Smooth || m_SmoothingMode == SmoothingMode::SmoothByAngle)
 		{
 			CalculateVertexToFaceMap();
-			vertexNormals.clear();
-			for (size_t i = 0; i < vertexToFaceMap.size(); i++) {
-				glm::vec3 normalSum(0.0f);
-				for (uint32_t faceIndex : vertexToFaceMap[i]) {
-					normalSum += faceNormals[faceIndex];
+			cornerNormals.clear();
+			float modeThershold = (m_SmoothingMode == SmoothingMode::Smooth) ? 180.0f : m_SmoothingTheshold;
+			float angleThreshold = glm::cos(glm::radians(modeThershold));
+			size_t v = 0;
+			for (size_t f = 0; f < polygonSizes.size(); f++) { // each faces
+
+				for (size_t i = 0; i < polygonSizes[f]; i++) { // each vertices of the face
+					glm::vec3 normalSum(0.0f);
+					uint32_t vertexIndex = indices[v + i];
+
+					for (uint32_t adjacentFaceIndex : vertexToFaceMap[vertexIndex]) { // each face adjacent to the vertex
+						float angleCos = glm::dot(faceNormals[f], faceNormals[adjacentFaceIndex]);
+						if (angleCos >= angleThreshold)
+							normalSum += faceNormals[adjacentFaceIndex];
+					}
+
+					if (glm::length(normalSum) < 0.001f)
+						normalSum = faceNormals[f];
+					cornerNormals.push_back(glm::normalize(normalSum));
 				}
-				vertexNormals.push_back(glm::normalize(normalSum));
+				v += polygonSizes[f];
 			}
+			//for (size_t i = 0; i < vertexToFaceMap.size(); i++) {
+			//	glm::vec3 normalSum(0.0f);
+			//	for (uint32_t faceIndex : vertexToFaceMap[i])
+			//		normalSum += faceNormals[faceIndex];
+			//	
+			//	vertexNormals.push_back(glm::normalize(normalSum));
+			//}
 		}
 	}
 
@@ -101,8 +122,9 @@ namespace ft {
 		
 		// Top cap
 		for (int segment = 0; segment < segmentCount; segment++) {
+			int next = (segment + 1) % segmentCount;
 			data.indices.push_back(0);
-			data.indices.push_back(1 + (segment + 1) % segmentCount);
+			data.indices.push_back(1 + next);
 			data.indices.push_back(1 + segment);
 			data.polygonSizes.push_back(3);
 		}
@@ -111,10 +133,11 @@ namespace ft {
 			for (int segment = 0; segment < segmentCount; segment++) {
 				// 1 0
 				// 3 2
+				int next = (segment + 1) % segmentCount;
 				int point0 = 1 + ring * segmentCount + segment;
-				int point1 = 1 + ring * segmentCount + (segment + 1) % segmentCount;
+				int point1 = 1 + ring * segmentCount + next;
 				int point2 = 1 + (ring + 1) * segmentCount + segment;
-				int point3 = 1 + (ring + 1) * segmentCount + (segment + 1) % segmentCount;
+				int point3 = 1 + (ring + 1) * segmentCount + next;
 
 				data.indices.push_back(point0);
 				data.indices.push_back(point1);
@@ -125,14 +148,66 @@ namespace ft {
 		}
 		// Bottom cap
 		int bottomIndex = (int)data.positions.size() - 1;
+		int offset = 1 + (ringCount - 2) * segmentCount; // index of the first vertex in the last ring
 		for (int segment = 0; segment < segmentCount; segment++) {
+			int next = (segment + 1) % segmentCount;
 			data.indices.push_back(bottomIndex);
-			data.indices.push_back(1 + (ringCount - 2) * segmentCount + segment);
-			data.indices.push_back(1 + (ringCount - 2) * segmentCount + (segment + 1) % segmentCount);
+			data.indices.push_back(offset + segment);
+			data.indices.push_back(offset + next);
 			data.polygonSizes.push_back(3);
 		}
 
 		data.m_SmoothingMode = SmoothingMode::Smooth;
+		data.CalculateNormals();
+		return data;
+	}
+
+	MeshData MeshData::CreateCylinder(uint32_t segmentCount)
+	{
+		if (segmentCount < 3) segmentCount = 3;
+
+		MeshData data;
+		float radius = 0.5f;
+		for (int i = 0; i < 2; i++)
+		{
+			float y = (i == 0) ? 0.5f : -0.5f;
+			for (int segment = 0; segment < segmentCount; segment++)
+			{
+				float theta = glm::two_pi<float>() * (float)segment / (float)segmentCount; // angle around the Y axis [0, 2pi]
+				data.positions.push_back({
+					radius * glm::cos(theta),
+					y,
+					radius * glm::sin(theta)
+				});
+			}
+		}
+
+		// Top circle
+		for (int i = segmentCount - 1; i >= 0; i--)
+			data.indices.push_back(i);
+		data.polygonSizes.push_back(segmentCount);
+		// Middle rectangles
+		for (int segment = 0; segment < segmentCount; segment++) {
+			// 1 0
+			// 3 2
+			int next = (segment + 1) % segmentCount;
+			int point0 = segment;
+			int point1 = next;
+			int point2 = segmentCount + segment;
+			int point3 = segmentCount + next;
+
+			data.indices.push_back(point0);
+			data.indices.push_back(point1);
+			data.indices.push_back(point3);
+			data.indices.push_back(point2);
+			data.polygonSizes.push_back(4);
+		}
+		// Bottom circle
+		for (int i = 0; i < segmentCount; i++)
+			data.indices.push_back(segmentCount + i);
+		data.polygonSizes.push_back(segmentCount);
+
+		data.m_SmoothingMode = SmoothingMode::SmoothByAngle; // TODO: Add angle based smoothing
 		data.CalculateNormals();
 		return data;
 	}
