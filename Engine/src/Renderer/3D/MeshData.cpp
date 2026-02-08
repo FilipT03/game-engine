@@ -23,6 +23,33 @@ namespace ft {
 
 			v += polygonSizes[f];
 		}
+
+		if (m_SmoothingMode == SmoothingMode::Smooth)
+		{
+			CalculateVertexToFaceMap();
+			vertexNormals.clear();
+			for (size_t i = 0; i < vertexToFaceMap.size(); i++) {
+				glm::vec3 normalSum(0.0f);
+				for (uint32_t faceIndex : vertexToFaceMap[i]) {
+					normalSum += faceNormals[faceIndex];
+				}
+				vertexNormals.push_back(glm::normalize(normalSum));
+			}
+		}
+	}
+
+	void MeshData::CalculateVertexToFaceMap()
+	{
+		vertexToFaceMap.clear();
+		vertexToFaceMap.resize(positions.size());
+		size_t v = 0;
+		for (size_t f = 0; f < polygonSizes.size(); f++) {
+			for (int i = 0; i < polygonSizes[f]; i++) {
+				uint32_t vertexIndex = indices[v + i];
+				vertexToFaceMap[vertexIndex].push_back(f);
+			}
+			v += polygonSizes[f];
+		}
 	}
 
 	MeshData MeshData::CreateCube()
@@ -44,7 +71,7 @@ namespace ft {
 			0, 1, 5, 4  // Bottom face (y = -0.5)
 		};
 		data.polygonSizes = { 4, 4, 4, 4, 4, 4 };
-
+		
 		data.CalculateNormals();
 		return data;
 	}
@@ -52,7 +79,7 @@ namespace ft {
 	MeshData MeshData::CreateSphere(uint32_t segmentCount, uint32_t ringCount)
 	{
 		if (segmentCount < 3) segmentCount = 3;
-		if (ringCount < 3) ringCount = 3;
+		if (ringCount < 2) ringCount = 2;
 
 		MeshData data;
 		float radius = 0.5f;
@@ -62,7 +89,7 @@ namespace ft {
 			float phi = (float)ring / ringCount * glm::pi<float>(); // angle from the Y axis [0, pi]
 			for (int segment = 0; segment < segmentCount; segment++) 
 			{
-				float theta = (float)segment / segmentCount * glm::two_pi<float>(); // angle around the Y axis [0, 2pi]
+				float theta = glm::two_pi<float>() * (float)segment / (float)segmentCount; // angle around the Y axis [0, 2pi]
 				data.positions.push_back({
 					radius * glm::sin(phi) * glm::cos(theta),
 					radius * glm::cos(phi),
@@ -105,6 +132,7 @@ namespace ft {
 			data.polygonSizes.push_back(3);
 		}
 
+		data.m_SmoothingMode = SmoothingMode::Smooth;
 		data.CalculateNormals();
 		return data;
 	}

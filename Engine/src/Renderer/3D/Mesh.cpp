@@ -37,7 +37,12 @@ namespace ft {
 			uint32_t polygonSize = m_Data->polygonSizes[f];
 			for (uint32_t i = 0; i < polygonSize; i++) {
 				uint32_t vertexIndex = m_Data->indices[v + i];
-				renderMesh->vertices.push_back(Vertex(m_Data->positions[vertexIndex], m_Data->faceNormals[f]));
+				glm::vec3 normal;
+				if (m_Data->GetSmoothingMode() == SmoothingMode::Smooth)
+					normal = m_Data->vertexNormals[vertexIndex];
+				else
+					normal = m_Data->faceNormals[f];
+				renderMesh->vertices.push_back(Vertex(m_Data->positions[vertexIndex], normal));
 			}
 			for (uint32_t i = 2; i < polygonSize; i++) {
 				renderMesh->indices.push_back(v);
