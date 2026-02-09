@@ -84,13 +84,14 @@ namespace ft {
 		glm::vec2 WorldToScreen(glm::vec3 worldCoordinates) const;
 
 		glm::vec3 GetPosition() const { return m_Position; }
-		glm::vec3 GetLookAt() const { return m_Front; }
+		glm::vec3 GetFront() const { return m_Front; }
 		glm::vec3 GetUp() const { return m_Up; }
+		glm::vec3 GetRight() const { return m_RightVector; }
 		float GetFov() const { return m_Fov; }
 
 		void SetFov(float fov) {
 			m_Fov = fov;
-			RecalculateView();
+			CalculateProjectionMatrix(m_Width, m_Height);
 		}
 		void SetPosition(const glm::vec3& position) {
 			m_Position = position;
@@ -102,10 +103,12 @@ namespace ft {
 		}
 		void SetFront(const glm::vec3& front) {
 			m_Front = glm::normalize(front);
+			m_RightVector = glm::normalize(glm::cross(m_Front, m_Up));
 			RecalculateView();
 		}
 		void SetUp(const glm::vec3& up) {
 			m_Up = glm::normalize(up);
+			m_RightVector = glm::normalize(glm::cross(m_Front, m_Up));
 			RecalculateView();
 		}
 
@@ -125,6 +128,7 @@ namespace ft {
 		glm::vec3 m_Position = Vector::Zero;
 		glm::vec3 m_Front = Vector::Forward;
 		glm::vec3 m_Up = Vector::Up;
+		glm::vec3 m_RightVector = Vector::Right;
 		float m_Fov = 90.0f;
 
 		ProjectionMode m_ProjectionMode = ProjectionMode::Perspective;

@@ -137,6 +137,7 @@
     <ClInclude Include="src\Renderer\3D\RenderMesh.h" />
     <ClInclude Include="src\Renderer\3D\LightSource.h" />
     <ClInclude Include="src\Platform\OpenGL\Shaders\BasicMesh.frag" />
+    <ClInclude Include="src\Modules\CameraController3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -208,5 +209,6 @@
     <ClCompile Include="src\Renderer\RendererCommon.cpp" />
     <ClCompile Include="src\Renderer\3D\MeshData.cpp" />
     <ClCompile Include="src\Renderer\3D\RenderMesh.cpp" />
+    <ClCompile Include="src\Modules\CameraController3D.cpp" />
   </ItemGroup>
 </Project>
