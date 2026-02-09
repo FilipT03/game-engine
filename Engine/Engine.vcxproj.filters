@@ -207,5 +207,6 @@
     <ClCompile Include="src\Math\Vector.cpp" />
     <ClCompile Include="src\Renderer\RendererCommon.cpp" />
     <ClCompile Include="src\Renderer\3D\MeshData.cpp" />
+    <ClCompile Include="src\Renderer\3D\RenderMesh.cpp" />
   </ItemGroup>
 </Project>

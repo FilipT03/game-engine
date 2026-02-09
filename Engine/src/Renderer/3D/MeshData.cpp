@@ -254,10 +254,10 @@ namespace ft {
 	{
 		MeshData data;
 		data.positions = {
-			{-0.5f, 0.0f, -0.5f},
-			{ 0.5f, 0.0f, -0.5f},
+			{-0.5f, 0.0f,  0.5f},
 			{ 0.5f, 0.0f,  0.5f},
-			{-0.5f, 0.0f,  0.5f}
+			{ 0.5f, 0.0f, -0.5f},
+			{-0.5f, 0.0f, -0.5f}
 		};
 		data.indices = { 0, 1, 2, 3 };
 		data.polygonSizes = { 4 };

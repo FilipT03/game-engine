@@ -15,5 +15,7 @@ public:
 
 private:
 	ft::Mesh* test_mesh;
+	bool m_Perspective = true;
+	bool m_Solid = true;
 };
 

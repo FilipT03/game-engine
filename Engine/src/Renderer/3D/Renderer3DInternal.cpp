@@ -60,7 +60,10 @@ namespace ft {
 		auto [it, success] = m_Meshes.emplace(mesh.GetID(), std::make_unique<Mesh>(std::move(mesh)));
 		Mesh* meshPtr = it->second.get();
 		RenderMesh* renderMesh = meshPtr->GetRenderMesh();
-		
+		if (!meshPtr->IsStatic()) {
+			renderMesh->Upload();
+			return meshPtr;
+		}
 
 		uint32_t stride = m_VertexArray->GetBufferLayout().GetStride();
 		uint32_t count = renderMesh->GetVertexCount();
@@ -71,20 +74,14 @@ namespace ft {
 
 		renderMesh->vertexOffset = m_LastVertexVertexOffset;
 		m_LastVertexVertexOffset += count;
-
-		//std::vector<uint8_t> data;
-		//RendererCommon::PackInterleaved(data, count, { renderMesh->vertices.data(), renderMesh->normals.data() }, m_VertexArray->GetBufferLayout());
-
-
-		//if (data.size() != size) {
-		//	FT_ENGINE_ERROR("Data packing mismatch. Expected {} bytes, got {}", size, data.size());
-		//}
 		m_VertexBuffer->SetData(renderMesh->vertexByteOffset, size, renderMesh->vertices.data());
+		renderMesh->initialVertexSize = size;
 
 		size = renderMesh->GetIndexByteSize();
 		renderMesh->indexOffset = m_LastIndexOffset;
 		m_LastIndexOffset += size;
 		m_IndexBuffer->SetData(renderMesh->indexOffset, size, renderMesh->indices.data());
+		renderMesh->initialIndexSize = size;
 
 		return meshPtr;
 	}
@@ -108,22 +105,50 @@ namespace ft {
 		m_VertexArray->Bind();
 		m_VertexBuffer->Bind();
 		m_IndexBuffer->Bind();
+		bool staticBuffersBound = true;
 
 		for (auto& [id, mesh] : m_Meshes)
 		{
+			if (!mesh->IsStatic()) {
+				mesh->GetRenderMesh()->Bind();
+				staticBuffersBound = false;
+			}
+			else if (!staticBuffersBound) {
+				m_VertexArray->Bind();
+				m_VertexBuffer->Bind();
+				m_IndexBuffer->Bind();
+			}
 			GLenum mode;
 
 			m_BasicShader->Bind();
 			m_BasicShader->SetUniform4f("uColor", mesh->color);
 			m_BasicShader->SetUniformMatrix4fv("uModel", mesh->modelMatrix);
 
-			mode = GL_TRIANGLES;
+			if (mesh->GetRenderMode() == RenderMode::Solid)
+				mode = GL_TRIANGLES;
+			else
+				mode = GL_LINES;
 
 			RenderMesh* renderMesh = mesh->GetRenderMesh();
 			if (mesh->IsDirty())
 			{
+				mesh->CalculateModelMatrix();
 				mesh->BakeToRenderMesh();
-				m_VertexBuffer->SetData(renderMesh->vertexByteOffset, renderMesh->GetVertexCount() * m_VertexArray->GetBufferLayout().GetStride(), renderMesh->vertices.data());
+				if (mesh->IsStatic()) {
+					uint32_t vertexSize = renderMesh->GetVertexCount() * m_VertexArray->GetBufferLayout().GetStride();
+					if (vertexSize > renderMesh->initialVertexSize) {
+						FT_ENGINE_ERROR("Static mesh {} vertex data overflow. Initial size: {} bytes, new size: {} bytes.", mesh->GetID(), renderMesh->initialVertexSize, vertexSize);
+						return;
+					}
+					uint32_t indexSize = renderMesh->GetIndexByteSize();
+					if (indexSize > renderMesh->initialIndexSize) {
+						FT_ENGINE_ERROR("Static mesh {} index data overflow. Initial size: {} bytes, new size: {} bytes.", mesh->GetID(), renderMesh->initialIndexSize, indexSize);
+						return;
+					}
+					m_VertexBuffer->SetData(renderMesh->vertexByteOffset, vertexSize, renderMesh->vertices.data());
+					m_IndexBuffer->SetData(renderMesh->indexOffset, indexSize, renderMesh->indices.data());
+				} else
+					renderMesh->Upload();
 				mesh->ResetDirty();
 			}
 

@@ -253,6 +253,10 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="src\Renderer\3D\RenderMesh.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\Renderer\Buffers.cpp" />
     <ClCompile Include="src\Renderer\Camera.cpp" />
     <ClCompile Include="src\Renderer\2D\Renderer2DInternal.cpp" />
