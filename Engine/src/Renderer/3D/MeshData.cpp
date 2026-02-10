@@ -12,17 +12,7 @@ namespace ft {
 
 	void MeshData::CalculateNormals()
 	{
-		faceNormals.clear();
-		// f - face index, v - vertex index
-		size_t v = 0;
-		for (size_t f = 0; f < polygonSizes.size(); f++) {
-			glm::vec3 a = positions[indices[v + 1]] - positions[indices[v]];
-			glm::vec3 b = positions[indices[v + 2]] - positions[indices[v + 1]];
-			glm::vec3 normal = glm::cross(a, b);
-			faceNormals.push_back(glm::normalize(normal));
-
-			v += polygonSizes[f];
-		}
+		CalculateFaceNormals();
 
 		if (m_SmoothingMode == SmoothingMode::Smooth || m_SmoothingMode == SmoothingMode::SmoothByAngle)
 		{
@@ -49,6 +39,22 @@ namespace ft {
 				}
 				v += polygonSizes[f];
 			}
+			m_UseCornerNormals = true;
+		}
+	}
+
+	void MeshData::CalculateFaceNormals()
+	{
+		faceNormals.clear();
+		// f - face index, v - vertex index
+		size_t v = 0;
+		for (size_t f = 0; f < polygonSizes.size(); f++) {
+			glm::vec3 a = positions[indices[v + 1]] - positions[indices[v]];
+			glm::vec3 b = positions[indices[v + 2]] - positions[indices[v + 1]];
+			glm::vec3 normal = glm::cross(a, b);
+			faceNormals.push_back(glm::normalize(normal));
+
+			v += polygonSizes[f];
 		}
 	}
 

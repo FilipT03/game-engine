@@ -22,6 +22,7 @@ namespace ft {
 
 
 		void CalculateNormals();
+		void CalculateFaceNormals();
 		void CalculateVertexToFaceMap();
 		void Clear();
 
@@ -29,6 +30,7 @@ namespace ft {
 		bool IsSmoothingEnabled() const { return m_SmoothingMode != SmoothingMode::Flat; }
 		void SetSmoothingMode(SmoothingMode mode) { 
 			m_SmoothingMode = mode;
+			m_UseCornerNormals = false;
 			CalculateNormals();
 		}
 		float GetSmoothingThreshold() const { return m_SmoothingTheshold; }
@@ -36,6 +38,8 @@ namespace ft {
 			m_SmoothingTheshold = threshold;
 			CalculateNormals();
 		}
+		void SetUseCornerNormals(bool value) { m_UseCornerNormals = value; }
+		bool UsesCornerNormals() const { return m_UseCornerNormals; }
 
 		static MeshData CreateCube();
 		static MeshData CreateSphere(uint32_t segmentCount, uint32_t ringCount);
@@ -44,6 +48,7 @@ namespace ft {
 		static MeshData CreatePlane();
 	private:
 		SmoothingMode m_SmoothingMode = SmoothingMode::Flat;
+		bool m_UseCornerNormals = false;
 		float m_SmoothingTheshold = 30.0f;
 	};
 }
