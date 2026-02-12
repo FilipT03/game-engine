@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "MeshData.h"
+#include "Math/Vector.h"
 
 namespace ft {
 	void MeshData::Clear()
@@ -269,6 +270,17 @@ namespace ft {
 		data.polygonSizes = { 4 };
 
 		data.CalculateNormals();
+		return data;
+	}
+
+	MeshData MeshData::CreateLine(const glm::vec3& start, const glm::vec3& end)
+	{
+		MeshData data;
+		data.positions = { start, end };
+		data.indices = { 0, 1 };
+		data.polygonSizes = { 2 };
+		data.faceNormals = { Vector::Up };
+
 		return data;
 	}
 }

@@ -98,6 +98,7 @@ namespace ft {
 		static Mesh CreateCone(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), 
 									uint32_t segmentCount = 36, bool isStatic = false);
 		static Mesh CreatePlane(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
+		static Mesh CreateLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
 
 		bool operator<(const Mesh& other) const {
 			if (renderOrder == other.renderOrder)

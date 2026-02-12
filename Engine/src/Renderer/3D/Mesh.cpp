@@ -2,11 +2,13 @@
 #include "Mesh.h"
 #include "Math/Vector.h"
 
+#include <glm/gtx/intersect.hpp>
+
 namespace ft {
 	Mesh::Mesh(
-		const Transform3D& transform = Transform3D(),
-		const glm::vec4& color = glm::vec4(1.0f),
-		bool isStatic = false)
+		const Transform3D& transform,
+		const glm::vec4& color,
+		bool isStatic)
 		: transform(transform), color(color), m_ID(0), m_Static(isStatic)
 	{
 		m_Data = std::make_unique<MeshData>();
@@ -17,15 +19,22 @@ namespace ft {
 
 	Mesh::Mesh(
 		MeshData data,
-		const Transform3D& transform = Transform3D(),
-		const glm::vec4& color = glm::vec4(1.0f),
-		bool isStatic = false)
-		: transform(transform), color(color), m_ID(0), m_Static(isStatic)
+		const Transform3D& transform,
+		const glm::vec4& color,
+		bool isStatic,
+		RenderMode renderMode)
+		: transform(transform), color(color), m_ID(0), m_Static(isStatic), m_RenderMode(renderMode)
 	{
 		m_Data = std::make_unique<MeshData>(std::move(data));
 		m_RenderMesh = std::make_unique<RenderMesh>(isStatic);
 		CalculateModelMatrix();
 		BakeToRenderMesh();
+	}
+
+	Mesh::Mesh() : transform(), color(1.0f), m_ID(0), m_Static(false)
+	{
+		m_Data = std::make_unique<MeshData>();
+		m_RenderMesh = std::make_unique<RenderMesh>(false);
 	}
 
 	void Mesh::BakeToRenderMesh()
@@ -40,7 +49,7 @@ namespace ft {
 			for (uint32_t i = 0; i < polygonSize; i++) {
 				uint32_t vertexIndex = m_Data->indices[v + i];
 				glm::vec3 normal;
-				if (m_Data->IsSmoothingEnabled())
+				if (m_Data->UsesCornerNormals())
 					normal = m_Data->cornerNormals[v + i];
 				else
 					normal = m_Data->faceNormals[f];
@@ -132,6 +141,10 @@ namespace ft {
 	Mesh Mesh::CreatePlane(const Transform3D& transform, const glm::vec4& color, bool isStatic)
 	{
 		return Mesh(MeshData::CreatePlane(), transform, color, isStatic);
+	}
+	Mesh Mesh::CreateLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, bool isStatic)
+	{
+		return Mesh(MeshData::CreateLine(start, end), Transform3D(), color, isStatic, RenderMode::Wireframe);
 	}
 
 	void Mesh::CalculateModelMatrix()

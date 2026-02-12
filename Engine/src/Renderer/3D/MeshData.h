@@ -46,6 +46,7 @@ namespace ft {
 		static MeshData CreateCylinder(uint32_t segmentCount);
 		static MeshData CreateCone(uint32_t segmentCount);
 		static MeshData CreatePlane();
+		static MeshData CreateLine(const glm::vec3& start, const glm::vec3& end);
 	private:
 		SmoothingMode m_SmoothingMode = SmoothingMode::Flat;
 		bool m_UseCornerNormals = false;

@@ -14,6 +14,7 @@ void MainModule::OnRegister()
 	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
 	camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
 	camera->SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
+	CreateGrid();
 	//camera->SetFront(glm::vec3(0.0f, -0.5f, -1.0f));
 	//Mesh mesh = Mesh::CreateCube(Transform3D(glm::vec3(0, -2, 0), Vector::One * 2.0f));
 	//Mesh mesh = Mesh::CreateSphere(Transform3D(glm::vec3(0, -2, -2), Vector::One * 4.0f), 160, 180);
@@ -26,9 +27,9 @@ void MainModule::OnRegister()
 	//		glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 50));
 	ft::Mesh* newMesh = ft::Renderer3D::AddMesh(
 		ft::Mesh::CreateSphere(
-							ft::Transform3D(glm::vec3(0, -3, -2), 
-							ft::Vector::One * 3.0f, 
-							ft::Vector::Forward * 30.0f), 
+			ft::Transform3D(glm::vec3(0, -3, -2),
+				ft::Vector::One * 3.0f,
+				ft::Vector::Forward * 30.0f),
 			glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 50, 50));
 
 	//ft::Mesh* newMesh = ft::Renderer3D::AddMesh(
@@ -107,7 +108,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			else if (event.key == GLFW_KEY_2) {
 				direction = ft::Vector::Left;
 				move = true;
-	}
+			}
 			else if (event.key == GLFW_KEY_3) {
 				direction = ft::Vector::Down;
 				move = true;
@@ -184,6 +185,42 @@ bool MainModule::OnMouseEvent(const ft::MouseEvent& event)
 		}
 	}
 	return false;
+}
+
+void MainModule::CreateGrid()
+{
+	ft::MeshData gridData;
+	int gridSize = 200;
+	float gridSpacing = 3.0f;
+	for (int i = -gridSize; i <= gridSize; i++) {
+		if (i == 0)
+			continue;
+		float x = i * gridSpacing;
+		gridData.positions.push_back(glm::vec3(i * gridSpacing, 0.0f, -gridSize * gridSpacing));
+		gridData.positions.push_back(glm::vec3(i * gridSpacing, 0.0f, gridSize * gridSpacing));
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.faceNormals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+		gridData.polygonSizes.push_back(2);
+	}
+	for (int j = -gridSize; j <= gridSize; j++) {
+		if (j == 0)
+			continue;
+		gridData.positions.push_back(glm::vec3(-gridSize * gridSpacing, 0.0f, j * gridSpacing));
+		gridData.positions.push_back(glm::vec3(gridSize * gridSpacing, 0.0f, j * gridSpacing));
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.faceNormals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+		gridData.polygonSizes.push_back(2);
+	}
+	glm::vec4 color = glm::vec4(0.4f, 0.4f, 0.4f, 0.2f);
+	m_Grid = ft::Renderer3D::AddMesh(ft::Mesh(std::move(gridData), ft::Transform3D(), color, true, ft::RenderMode::Wireframe));
+
+	float size = gridSize * gridSpacing;
+	color = glm::vec4(0.8f, 0.2f, 0.2f, 0.5f);
+	m_XAxis = ft::Renderer3D::AddMesh(ft::Mesh::CreateLine(ft::Vector::Left * size, ft::Vector::Right * size, color, true));
+	color = glm::vec4(0.2f, 0.8f, 0.2f, 0.5f);
+	m_ZAxis = ft::Renderer3D::AddMesh(ft::Mesh::CreateLine(ft::Vector::Back * size, ft::Vector::Forward * size, color, true));
 }
 
 void MainModule::SetDefaultLight()
