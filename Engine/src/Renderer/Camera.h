@@ -79,8 +79,8 @@ namespace ft {
 		void CalculateProjectionMatrix(float width, float height);
 		void RecalculateView();
 
-		glm::vec3 ScreenToWorld(glm::vec2 screenCoordinates) const;
-		glm::vec3 ScreenDeltaToWorld(glm::vec2 screenDelta) const;
+		glm::vec3 ScreenToWorld(glm::vec2 screenCoordinates, float depth) const;
+		glm::vec3 ScreenDeltaToWorld(glm::vec2 screenPos, glm::vec2 screenDelta, float depth) const;
 		glm::vec2 WorldToScreen(glm::vec3 worldCoordinates) const;
 		void ScreenPointToRay(glm::vec2 screenCoordinates, glm::vec3& rayOrigin, glm::vec3& rayDirection) const;
 

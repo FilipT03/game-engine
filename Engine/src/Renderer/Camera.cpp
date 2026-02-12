@@ -91,26 +91,26 @@ namespace ft {
 
 
 	/// ============ World Camera 3D ============
-	glm::vec3 WorldCamera3D::ScreenToWorld(glm::vec2 screenCoordinates) const
+	glm::vec3 WorldCamera3D::ScreenToWorld(glm::vec2 screenCoordinates, float depth) const
 	{
-		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
-		glm::vec2 ndc{};
-		ndc.x = (screenCoordinates.x / windowSize.x) * 2.0f - 1.0f;
-		ndc.y = 1.0f - (screenCoordinates.y / windowSize.y) * 2.0f;
+		glm::vec3 rayOrigin, rayDir;
+		ScreenPointToRay(screenCoordinates, rayOrigin, rayDir);
+		glm::vec3 planeNormal = m_Front;
+		float dot = glm::dot(rayDir, planeNormal);
+		if (abs(dot) < 1e-6f)
+			return rayOrigin + rayDir * depth;
 
-		glm::mat4 invVP = glm::inverse(m_ViewProjection);
-		glm::vec4 world = invVP * glm::vec4(ndc.x, ndc.y, 0.0f, 1.0f);
-		return glm::vec3(world.x, world.y, 0.0f);
+		float distanceToPlane = depth - glm::dot(rayOrigin - m_Position, planeNormal);
+		float t = distanceToPlane / dot;
+
+		return rayOrigin + rayDir * t;
 	}
 
-	glm::vec3 WorldCamera3D::ScreenDeltaToWorld(glm::vec2 screenDelta) const
+	glm::vec3 WorldCamera3D::ScreenDeltaToWorld(glm::vec2 screenPos, glm::vec2 screenDelta, float depth) const
 	{
-		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
-
-		float w =  screenDelta.x / windowSize.x;
-		float h = -screenDelta.y / windowSize.y;
-
-		return glm::vec3(screenDelta.x * w / m_Fov, -screenDelta.y * h / m_Fov, 0.0f);
+		glm::vec3 p1 = ScreenToWorld(screenPos - screenDelta, depth);
+		glm::vec3 p2 = ScreenToWorld(screenPos, depth);
+		return p2 - p1;
 	}
 
 	glm::vec2 WorldCamera3D::WorldToScreen(glm::vec3 worldCoordinates) const
