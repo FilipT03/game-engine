@@ -14,6 +14,7 @@
 #define FT_GLSL_INCLUDE
 #include "Platform/OpenGL/Shaders/BasicMesh.vert"
 #include "Platform/OpenGL/Shaders/BasicMesh.frag"
+#include "Platform/OpenGL/Shaders/Basic.frag"
 #endif
 
 namespace ft {
@@ -42,7 +43,8 @@ namespace ft {
 		m_VertexArray->SetVertexBuffer(m_VertexBuffer);
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
-		m_BasicShader = std::unique_ptr<Shader>(Shader::Create(basicMeshVert, basicMeshFrag));
+		m_LitShader = std::unique_ptr<Shader>(Shader::Create(basicMeshVert, basicMeshFrag));
+		m_UnlitShader = std::unique_ptr<Shader>(Shader::Create(basicMeshVert, basicFrag));
 
 		m_LightSource = std::make_unique<LightSource>();
 #endif
@@ -57,8 +59,8 @@ namespace ft {
 	Mesh* Renderer3DInternal::AddMesh(Mesh&& mesh)
 	{
 		mesh.SetID(m_LastMeshId++);
-		auto [it, success] = m_Meshes.emplace(mesh.GetID(), std::make_unique<Mesh>(std::move(mesh)));
-		Mesh* meshPtr = it->second.get();
+		auto [it, success] = m_Meshes.emplace(std::make_unique<Mesh>(std::move(mesh)));
+		Mesh* meshPtr = it->get();
 		RenderMesh* renderMesh = meshPtr->GetRenderMesh();
 		if (!meshPtr->IsStatic()) {
 			renderMesh->Upload();
@@ -94,21 +96,27 @@ namespace ft {
 
 		glEnable(GL_DEPTH_TEST);
 
-		m_BasicShader->Bind();
-		m_BasicShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
-		m_BasicShader->SetUniform3f("uLightPosition", m_LightSource->position);
-		m_BasicShader->SetUniform3f("uLightColor", m_LightSource->color);
-		m_BasicShader->SetUniform1f("uLightIntensity", m_LightSource->intensity);
-		m_BasicShader->SetUniform3f("uViewPosition", m_Camera->GetPosition());
-
+		m_LitShader->Bind();
+		m_LitShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
+		m_LitShader->SetUniform3f("uLightPosition", m_LightSource->position);
+		m_LitShader->SetUniform3f("uLightColor", m_LightSource->color);
+		m_LitShader->SetUniform1f("uLightIntensity", m_LightSource->intensity);
+		m_LitShader->SetUniform1f("uAmbientIntensity", m_LightSource->ambientIntensity);
+		m_LitShader->SetUniform3f("uViewPosition", m_Camera->GetPosition());
+		
+		m_UnlitShader->Bind();
+		m_UnlitShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
 
 		m_VertexArray->Bind();
 		m_VertexBuffer->Bind();
 		m_IndexBuffer->Bind();
 		bool staticBuffersBound = true;
 
-		for (auto& [id, mesh] : m_Meshes)
+		for (auto& mesh : m_Meshes)
 		{
+			if (!mesh->ShouldRender())
+				continue;
+
 			if (!mesh->IsStatic()) {
 				mesh->GetRenderMesh()->Bind();
 				staticBuffersBound = false;
@@ -118,16 +126,29 @@ namespace ft {
 				m_VertexBuffer->Bind();
 				m_IndexBuffer->Bind();
 			}
-			GLenum mode;
 
-			m_BasicShader->Bind();
-			m_BasicShader->SetUniform4f("uColor", mesh->color);
-			m_BasicShader->SetUniformMatrix4fv("uModel", mesh->modelMatrix);
-
-			if (mesh->GetRenderMode() == RenderMode::Solid)
-				mode = GL_TRIANGLES;
+			Shader* shader;
+			if (mesh->GetRenderMode() == RenderMode::Overlay || mesh->GetRenderMode() == RenderMode::Wireframe)
+				shader = m_UnlitShader.get();
 			else
+				shader = m_LitShader.get();
+
+			shader->Bind();
+			shader->SetUniform4f("uColor", mesh->color);
+			shader->SetUniformMatrix4fv("uModel", mesh->modelMatrix);
+
+			GLenum mode;
+			mode = GL_TRIANGLES;
+			if (mesh->GetRenderMode() == RenderMode::Wireframe)
 				mode = GL_LINES;
+
+			if (mesh->GetRenderMode() == RenderMode::Overlay) {
+				glEnable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(-1.0f, -1.0f);
+			}
+			else
+				glDisable(GL_POLYGON_OFFSET_FILL);
+
 
 			RenderMesh* renderMesh = mesh->GetRenderMesh();
 			if (mesh->IsDirty())
@@ -175,6 +196,8 @@ namespace ft {
 
 	void Renderer3DInternal::RemoveMesh(uint32_t meshID)
 	{
-		m_Meshes.erase(meshID);
+		auto it = std::find_if(m_Meshes.begin(), m_Meshes.end(), [meshID](const auto& meshPtr) { return meshPtr->GetID() == meshID; });
+		if (it != m_Meshes.end())
+			m_Meshes.erase(it);
 	}
 }

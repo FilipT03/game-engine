@@ -13,13 +13,13 @@ uniform vec3 uLightPosition;
 uniform vec3 uViewPosition; 
 uniform vec3 uLightColor;
 uniform float uLightIntensity;
+uniform float uAmbientIntensity;
 
 uniform vec4 uColor;
 
 void main()
 {
-    float ambientStrength = 0.2;
-    vec3 ambient = ambientStrength * uLightColor;
+    vec3 ambient = uAmbientIntensity * uLightColor;
   	
     // diffuse 
     vec3 norm = normalize(chNormal);
@@ -38,7 +38,8 @@ void main()
     
     result = pow(result, vec3(1.0/2.2)); // Gamma correction
 
-    outColor = uColor * vec4(ambient + diffuse + specular, 1.0);
+    //outColor = uColor * vec4(ambient + diffuse + specular, 1.0);
+    outColor = vec4(result, uColor.a);
 }
 
 

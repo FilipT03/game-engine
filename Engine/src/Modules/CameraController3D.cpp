@@ -16,12 +16,11 @@ namespace ft {
 		hotkeyMoveRight = GLFW_KEY_D;
 		hotkeyZoomMods = 0;
 		hotkeyPanMods = GLFW_MOD_SHIFT;
-
-		m_Pitch = glm::degrees(asin(Renderer3D::GetCamera()->GetFront().y));
-		m_Yaw = glm::degrees(atan2(Renderer3D::GetCamera()->GetFront().z, Renderer3D::GetCamera()->GetFront().x));
 	}
 
 	void CameraController3D::OnUpdate() {
+		m_Pitch = glm::degrees(asin(Renderer3D::GetCamera()->GetFront().y));
+		m_Yaw = glm::degrees(atan2(Renderer3D::GetCamera()->GetFront().z, Renderer3D::GetCamera()->GetFront().x));
 		if (m_Panning) {
 			WorldCamera3D* camera = Renderer3D::GetCamera();
 			glm::vec2 mouseDelta = Input::GetMouseDeltaNormalized();

@@ -80,6 +80,9 @@ namespace ft {
 		bool IsDirty() const { return m_Dirty; }
 		void ResetDirty() { m_Dirty = false; }
 		void MarkDirty() { m_Dirty = true; }
+		void DisableRendering() { m_Render = false; }
+		void EnableRendering() { m_Render = true; }
+		bool ShouldRender() const { return m_Render; }
 
 		void CalculateModelMatrix();
 		void BakeToRenderMesh();
