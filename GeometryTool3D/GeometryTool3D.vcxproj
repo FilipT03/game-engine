@@ -137,13 +137,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="MeshUtil.h" />
-    <ClInclude Include="MainModule.h" />
+    <ClInclude Include="src\MeshUtil.h" />
+    <ClInclude Include="src\MainModule.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MeshUtil.cpp" />
-    <ClCompile Include="GeometryTool3DApp.cpp" />
-    <ClCompile Include="MainModule.cpp" />
+    <ClCompile Include="src\MeshUtil.cpp" />
+    <ClCompile Include="src\GeometryTool3DApp.cpp" />
+    <ClCompile Include="src\MainModule.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
