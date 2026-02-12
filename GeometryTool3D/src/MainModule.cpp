@@ -1,4 +1,6 @@
 #include "MainModule.h"
+#include "MeshUtil.h"
+
 #include<Resources/MeshImporter.h>
 #include<optional>
 #include<portable-file-dialogs.h>
@@ -25,24 +27,24 @@ void MainModule::OnRegister()
 	//			ft::Vector::One * 3.0f,
 	//			ft::Vector::Forward * 30.0f),
 	//		glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 50));
-	ft::Mesh* newMesh = ft::Renderer3D::AddMesh(
-		ft::Mesh::CreateSphere(
-			ft::Transform3D(glm::vec3(0, -3, -2),
-				ft::Vector::One * 3.0f,
-				ft::Vector::Forward * 30.0f),
-			glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 50, 50));
-
 	//ft::Mesh* newMesh = ft::Renderer3D::AddMesh(
-	//					ft::Mesh::CreateCylinder(
-	//						ft::Transform3D(glm::vec3(0, -3, -2), 
-	//						ft::Vector::One * 3.0f, 
-	//						ft::Vector::Forward * 30.0f), 
-	//						glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 30));
+	//	ft::Mesh::CreateSphere(
+	//		ft::Transform3D(glm::vec3(0, -3, -2),
+	//			ft::Vector::One * 3.0f,
+	//			ft::Vector::Forward * 30.0f),
+	//		glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 50, 50));
+
+	ft::Mesh* newMesh = ft::Renderer3D::AddMesh(
+						ft::Mesh::CreateCylinder(
+							ft::Transform3D(glm::vec3(0, -3, -2), 
+							ft::Vector::One * 3.0f, 
+							ft::Vector::Forward * 30.0f), 
+							glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 30));
 	m_Meshes.emplace(newMesh->GetID(), newMesh);
 
 	ft::Renderer3D::AddMesh(ft::Mesh::CreatePlane(ft::Transform3D(glm::vec3(0, -5.5, 0), ft::Vector::One * 10.0f), glm::vec4(1), true));
-	m_Selection_mesh = ft::Renderer3D::AddMesh(ft::Mesh(ft::Transform3D(), glm::vec4(1.0f, 0.7f, 0.157f, 0.8f), false));
-	m_Selection_mesh->SetRenderMode(ft::RenderMode::Overlay);
+	m_SelectionMesh = ft::Renderer3D::AddMesh(ft::Mesh(ft::Transform3D(), glm::vec4(1.0f, 0.7f, 0.157f, 0.8f), false));
+	m_SelectionMesh->SetRenderMode(ft::RenderMode::Overlay);
 }
 
 void MainModule::OnUpdate()
@@ -51,9 +53,9 @@ void MainModule::OnUpdate()
 		mesh->transform.rotation.y += 90.0f * ft::Time::DeltaTime();
 		mesh->CalculateModelMatrix();
 	}
-	if (m_SelectedMesh != 0) {
-		m_Selection_mesh->transform = m_Meshes[m_SelectedMesh]->transform;
-		m_Selection_mesh->CalculateModelMatrix();
+	if (m_SelectedMeshID != 0) {
+		m_SelectionMesh->transform = m_Meshes[m_SelectedMeshID]->transform;
+		m_SelectionMesh->CalculateModelMatrix();
 	}
 }
 
@@ -69,11 +71,11 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				ft::Renderer3D::GetCamera()->SetProjectionMode(ft::ProjectionMode::Perspective);
 			m_Perspective = !m_Perspective;
 		}
-		if (event.key == GLFW_KEY_F2 && m_SelectedMesh != 0) {
+		if (event.key == GLFW_KEY_F2 && m_SelectedMeshID != 0) {
 			if (m_Solid)
-				m_Meshes[m_SelectedMesh]->SetRenderMode(ft::RenderMode::Wireframe);
+				m_Meshes[m_SelectedMeshID]->SetRenderMode(ft::RenderMode::Wireframe);
 			else
-				m_Meshes[m_SelectedMesh]->SetRenderMode(ft::RenderMode::Solid);
+				m_Meshes[m_SelectedMeshID]->SetRenderMode(ft::RenderMode::Solid);
 			m_Solid = !m_Solid;
 		}
 		if (event.key == GLFW_KEY_F3) {
@@ -98,7 +100,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			else
 				SetAmbientOnlyLight();
 		}
-		if (m_SelectedMesh != 0) {
+		if (m_SelectedMeshID != 0) {
 			bool move = false;
 			glm::vec3 direction;
 			if (event.key == GLFW_KEY_1) {
@@ -127,11 +129,24 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			}
 			if (move) {
 				ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
-				float depth = glm::length(camera->GetPosition() - m_Meshes[m_SelectedMesh]->transform.position);
+				float depth = glm::length(camera->GetPosition() - m_Meshes[m_SelectedMeshID]->transform.position);
 				camera->SetFront(direction);
-				camera->SetPosition(m_Meshes[m_SelectedMesh]->transform.position - direction * depth);
+				camera->SetPosition(m_Meshes[m_SelectedMeshID]->transform.position - direction * depth);
 			}
 
+			if (event.key == GLFW_KEY_A && event.mods == GLFW_MOD_CONTROL) {
+				ft::Mesh* mesh = m_Meshes[m_SelectedMeshID];
+				ft::MeshData* selectionData = m_SelectionMesh->GetData();
+				if (m_SelectedFaces.size() != mesh->GetData()->polygonSizes.size()) {
+					for (uint32_t i = 0; i < mesh->GetData()->polygonSizes.size(); i++)
+						m_SelectedFaces.insert(i);
+				}
+				else
+					m_SelectedFaces.clear();
+				MeshUtil::CreateFromFaces(*mesh->GetData(), *selectionData, m_SelectedFaces);
+				m_SelectionMesh->BakeToRenderMesh();
+				return true; // Consume to prevent camera movement
+			}
 		}
 	}
 	return false;
@@ -161,27 +176,43 @@ bool MainModule::OnMouseEvent(const ft::MouseEvent& event)
 			}
 			FT_TRACE("Face index: {}", faceIndex);
 
-			ft::MeshData* data = m_Selection_mesh->GetData();
+			ft::MeshData* data = m_SelectionMesh->GetData();
 			data->Clear();
 			if (faceIndex != -1) {
-				uint32_t vertexStart = 0;
-				ft::Mesh* mesh = m_Meshes[meshID];
-				for (int f = 0; f < faceIndex; f++)
-					vertexStart += mesh->GetData()->polygonSizes[f];
-				uint32_t polygonSize = mesh->GetData()->polygonSizes[faceIndex];
-				for (uint32_t i = 0; i < polygonSize; i++) {
-					uint32_t vertexIndex = mesh->GetData()->indices[vertexStart + i];
-					data->positions.push_back(mesh->GetData()->positions[vertexIndex]);
-					data->indices.push_back(i);
+				FT_TRACE("Hit mesh ID: {}", meshID);
+				if (meshID != m_SelectedMeshID) {
+					m_SelectedMeshID = meshID; 
+					m_SelectedFaces.clear();
 				}
-				data->faceNormals.push_back(mesh->GetData()->faceNormals[faceIndex]);
-				data->polygonSizes.push_back(polygonSize);
-				m_Selection_mesh->CalculateModelMatrix();
-				m_Selection_mesh->BakeToRenderMesh();
-				m_SelectedMesh = meshID;
+				if (pressEvent.mods == GLFW_MOD_SHIFT) {
+					if (m_SelectedFaces.contains(faceIndex))
+						m_SelectedFaces.erase(faceIndex);
+					else
+						m_SelectedFaces.insert(faceIndex);
+				}
+				else {
+					m_SelectedFaces.clear(); 
+					m_SelectedFaces.insert(faceIndex);
+				}
+
+				if (!m_SelectedFaces.empty()) {
+					ft::Mesh* mesh = m_Meshes[meshID];
+					ft::MeshData* selectionData = m_SelectionMesh->GetData();
+					MeshUtil::CreateFromFaces(*mesh->GetData(), *selectionData, m_SelectedFaces);
+					
+					m_SelectionMesh->BakeToRenderMesh();
+				}
+				else {
+					m_SelectionMesh->GetData()->Clear(); 
+					m_SelectionMesh->BakeToRenderMesh();
+					m_SelectedMeshID = 0;
+				}
+
 			}
-			else
-				m_SelectedMesh = 0;
+			else {
+				m_SelectedMeshID = 0;
+				m_SelectedFaces.clear();
+			}
 		}
 	}
 	return false;
@@ -228,7 +259,7 @@ void MainModule::SetDefaultLight()
 	ft::LightSource* lightSource = ft::Renderer3D::GetLightSource();
 	lightSource->position = glm::vec3(2.0f, 2.0f, 0.0f);
 	lightSource->color = glm::vec3(1.0f);
-	lightSource->intensity = 1.0f;
+	lightSource->intensity = 1.2f;
 	lightSource->ambientIntensity = 0.2f;
 	m_UsingAmbientOnlyLight = false;
 }
