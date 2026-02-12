@@ -16,6 +16,7 @@ namespace ft {
 		hotkeyMoveRight = GLFW_KEY_D;
 		hotkeyZoomMods = 0;
 		hotkeyPanMods = GLFW_MOD_SHIFT;
+		hotkeyMoveMods = GLFW_MOD_CONTROL;
 	}
 
 	void CameraController3D::OnUpdate() {
@@ -62,17 +63,17 @@ namespace ft {
 	bool CameraController3D::OnKeyEvent(const ft::KeyEvent& event) {
 		WorldCamera3D* camera = Renderer3D::GetCamera();
 		if (event.type == EventType::KeyPress) {
-			if (event.key == hotkeyMoveForward)
+			if (event.key == hotkeyMoveForward && event.mods == hotkeyMoveMods)
 				m_MovementPositive.z = 1;
-			if (event.key == hotkeyMoveBackward)
+			if (event.key == hotkeyMoveBackward && event.mods == hotkeyMoveMods)
 				m_MovementNegative.z = -1;
-			if (event.key == hotkeyMoveUp)
+			if (event.key == hotkeyMoveUp && event.mods == hotkeyMoveMods)
 				m_MovementPositive.y = 1;
-			if (event.key == hotkeyMoveDown)
+			if (event.key == hotkeyMoveDown && event.mods == hotkeyMoveMods)
 				m_MovementNegative.y = -1;
-			if (event.key == hotkeyMoveRight)
+			if (event.key == hotkeyMoveRight && event.mods == hotkeyMoveMods)
 				m_MovementPositive.x = 1;
-			if (event.key == hotkeyMoveLeft)
+			if (event.key == hotkeyMoveLeft && event.mods == hotkeyMoveMods)
 				m_MovementNegative.x = -1;
 		}
 		if (event.type == EventType::KeyRelease) {

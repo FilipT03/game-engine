@@ -9,7 +9,7 @@ namespace ft {
 	{
 	public:
 		uint32_t hotkeyMoveForward, hotkeyMoveBackward, hotkeyMoveUp, hotkeyMoveDown, hotkeyMoveLeft, hotkeyMoveRight;
-		uint32_t hotkeyZoomMods, hotkeyPanMods;
+		uint32_t hotkeyZoomMods, hotkeyPanMods, hotkeyMoveMods;
 
 		float moveSpeed = 1.0f, fastModifier = 2.0f, zoomSpeed = 1.0f, panSpeed = 1.0f, rotateSpeed = 1.0f;
 

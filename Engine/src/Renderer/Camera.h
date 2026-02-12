@@ -86,8 +86,8 @@ namespace ft {
 
 		glm::vec3 GetPosition() const { return m_Position; }
 		glm::vec3 GetFront() const { return m_Front; }
-		glm::vec3 GetUp() const { return m_Up; }
-		glm::vec3 GetRight() const { return m_RightVector; }
+		glm::vec3 GetUp() const { return m_CameraUp; }
+		glm::vec3 GetRight() const { return m_CameraRight; }
 		float GetFov() const { return m_Fov; }
 
 		void SetFov(float fov) {
@@ -104,12 +104,14 @@ namespace ft {
 		}
 		void SetFront(const glm::vec3& front) {
 			m_Front = glm::normalize(front);
-			m_RightVector = glm::normalize(glm::cross(m_Front, m_Up));
+			m_CameraRight = glm::normalize(glm::cross(m_Front, m_WorldUp));
+			m_CameraUp = glm::normalize(glm::cross(m_CameraRight, m_Front));
 			RecalculateView();
 		}
-		void SetUp(const glm::vec3& up) {
-			m_Up = glm::normalize(up);
-			m_RightVector = glm::normalize(glm::cross(m_Front, m_Up));
+		void SetWorldUp(const glm::vec3& up) {
+			m_WorldUp = glm::normalize(up);
+			m_CameraRight = glm::normalize(glm::cross(m_Front, m_WorldUp));
+			m_CameraUp = glm::normalize(glm::cross(m_CameraRight, m_Front));
 			RecalculateView();
 		}
 
@@ -128,8 +130,9 @@ namespace ft {
 
 		glm::vec3 m_Position = Vector::Zero;
 		glm::vec3 m_Front = Vector::Forward;
-		glm::vec3 m_Up = Vector::Up;
-		glm::vec3 m_RightVector = Vector::Right;
+		glm::vec3 m_WorldUp = Vector::Up;
+		glm::vec3 m_CameraRight = Vector::Right;
+		glm::vec3 m_CameraUp = Vector::Up;
 		float m_Fov = 90.0f;
 
 		ProjectionMode m_ProjectionMode = ProjectionMode::Perspective;
