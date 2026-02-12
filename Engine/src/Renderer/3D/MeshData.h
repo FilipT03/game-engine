@@ -12,6 +12,8 @@ namespace ft {
 	class MeshData
 	{
 	public:
+		MeshData() = default;
+
 		std::vector<glm::vec3> positions;
 		std::vector<uint32_t> indices;
 		std::vector<uint32_t> polygonSizes; // Number of points in each polygon

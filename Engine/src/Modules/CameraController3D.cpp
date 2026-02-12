@@ -16,7 +16,7 @@ namespace ft {
 		hotkeyMoveRight = GLFW_KEY_D;
 		hotkeyZoomMods = 0;
 		hotkeyPanMods = GLFW_MOD_SHIFT;
-		hotkeyMoveMods = GLFW_MOD_CONTROL;
+		hotkeyMoveMods = GLFW_MOD_SHIFT;
 	}
 
 	void CameraController3D::OnUpdate() {
@@ -51,7 +51,7 @@ namespace ft {
 		if (glm::length(m_MovementPositive + m_MovementNegative) > 0.0001f) {
 			glm::vec3 movement = m_MovementPositive + m_MovementNegative;
 			movement = glm::normalize(movement);
-			float totalMoveSpeed = moveSpeed * m_BaseMoveSpeed * Time::DeltaTimeF() * (Input::IsShiftDown() ? fastModifier : 1.0f);
+			float totalMoveSpeed = moveSpeed * m_BaseMoveSpeed * Time::DeltaTimeF();// *(Input::IsShiftDown() ? fastModifier : 1.0f);
 			WorldCamera3D* camera = Renderer3D::GetCamera();
 			glm::vec3 offset = (camera->GetFront() * movement.z + 
 								camera->GetUp()    * movement.y + 

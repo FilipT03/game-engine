@@ -15,6 +15,7 @@
 #include "Platform/OpenGL/Shaders/BasicMesh.vert"
 #include "Platform/OpenGL/Shaders/BasicMesh.frag"
 #include "Platform/OpenGL/Shaders/Basic.frag"
+#include "Platform/OpenGL/Shaders/StudioLighting.frag"
 #endif
 
 namespace ft {
@@ -44,9 +45,12 @@ namespace ft {
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		m_LitShader = std::unique_ptr<Shader>(Shader::Create(basicMeshVert, basicMeshFrag));
+		m_StudioShader = std::unique_ptr<Shader>(Shader::Create(basicMeshVert, studioLightingFrag));
 		m_UnlitShader = std::unique_ptr<Shader>(Shader::Create(basicMeshVert, basicFrag));
 
 		m_LightSource = std::make_unique<LightSource>();
+
+		m_ModelMatrixCalculationMesh = std::make_unique<Mesh>();
 #endif
 	}
 
@@ -95,6 +99,7 @@ namespace ft {
 		#ifdef FT_OPENGL_RENDERER
 
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_STENCIL_TEST);
 
 		m_LitShader->Bind();
 		m_LitShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
@@ -103,6 +108,10 @@ namespace ft {
 		m_LitShader->SetUniform1f("uLightIntensity", m_LightSource->intensity);
 		m_LitShader->SetUniform1f("uAmbientIntensity", m_LightSource->ambientIntensity);
 		m_LitShader->SetUniform3f("uViewPosition", m_Camera->GetPosition());
+
+		m_StudioShader->Bind();
+		m_StudioShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
+		m_StudioShader->SetUniform3f("uViewPosition", m_Camera->GetPosition());
 		
 		m_UnlitShader->Bind();
 		m_UnlitShader->SetUniformMatrix4fv("uViewProjection", m_Camera->GetViewProjection());
@@ -127,9 +136,17 @@ namespace ft {
 				m_IndexBuffer->Bind();
 			}
 
+			if (mesh->outlined) {
+				glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+				glStencilFunc(GL_ALWAYS, 1, 0xFF);
+				glStencilMask(0xFF);
+			}
+
 			Shader* shader;
 			if (mesh->GetRenderMode() == RenderMode::Overlay || mesh->GetRenderMode() == RenderMode::Wireframe)
 				shader = m_UnlitShader.get();
+			else if (m_UseStudioLighting)
+				shader = m_StudioShader.get();
 			else
 				shader = m_LitShader.get();
 
@@ -174,6 +191,22 @@ namespace ft {
 			}
 
 			glDrawElementsBaseVertex(mode, renderMesh->indices.size(), GL_UNSIGNED_INT, (void*)(intptr_t)renderMesh->indexOffset, renderMesh->vertexOffset);
+
+			if (mesh->outlined) {
+				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+				glStencilMask(0x00);
+				glDisable(GL_DEPTH_TEST);
+				m_ModelMatrixCalculationMesh->transform = mesh->transform;
+				m_ModelMatrixCalculationMesh->transform.scale *= 1.025f;
+				m_ModelMatrixCalculationMesh->CalculateModelMatrix();
+				m_UnlitShader->Bind();
+				m_UnlitShader->SetUniformMatrix4fv("uModel", m_ModelMatrixCalculationMesh->modelMatrix);
+				m_UnlitShader->SetUniform4f("uColor", mesh->outlineColor);
+				glDrawElementsBaseVertex(mode, renderMesh->indices.size(), GL_UNSIGNED_INT, (void*)(intptr_t)renderMesh->indexOffset, renderMesh->vertexOffset);
+				glStencilMask(0xFF);
+				glStencilFunc(GL_ALWAYS, 0, 0xFF);
+				glEnable(GL_DEPTH_TEST);
+			}
 		}
 		#endif
 	}

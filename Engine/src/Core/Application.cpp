@@ -72,7 +72,7 @@ namespace ft {
 
 			Time::UpdateTime(time);
 
-			Renderer2D::Clear();
+			RendererCommon::Clear();
 
 
 			for (auto& it : m_EngineModules) {

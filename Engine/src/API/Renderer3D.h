@@ -28,6 +28,22 @@ namespace ft {
 		inline static LightSource* GetLightSource() {
 			return s_Renderer->GetLightSource();
 		}
+		inline static void SetightingMode(bool useStudioLighting) {
+			s_Renderer->SetightingMode(useStudioLighting);
+		}
+
+		inline static glm::vec3 ScreenToWorld(glm::vec2 screenCoordinates, float depth) {
+			return GetCamera()->ScreenToWorld(screenCoordinates, depth);
+		}
+		inline static glm::vec3 ScreenDeltaToWorld(glm::vec2 screenPos, glm::vec2 screenDelta, float depth) {
+			return GetCamera()->ScreenDeltaToWorld(screenPos, screenDelta, depth);
+		}
+		inline static glm::vec2 WorldToScreen(glm::vec3 worldCoordinates) {
+			return GetCamera()->WorldToScreen(worldCoordinates);
+		}
+		inline static void ScreenPointToRay(glm::vec2 screenCoordinates, glm::vec3& rayOrigin, glm::vec3& rayDirection) {
+			GetCamera()->ScreenPointToRay(screenCoordinates, rayOrigin, rayDirection);
+		}
 	private:
 		Renderer3D() = default;
 		inline static Renderer3DInternal* s_Renderer = nullptr;

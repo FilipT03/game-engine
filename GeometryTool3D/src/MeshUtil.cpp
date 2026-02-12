@@ -52,3 +52,29 @@ void MeshUtil::CreateFromFaces(const ft::MeshData& sourceMesh, ft::MeshData& tar
 		targetMesh.faceNormals.push_back(sourceMesh.faceNormals[f]);
 	}
 }
+
+ft::MeshData MeshUtil::CreateGrid(int size, float spacing) {
+	ft::MeshData gridData;
+	for (int i = -size; i <= size; i++) {
+		if (i == 0)
+			continue;
+		float x = i * spacing;
+		gridData.positions.push_back(glm::vec3(i * spacing, 0.0f, -size * spacing));
+		gridData.positions.push_back(glm::vec3(i * spacing, 0.0f, size * spacing));
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.faceNormals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+		gridData.polygonSizes.push_back(2);
+	}
+	for (int j = -size; j <= size; j++) {
+		if (j == 0)
+			continue;
+		gridData.positions.push_back(glm::vec3(-size * spacing, 0.0f, j * spacing));
+		gridData.positions.push_back(glm::vec3(size * spacing, 0.0f, j * spacing));
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.indices.push_back(gridData.indices.size());
+		gridData.faceNormals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+		gridData.polygonSizes.push_back(2);
+	}
+	return gridData;
+}

@@ -43,17 +43,23 @@ namespace ft {
 	{
 	public:
 		Mesh();
-		Mesh(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
+		Mesh(const Transform3D& transform, const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
 		Mesh(MeshData data, const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false, RenderMode renderMode = RenderMode::Solid);
 
 		Transform3D transform;
 		glm::vec4 color;
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		int renderOrder = 0;
+		bool outlined = false;
+		glm::vec4 outlineColor = glm::vec4(1.0f);
 		
 		MeshData* GetData() { 
 			MarkDirty(); 
 			return m_Data.get(); 
+		}
+		void SetData(const MeshData& data) { 
+			*m_Data = data; 
+			MarkDirty(); 
 		}
 		RenderMesh* GetRenderMesh() { return m_RenderMesh.get(); }
 		RenderMode GetRenderMode() const { return m_RenderMode; }
