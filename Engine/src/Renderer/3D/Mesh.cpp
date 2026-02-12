@@ -63,6 +63,56 @@ namespace ft {
 		}
 	}
 
+	MeshRaycastHit Mesh::GetFaceIndexFromRay(const glm::vec3& rayOrigin, const glm::vec3& rayDir)
+	{
+		if (!m_Data) return MeshRaycastHit();
+		MeshRaycastHit result;
+
+		// Transform ray to local space of the mesh
+		glm::mat4 invModel = glm::inverse(modelMatrix);
+		glm::vec3 localOrigin = glm::vec3(invModel * glm::vec4(rayOrigin, 1.0f));
+		glm::vec3 localDir = glm::normalize(glm::vec3(invModel * glm::vec4(rayDir, 0.0f)));
+
+		// TODO: Add AABB check for whole mesh
+
+		float closestDistance = std::numeric_limits<float>::max();
+		int closestFaceIndex = -1;
+		size_t v = 0;
+		for (size_t f = 0; f < m_Data->polygonSizes.size(); f++)
+		{
+			uint32_t polygonSize = m_Data->polygonSizes[f];
+
+			// Triangulate the polygon to check every triangle
+			glm::vec3 v0 = m_Data->positions[m_Data->indices[v]];
+			// Triangle: v0, v(i), v(i+1)
+			for (uint32_t i = 1; i < polygonSize - 1; i++)
+			{
+				glm::vec3 v1 = m_Data->positions[m_Data->indices[v + i]];
+				glm::vec3 v2 = m_Data->positions[m_Data->indices[v + i + 1]];
+
+				glm::vec2 bary;
+				float distance;
+
+				if (glm::intersectRayTriangle(localOrigin, localDir, v0, v1, v2, bary, distance))
+				{
+					if (distance > 0.0f && distance < closestDistance)
+					{
+						closestDistance = distance;
+						closestFaceIndex = (int)f;
+					}
+				}
+			}
+			v += polygonSize;
+		}
+
+		if (closestFaceIndex != -1) {
+			result.hit = true;
+			result.faceIndex = closestFaceIndex;
+			result.hitPoint = rayOrigin + rayDir * closestDistance;
+		}
+		return result;
+	}
+
 	Mesh Mesh::CreateCube(const Transform3D& transform, const glm::vec4& color, bool isStatic)
 	{	
 		return Mesh(MeshData::CreateCube(), transform, color, isStatic);

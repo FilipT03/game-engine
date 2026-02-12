@@ -29,6 +29,14 @@ namespace ft {
 		Wireframe
 	};
 
+	/// ===== MeshRaycastHit =====
+	struct MeshRaycastHit {
+		bool hit;
+		int faceIndex;
+		glm::vec3 hitPoint;
+		MeshRaycastHit() : hit(false), faceIndex(-1), hitPoint(glm::vec3(0.0f)) {}
+	};
+
 	/// ===== Mesh =====
 	class Mesh
 	{
@@ -72,6 +80,9 @@ namespace ft {
 
 		void CalculateModelMatrix();
 		void BakeToRenderMesh();
+		int GetPolygonCount() const { return m_Data->polygonSizes.size(); }
+
+		MeshRaycastHit GetFaceIndexFromRay(const glm::vec3& rayOrigin, const glm::vec3& rayDir);
 
 		static Mesh CreateCube(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
 		static Mesh CreateSphere(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), 

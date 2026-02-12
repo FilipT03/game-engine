@@ -125,6 +125,24 @@ namespace ft {
 		return screenCoords;
 	}
 
+	void WorldCamera3D::ScreenPointToRay(glm::vec2 screenCoordinates, glm::vec3& rayOrigin, glm::vec3& rayDirection) const
+	{
+		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
+		glm::vec2 ndc{};
+		ndc.x = (screenCoordinates.x / windowSize.x) * 2.0f - 1.0f;
+		ndc.y = 1.0f - (screenCoordinates.y / windowSize.y) * 2.0f;
+
+		glm::mat4 invVP = glm::inverse(m_ViewProjection);
+		glm::vec4 worldNear = invVP * glm::vec4(ndc.x, ndc.y, -1.0f, 1.0f);
+		glm::vec4 worldFar = invVP * glm::vec4(ndc.x, ndc.y, 1.0f, 1.0f);
+
+		glm::vec3 nearPos = glm::vec3(worldNear) / worldNear.w;
+		glm::vec3 farPos = glm::vec3(worldFar) / worldFar.w;
+
+		rayOrigin = nearPos;
+		rayDirection = glm::normalize(farPos - nearPos);
+	}
+
 	void WorldCamera3D::CalculateProjectionMatrix(float width, float height)
 	{
 		if (width == 0 || height == 0)

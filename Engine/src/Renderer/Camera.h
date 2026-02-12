@@ -82,6 +82,7 @@ namespace ft {
 		glm::vec3 ScreenToWorld(glm::vec2 screenCoordinates) const;
 		glm::vec3 ScreenDeltaToWorld(glm::vec2 screenDelta) const;
 		glm::vec2 WorldToScreen(glm::vec3 worldCoordinates) const;
+		void ScreenPointToRay(glm::vec2 screenCoordinates, glm::vec3& rayOrigin, glm::vec3& rayDirection) const;
 
 		glm::vec3 GetPosition() const { return m_Position; }
 		glm::vec3 GetFront() const { return m_Front; }
