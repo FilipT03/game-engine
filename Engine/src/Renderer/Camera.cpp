@@ -185,8 +185,10 @@ namespace ft {
 
 	void WorldCamera3D::RecalculateView()
 	{
-			m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-
+		glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+		if (m_Front.y > 0.99999f || m_Front.y < -0.99999f) // If looking straight up or down, use a different up vector to avoid gimbal lock
+			worldUp = { 0.0f, 0.0f, -1.0f };
+		m_View = glm::lookAt(m_Position, m_Position + m_Front, worldUp);
 
 		m_ViewProjection = m_Projection * m_View;
 	}

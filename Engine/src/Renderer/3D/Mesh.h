@@ -26,7 +26,8 @@ namespace ft {
 	/// ===== RenderMode =====
 	enum class RenderMode {
 		Solid,
-		Wireframe
+		Wireframe,
+		Overlay
 	};
 
 	/// ===== MeshRaycastHit =====
@@ -41,12 +42,14 @@ namespace ft {
 	class Mesh
 	{
 	public:
-		Mesh(const Transform3D& transform, const glm::vec4& color, bool isStatic);
-		Mesh(MeshData data, const Transform3D& transform, const glm::vec4& color, bool isStatic);
+		Mesh();
+		Mesh(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
+		Mesh(MeshData data, const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false, RenderMode renderMode = RenderMode::Solid);
 
 		Transform3D transform;
 		glm::vec4 color;
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		int renderOrder = 0;
 		
 		MeshData* GetData() { 
 			MarkDirty(); 
@@ -93,6 +96,11 @@ namespace ft {
 									uint32_t segmentCount = 36, bool isStatic = false);
 		static Mesh CreatePlane(const Transform3D& transform = Transform3D(), const glm::vec4& color = glm::vec4(1.0f), bool isStatic = false);
 
+		bool operator<(const Mesh& other) const {
+			if (renderOrder == other.renderOrder)
+				return m_ID < other.m_ID;
+			return renderOrder < other.renderOrder;
+		}
 	private:
 		std::unique_ptr<MeshData> m_Data;
 		std::unique_ptr<RenderMesh> m_RenderMesh;
@@ -100,6 +108,7 @@ namespace ft {
 		RenderMode m_RenderMode = RenderMode::Solid;
 		bool m_Static = false;
 		bool m_Dirty = false;
+		bool m_Render = true;
 		uint32_t m_ID;
 	};
 }

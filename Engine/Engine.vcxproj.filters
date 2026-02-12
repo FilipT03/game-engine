@@ -10,6 +10,12 @@
     <Filter Include="Event">
       <UniqueIdentifier>{E70B220D-5320-4ABE-1CA2-ED1D887546EF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{AFF4887C-9B2B-8A0D-4418-7010302E060F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{DE144435-4AF4-C2D0-530C-4EA7BF6A2932}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -18,6 +24,12 @@
     </Filter>
     <Filter Include="Renderer">
       <UniqueIdentifier>{7CCE658F-689B-C09A-91B4-AE427DE0F528}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\2D">
+      <UniqueIdentifier>{A1DB7F02-0D91-F8F7-9685-F2CE023AEFFB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\3D">
+      <UniqueIdentifier>{C2DB7F02-2E91-F8F7-B785-F2CE233AEFFB}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{000BCD17-6C75-818E-B5B3-3234215D5FE3}</UniqueIdentifier>
@@ -28,6 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\API\Renderer2D.h">
+      <Filter>API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\Renderer3D.h">
       <Filter>API</Filter>
     </ClInclude>
     <ClInclude Include="src\API\UI.h">
@@ -73,6 +88,15 @@
       <Filter>Event</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEngine.h" />
+    <ClInclude Include="src\Math\Constants.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Vector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Modules\CameraController3D.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\GLBuffers.h">
       <Filter>Platform\OpenGL</Filter>
     </ClInclude>
@@ -88,6 +112,27 @@
     <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h">
       <Filter>Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\2D\Renderer2DInternal.h">
+      <Filter>Renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\2D\Shape.h">
+      <Filter>Renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\LightSource.h">
+      <Filter>Renderer\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\Mesh.h">
+      <Filter>Renderer\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\MeshData.h">
+      <Filter>Renderer\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\RenderMesh.h">
+      <Filter>Renderer\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\3D\Renderer3DInternal.h">
+      <Filter>Renderer\3D</Filter>
+    </ClInclude>
     <ClInclude Include="src\Renderer\BufferLayout.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -97,19 +142,13 @@
     <ClInclude Include="src\Renderer\Camera.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\2D\Renderer2DInternal.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\3D\Renderer3DInternal.h">
+    <ClInclude Include="src\Renderer\RendererCommon.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RenderingContext.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Shader.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\2D\Shape.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Texture.h">
@@ -121,6 +160,9 @@
     <ClInclude Include="src\Resources\AssetManager.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="src\Resources\MeshImporter.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
     <ClInclude Include="src\UI\UIElement.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -128,16 +170,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Renderer\3D\Mesh.h" />
-    <ClInclude Include="src\Math\Constants.h" />
-    <ClInclude Include="src\Math\Vector.h" />
-    <ClInclude Include="src\API\Renderer3D.h" />
-    <ClInclude Include="src\Renderer\RendererCommon.h" />
-    <ClInclude Include="src\Renderer\3D\MeshData.h" />
-    <ClInclude Include="src\Renderer\3D\RenderMesh.h" />
-    <ClInclude Include="src\Renderer\3D\LightSource.h" />
-    <ClInclude Include="src\Platform\OpenGL\Shaders\BasicMesh.frag" />
-    <ClInclude Include="src\Modules\CameraController3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -155,6 +187,12 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Vector.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\CameraController3D.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\GLBuffers.cpp">
       <Filter>Platform\OpenGL</Filter>
     </ClCompile>
@@ -170,16 +208,28 @@
     <ClCompile Include="src\Platform\OpenGL\GLVertexArray.cpp">
       <Filter>Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\2D\Renderer2DInternal.cpp">
+      <Filter>Renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\3D\Mesh.cpp">
+      <Filter>Renderer\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\3D\MeshData.cpp">
+      <Filter>Renderer\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\3D\RenderMesh.cpp">
+      <Filter>Renderer\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\3D\Renderer3DInternal.cpp">
+      <Filter>Renderer\3D</Filter>
+    </ClCompile>
     <ClCompile Include="src\Renderer\Buffers.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\Camera.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\2D\Renderer2DInternal.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderer\3D\Renderer3DInternal.cpp">
+    <ClCompile Include="src\Renderer\RendererCommon.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\RenderingContext.cpp">
@@ -197,6 +247,9 @@
     <ClCompile Include="src\Resources\AssetManager.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="src\Resources\MeshImporter.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
     <ClCompile Include="src\UI\UIElement.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -204,11 +257,5 @@
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Renderer\3D\Mesh.cpp" />
-    <ClCompile Include="src\Math\Vector.cpp" />
-    <ClCompile Include="src\Renderer\RendererCommon.cpp" />
-    <ClCompile Include="src\Renderer\3D\MeshData.cpp" />
-    <ClCompile Include="src\Renderer\3D\RenderMesh.cpp" />
-    <ClCompile Include="src\Modules\CameraController3D.cpp" />
   </ItemGroup>
 </Project>

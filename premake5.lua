@@ -39,6 +39,7 @@ project "Engine"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{prj.name}/vendor/stb-image",
+		"%{prj.name}/vendor/portable-file-dialogs",
 		"%{prj.name}/vendor/glfw/include",
 		"%{prj.name}/vendor/glad/include",
 		"%{prj.name}/vendor/glm"
@@ -105,6 +106,7 @@ project "GeometryTool2D"
 	{
 		"Engine/vendor/spdlog/include",
 		"Engine/vendor/stb-image",
+		"Engine/vendor/portable-file-dialogs",
 		"Engine/vendor/glfw/include",
 		"Engine/vendor/glad/include",
 		"Engine/vendor/glm",
@@ -162,6 +164,7 @@ project "GeometryTool3D"
 	{
 		"Engine/vendor/spdlog/include",
 		"Engine/vendor/stb-image",
+		"Engine/vendor/portable-file-dialogs",
 		"Engine/vendor/glfw/include",
 		"Engine/vendor/glad/include",
 		"Engine/vendor/glm",

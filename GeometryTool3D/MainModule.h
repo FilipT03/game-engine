@@ -11,11 +11,18 @@ public:
 	void OnUpdate();
 	bool OnEvent(const ft::Event& event) { return false; };
 	bool OnKeyEvent(const ft::KeyEvent& event);
-	bool OnMouseEvent(const ft::MouseEvent& event) { return false; };
+	bool OnMouseEvent(const ft::MouseEvent& event);
 
 private:
 	ft::Mesh* test_mesh;
+	void SetDefaultLight();
+	void SetAmbientOnlyLight();
+
+	ft::Mesh* m_Selection_mesh;
+	std::unordered_map<uint32_t, ft::Mesh*> m_Meshes;
 	bool m_Perspective = true;
 	bool m_Solid = true;
+	bool m_UsingAmbientOnlyLight = false;
+	uint32_t m_SelectedMesh = 0;
 };
 
