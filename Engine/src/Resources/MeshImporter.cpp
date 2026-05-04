@@ -52,6 +52,7 @@ namespace ft {
 				normals.push_back(normal);
 			}
 		}
+		file.close();
 
 		// Construct MeshData from the parsed data
 		for (const glm::vec3& vertex : vertices)
@@ -68,5 +69,55 @@ namespace ft {
 		data.CalculateFaceNormals();
 		data.SetUseCornerNormals(true); // Use corner normals regardless of smoothing mode
 		return Mesh(data, Transform3D(), glm::vec4(1.0f), isStatic);
+	}
+
+	void MeshImporter::ExportMesh(const MeshData& meshData, const std::string& path)
+	{
+		std::string extension = path.substr(path.find_last_of(".") + 1);
+		if (extension != "obj") {
+			FT_ENGINE_ERROR("Unsupported mesh format: {0}", extension);
+			return;
+		}
+		std::ofstream file(path);
+		if (file.fail()) {
+			FT_ENGINE_ERROR("Failed to open mesh file for writing: {0}", path);
+			return;
+		}
+		for (const glm::vec3& vertex : meshData.positions)
+			file << "v " << vertex.x << " " << vertex.y << " " << vertex.z << "\n";
+		if (meshData.UsesCornerNormals()) {
+			for (const glm::vec3& normal : meshData.cornerNormals)
+				file << "vn " << normal.x << " " << normal.y << " " << normal.z << "\n";
+			uint32_t v = 0;
+			for (size_t f = 0; f < meshData.polygonSizes.size(); f++) {
+				uint32_t polygonSize = meshData.polygonSizes[f];
+				file << "f";
+				for (uint32_t i = 0; i < polygonSize; i++) {
+					uint32_t vertexIndex = meshData.indices[v + i] + 1;
+					uint32_t normalIndex = v + i + 1; 
+					file << " " << vertexIndex << "//" << normalIndex;
+				}
+				file << "\n";
+				v += polygonSize;
+			}
+		}
+		else {
+			for (const glm::vec3& normal : meshData.faceNormals)
+				file << "vn " << normal.x << " " << normal.y << " " << normal.z << "\n";
+			uint32_t v = 0;
+			for (size_t f = 0; f < meshData.polygonSizes.size(); f++) {
+				uint32_t polygonSize = meshData.polygonSizes[f];
+				file << "f";
+				for (uint32_t i = 0; i < polygonSize; i++) {
+					uint32_t vertexIndex = meshData.indices[v + i] + 1;
+					uint32_t normalIndex = f + 1;
+					file << " " << vertexIndex << "//" << normalIndex;
+				}
+				file << "\n";
+				v += polygonSize;
+			}
+		}
+		FT_ENGINE_TRACE("Successfully exported mesh to {}.", path);
+		file.close();
 	}
 }

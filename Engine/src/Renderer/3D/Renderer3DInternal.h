@@ -26,6 +26,7 @@ namespace ft {
 		void RemoveMesh(uint32_t meshID);
 		WorldCamera3D* GetCamera() { return m_Camera.get(); };
 		LightSource* GetLightSource() { return m_LightSource.get(); };
+		void SetightingMode(bool useStudioLighting) { m_UseStudioLighting = useStudioLighting; }
 
 		void OnUpdate();
 		bool OnEvent(const Event& event);
@@ -35,15 +36,17 @@ namespace ft {
 				return *lhs < *rhs;
 			}
 		};
+		bool m_UseStudioLighting = true;
 
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexArray> m_VertexArray;
 		std::set<std::unique_ptr<Mesh>, CompareMeshPtr> m_Meshes;
 		uint32_t m_LastMeshId = 1;
+		std::unique_ptr<Mesh> m_ModelMatrixCalculationMesh; // Used for calculating model matrices for stencil rendering
 
 		uint32_t m_LastVertexByteOffset = 0, m_LastVertexVertexOffset = 0, m_LastIndexOffset = 0;
-		std::unique_ptr<Shader> m_LitShader, m_UnlitShader;
+		std::unique_ptr<Shader> m_LitShader, m_UnlitShader, m_StudioShader;
 
 		ProjectionMode m_PerspectiveMode = ProjectionMode::Perspective;
 		std::unique_ptr<WorldCamera3D> m_Camera;

@@ -183,6 +183,7 @@ copy /B /Y ..\build\Dist-windows-x86_64\Engine\Engine.lib ..\build\Dist-windows-
     <ClInclude Include="src\Platform\OpenGL\GLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\GLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\GLVertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\Shaders\StudioLighting.frag" />
     <ClInclude Include="src\Renderer\2D\Renderer2DInternal.h" />
     <ClInclude Include="src\Renderer\2D\Shape.h" />
     <ClInclude Include="src\Renderer\3D\LightSource.h" />

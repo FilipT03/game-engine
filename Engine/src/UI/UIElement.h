@@ -38,6 +38,9 @@ namespace ft {
 		bool InBounds(const glm::vec2& xy) const { return InBounds(xy.x, xy.y); }
 		const Rect& GetRect() const { return m_Rect; }
 		void SetRect(Rect rect);
+		void DisableRender() { m_Shape->render = false; }
+		void EnableRender() { m_Shape->render = true; }
+		bool ShouldRender() const { return m_Shape->render; }
 		
 	protected:
 		Transform2D GenerateTransform() const;

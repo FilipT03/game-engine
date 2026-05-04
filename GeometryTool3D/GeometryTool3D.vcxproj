@@ -137,10 +137,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\MeshEditingModule.h" />
     <ClInclude Include="src\MeshUtil.h" />
     <ClInclude Include="src\MainModule.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\MeshEditingModule.cpp" />
     <ClCompile Include="src\MeshUtil.cpp" />
     <ClCompile Include="src\GeometryTool3DApp.cpp" />
     <ClCompile Include="src\MainModule.cpp" />

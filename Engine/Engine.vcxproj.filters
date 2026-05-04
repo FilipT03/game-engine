@@ -170,6 +170,7 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Platform\OpenGL\Shaders\StudioLighting.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
