@@ -36,6 +36,7 @@ namespace ft {
         Transform2D transform;
         glm::vec4 color;
         bool isOutline = false;
+        bool render = true;
 
         std::vector<glm::vec2> modelVertices;
         std::vector<glm::vec2> worldVertices;

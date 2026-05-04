@@ -116,6 +116,8 @@ namespace ft {
 
 		for (auto& [id, shape] : m_Shapes)
 		{
+			if (!shape->render)
+				continue;
 			GLenum mode;
 			switch (shape->GetType())
 			{
