@@ -172,9 +172,10 @@ namespace ft {
 
 		MeshData data;
 		float radius = 0.5f;
-		for (int i = 0; i < 2; i++)
+		std::vector<float> yValues = { 0.5f, 1.0f/6.0f, -1.0f/6.0f, -0.5f };
+		for (int i = 0; i < yValues.size(); i++)
 		{
-			float y = (i == 0) ? 0.5f : -0.5f;
+			float y = yValues[i];
 			for (int segment = 0; segment < segmentCount; segment++)
 			{
 				float theta = glm::two_pi<float>() * (float)segment / (float)segmentCount; // angle around the Y axis [0, 2pi]
@@ -191,24 +192,26 @@ namespace ft {
 			data.indices.push_back(i);
 		data.polygonSizes.push_back(segmentCount);
 		// Middle rectangles
-		for (int segment = 0; segment < segmentCount; segment++) {
-			// 1 0
-			// 3 2
-			int next = (segment + 1) % segmentCount;
-			int point0 = segment;
-			int point1 = next;
-			int point2 = segmentCount + segment;
-			int point3 = segmentCount + next;
+		for (int ring = 0; ring < yValues.size() - 1; ring++) {
+			for (int segment = 0; segment < segmentCount; segment++) {
+				// 1 0
+				// 3 2
+				int next = (segment + 1) % segmentCount;
+				int point0 = segmentCount * ring + segment;
+				int point1 = segmentCount * ring + next;
+				int point2 = segmentCount * (ring + 1) + segment;
+				int point3 = segmentCount * (ring + 1) + next;
 
-			data.indices.push_back(point0);
-			data.indices.push_back(point1);
-			data.indices.push_back(point3);
-			data.indices.push_back(point2);
-			data.polygonSizes.push_back(4);
+				data.indices.push_back(point0);
+				data.indices.push_back(point1);
+				data.indices.push_back(point3);
+				data.indices.push_back(point2);
+				data.polygonSizes.push_back(4);
+			}
 		}
 		// Bottom circle
 		for (int i = 0; i < segmentCount; i++)
-			data.indices.push_back(segmentCount + i);
+			data.indices.push_back(segmentCount * (yValues.size() - 1) + i);
 		data.polygonSizes.push_back(segmentCount);
 
 		data.m_SmoothingMode = SmoothingMode::SmoothByAngle;
