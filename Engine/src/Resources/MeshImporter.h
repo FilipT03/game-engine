@@ -9,6 +9,7 @@ namespace ft {
 	{
 	public:
 		static std::optional<Mesh> ImportMesh(const std::string& path, bool isStatic = false);
+		static void ExportMesh(const MeshData& meshData, const std::string& path);
 	private:
 		MeshImporter() = default;
 
