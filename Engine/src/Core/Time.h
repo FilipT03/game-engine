@@ -9,6 +9,7 @@ namespace ft {
 	public:
 		/// In seconds
 		static double DeltaTime() { return s_DeltaTime; }
+		static float DeltaTimeF() { return (float)s_DeltaTime; }
 		static void SetDeltaTime(double time) { s_DeltaTime = time; }
 		
 		/// In seconds

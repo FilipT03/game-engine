@@ -1,6 +1,6 @@
 //!#version 330 core
 #ifdef FT_GLSL_INCLUDE
-std::string basicFrag = R"(
+static std::string basicFrag = R"(
 
 #version 330 core
 

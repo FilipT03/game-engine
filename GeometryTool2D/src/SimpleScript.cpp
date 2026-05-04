@@ -28,17 +28,17 @@ void SimpleScript::OnRegister()
 		buttons.push_back(button2);
 	}
 	int j = 0;
-	ft::Renderer2D::AddUIShape<ft::Rectangle>(ft::Transform({ 83, 167 + j*133 }, { 50, 50 }), glm::vec4(0, 0, 0, 1));
-	ft::Renderer2D::AddUIShape<ft::Ellipse>(0, 0.01, ft::Transform({ 217, 167 + j*133 }, { 50, 50 }), glm::vec4(0, 0, 0, 1));
+	ft::Renderer2D::AddUIShape<ft::Rectangle>(ft::Transform2D({ 83, 167 + j*133 }, { 50, 50 }), glm::vec4(0, 0, 0, 1));
+	ft::Renderer2D::AddUIShape<ft::Ellipse>(0, 0.01, ft::Transform2D({ 217, 167 + j*133 }, { 50, 50 }), glm::vec4(0, 0, 0, 1));
 	j++;
-	ft::Renderer2D::AddUIShape<ft::Polygon>(3, ft::Transform({ 83, 167 + j*133 }, { 50, 50 }, 180), glm::vec4(0, 0, 0, 1));
-	ft::Renderer2D::AddUIShape<ft::Polygon>(5, ft::Transform({ 217, 167 + j*133 }, { 50, 50 }, 180), glm::vec4(0, 0, 0, 1));
+	ft::Renderer2D::AddUIShape<ft::Polygon>(3, ft::Transform2D({ 83, 167 + j*133 }, { 50, 50 }, 180), glm::vec4(0, 0, 0, 1));
+	ft::Renderer2D::AddUIShape<ft::Polygon>(5, ft::Transform2D({ 217, 167 + j*133 }, { 50, 50 }, 180), glm::vec4(0, 0, 0, 1));
 	j++;
 	ft::Renderer2D::AddUIShape<ft::Line>(glm::vec2{ 58, 142 + j * 133 }, glm::vec2{ 108, 192 + j * 133 }, glm::vec4(0, 0, 0, 1));
-	ft::Renderer2D::AddUIShape<ft::TextureQuad>("assets/mushroom.png", ft::Transform({217, 167 + j * 133}, {60, 60}));
+	ft::Renderer2D::AddUIShape<ft::TextureQuad>("assets/mushroom.png", ft::Transform2D({217, 167 + j * 133}, {60, 60}));
 	j++;
-	ft::Renderer2D::AddUIShape<ft::Polygon>(4, ft::Transform({ 83, 167 + j * 133 }, { 100, 100 }, 45), glm::vec4(0, 0, 0, 1));
-	ft::Renderer2D::AddUIShape<ft::Polygon>(4, ft::Transform({ 217, 167 + j * 133 }, { 100, 100 }, 45), glm::vec4(0, 0, 0, 1))->isOutline = true;
+	ft::Renderer2D::AddUIShape<ft::Polygon>(4, ft::Transform2D({ 83, 167 + j * 133 }, { 100, 100 }, 45), glm::vec4(0, 0, 0, 1));
+	ft::Renderer2D::AddUIShape<ft::Polygon>(4, ft::Transform2D({ 217, 167 + j * 133 }, { 100, 100 }, 45), glm::vec4(0, 0, 0, 1))->isOutline = true;
 	j++;
 
 	ft::Panel* namePanel = ft::UI::AddElement<ft::Panel>("assets/namePanel.png", ft::Rect(1680, 0, 240, 150));

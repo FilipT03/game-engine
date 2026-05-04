@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Renderer/Shader.h"
-#include "Renderer/Renderer2DInternal.h"
-#include "API/Renderer2D.h"
+#include "Renderer/3D/Renderer3DInternal.h"
+#include "Renderer/2D/Renderer2DInternal.h"
 #include "Core/Window.h"
 #include "Core/Input.h"
 #include "Core/Module.h"
@@ -58,7 +58,8 @@ namespace ft {
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Input> m_Input;
-		std::unique_ptr<Renderer2DInternal> m_WorldRenderer, m_UIRenderer;
+		std::unique_ptr<Renderer2DInternal> m_WorldRenderer2D, m_UIRenderer;
+		std::unique_ptr<Renderer3DInternal> m_Renderer3D;
 
 		static Application* s_Instance;
 		

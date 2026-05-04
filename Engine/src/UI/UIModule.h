@@ -3,7 +3,7 @@
 #include "Core/Core.h"
 #include "Core/Module.h"
 #include "UI/UIElement.h"
-#include "Renderer/Renderer2DInternal.h"
+#include "Renderer/2D/Renderer2DInternal.h"
 
 namespace ft {
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "UIElement.h"
 #include "Core/Input.h"
-#include "Renderer/Renderer2DInternal.h"
+#include "Renderer/2D/Renderer2DInternal.h"
 #include "API/Renderer2D.h"
 
 namespace ft {
@@ -12,8 +12,8 @@ namespace ft {
 			&& y <= m_Rect.y + m_Rect.height;
 	}
 
-	Transform UIElement::GenerateTransform() const { // TODO: Add other pixel scalings
-		Transform transform = Transform();
+	Transform2D UIElement::GenerateTransform() const { // TODO: Add other pixel scalings
+		Transform2D transform = Transform2D();
 		transform.position = glm::vec2(m_Rect.x + m_Rect.width / 2.0, m_Rect.y + m_Rect.height / 2.0);
 		transform.scale = glm::vec2(m_Rect.width, m_Rect.height);
 		return transform;
@@ -83,7 +83,7 @@ namespace ft {
 	{
 		if (m_RegisteredShape)
 			return;
-		Transform transform = GenerateTransform();
+		Transform2D transform = GenerateTransform();
 		m_Shape = Renderer2D::AddUIShape<TextureQuad>(m_Texture, transform, m_ActiveTint);
 		m_RegisteredShape = true;
 	}
@@ -107,7 +107,7 @@ namespace ft {
 	{
 		if (m_RegisteredShape)
 			return;
-		Transform transform = GenerateTransform();
+		Transform2D transform = GenerateTransform();
 		if (m_Texture == nullptr)
 			m_Shape = Renderer2D::AddUIShape<Rectangle>(transform, m_Color);
 		else

@@ -39,6 +39,7 @@ project "Engine"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{prj.name}/vendor/stb-image",
+		"%{prj.name}/vendor/portable-file-dialogs",
 		"%{prj.name}/vendor/glfw/include",
 		"%{prj.name}/vendor/glad/include",
 		"%{prj.name}/vendor/glm"
@@ -105,6 +106,65 @@ project "GeometryTool2D"
 	{
 		"Engine/vendor/spdlog/include",
 		"Engine/vendor/stb-image",
+		"Engine/vendor/portable-file-dialogs",
+		"Engine/vendor/glfw/include",
+		"Engine/vendor/glad/include",
+		"Engine/vendor/glm",
+		"Engine/src"
+	}
+
+	links
+	{
+		"Engine"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"FT_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "FT_DEBUG"
+		runtime "Debug"
+		symbols "On"
+		
+	filter "configurations:Release"
+		defines "FT_RELEASE"
+		runtime "Release"
+		optimize "On"
+		
+	filter "configurations:Dist"
+		defines "FT_DIST"
+		runtime "Release"
+		optimize "On"
+		
+project "GeometryTool3D"
+	location "GeometryTool3D"
+	kind "ConsoleApp"
+
+	language "C++"
+	cppdialect "C++20"
+
+	targetdir ("build/" .. outputdir .. "/%{prj.name}")
+	objdir ("build-int/" .. outputdir .. "/%{prj.name}")
+
+	staticruntime "On"
+	buildoptions "/utf-8"
+
+	files
+	{
+		"%{prj.name}/src/**.h", 
+		"%{prj.name}/src/**.cpp"
+	}
+
+	includedirs
+	{
+		"Engine/vendor/spdlog/include",
+		"Engine/vendor/stb-image",
+		"Engine/vendor/portable-file-dialogs",
 		"Engine/vendor/glfw/include",
 		"Engine/vendor/glad/include",
 		"Engine/vendor/glm",

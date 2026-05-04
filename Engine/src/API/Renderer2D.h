@@ -1,15 +1,16 @@
 #pragma once
 
-#include "Renderer/Renderer2DInternal.h"
+#include "Renderer/2D/Renderer2DInternal.h"
+#include "Renderer/RendererCommon.h"
 
 namespace ft {
 	class Renderer2D {
 	public:
 		inline static void Clear() { 
-			Renderer2DInternal::Clear();
+			RendererCommon::Clear();
 		}
 		inline static void SetClearColor(float r, float g, float b, float a) {
-			Renderer2DInternal::SetClearColor(r, g, b, a);
+			RendererCommon::SetClearColor(r, g, b, a);
 		}
 
 		template <typename ShapeType, typename... Args>
@@ -44,6 +45,7 @@ namespace ft {
 		}
 
 	private:
+		Renderer2D() = default;
 		inline static Renderer2DInternal* s_WorldRenderer = nullptr;
 		inline static Renderer2DInternal* s_UIRenderer = nullptr;
 		friend class Application;

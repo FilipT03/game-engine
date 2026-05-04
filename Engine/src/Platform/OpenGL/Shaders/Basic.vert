@@ -1,6 +1,6 @@
 //!#version 330 core
 #ifdef FT_GLSL_INCLUDE
-std::string basicVert = R"(
+static std::string basicVert = R"(
 
 #version 330 core
 

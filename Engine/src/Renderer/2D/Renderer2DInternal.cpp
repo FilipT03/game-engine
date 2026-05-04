@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Renderer2DInternal.h"
 #include "Renderer/BufferLayout.h"
+#include "Renderer/RendererCommon.h"
 #include "Core/Time.h"
 #include "Core/Application.h"
 #include "Event/WindowEvent.h"
@@ -60,20 +61,6 @@ namespace ft {
 		#endif
 	}
 
-	void Renderer2DInternal::Clear()
-	{
-		#ifdef FT_OPENGL_RENDERER
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		#endif
-	}
-
-	void Renderer2DInternal::SetClearColor(float r, float g, float b, float a)
-	{
-		#ifdef FT_OPENGL_RENDERER
-		glClearColor(r, g, b, a);
-		#endif
-	}
-
 	Shape* Renderer2DInternal::AddShapeInternal(Shape* shape)
 	{
 		uint32_t stride = m_VertexArray->GetBufferLayout().GetStride();
@@ -92,7 +79,7 @@ namespace ft {
 		}
 
 		std::vector<uint8_t> data;
-		PackInterleaved(data, count, { shape->worldVertices.data(), shape->modelVertices.data()}, m_VertexArray->GetBufferLayout());
+		RendererCommon::PackInterleaved(data, count, { shape->worldVertices.data(), shape->modelVertices.data()}, m_VertexArray->GetBufferLayout());
 
 		if (data.size() != size) {
 			FT_ENGINE_ERROR("Data packing mismatch. Expected {} bytes, got {}", size, data.size());
@@ -183,7 +170,7 @@ namespace ft {
 			if (shape->IsDirty())
 			{
 				std::vector<uint8_t> data;
-				PackInterleaved(data, shape->GetVertexCount(), { shape->worldVertices.data(), shape->modelVertices.data() }, m_VertexArray->GetBufferLayout());
+				RendererCommon::PackInterleaved(data, shape->GetVertexCount(), { shape->worldVertices.data(), shape->modelVertices.data() }, m_VertexArray->GetBufferLayout());
 				m_VertexBuffer->SetData(shape->vertexByteOffset, shape->GetVertexCount() * m_VertexArray->GetBufferLayout().GetStride(), data.data());
 				shape->ResetDirty();
 			}
@@ -212,37 +199,5 @@ namespace ft {
 	void Renderer2DInternal::RemoveShape(uint32_t shapeID)
 	{
 		m_Shapes.erase(shapeID);
-	}
-
-
-	/// Sources should be in the same order as the layout.
-	void Renderer2DInternal::PackInterleaved(
-		std::vector<uint8_t>& out,
-		uint32_t vertexCount,
-		const std::vector<const void*>& sources,
-		const BufferLayout& layout) const
-	{
-		const auto& elements = layout.GetElements();
-		const uint32_t stride = layout.GetStride();
-
-		out.resize(vertexCount * stride);
-
-		uint8_t* destination = out.data();
-
-		for (uint32_t v = 0; v < vertexCount; ++v)
-		{
-			for (size_t a = 0; a < elements.size(); ++a)
-			{
-				const auto& element = elements[a];
-				const uint8_t* source = (const uint8_t*)sources[a];
-
-				const uint8_t* sourcePtr = source + v * element.size;
-				uint8_t* destinationPtr = destination + element.offset;
-
-				std::memcpy(destinationPtr, sourcePtr, element.size);
-			}
-
-			destination += stride;
-		}
 	}
 }

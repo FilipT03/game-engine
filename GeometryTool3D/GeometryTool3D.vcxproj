@@ -15,10 +15,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E5FDE191-D1CB-D597-BA5F-46BEA6CCB1FC}</ProjectGuid>
+    <ProjectGuid>{06FEE191-F2CB-D597-DB5F-46BEC7CCB1FC}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>GeometryTool2D</RootNamespace>
+    <RootNamespace>GeometryTool3D</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -55,23 +55,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\GeometryTool2D\</OutDir>
-    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\GeometryTool2D\</IntDir>
-    <TargetName>GeometryTool2D</TargetName>
+    <OutDir>$(ProjectDir)..\build\Debug-windows-x86_64\GeometryTool3D\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Debug-windows-x86_64\GeometryTool3D\</IntDir>
+    <TargetName>GeometryTool3D</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\GeometryTool2D\</OutDir>
-    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\GeometryTool2D\</IntDir>
-    <TargetName>GeometryTool2D</TargetName>
+    <OutDir>$(ProjectDir)..\build\Release-windows-x86_64\GeometryTool3D\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Release-windows-x86_64\GeometryTool3D\</IntDir>
+    <TargetName>GeometryTool3D</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\GeometryTool2D\</OutDir>
-    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\GeometryTool2D\</IntDir>
-    <TargetName>GeometryTool2D</TargetName>
+    <OutDir>$(ProjectDir)..\build\Dist-windows-x86_64\GeometryTool3D\</OutDir>
+    <IntDir>$(ProjectDir)..\build-int\Dist-windows-x86_64\GeometryTool3D\</IntDir>
+    <TargetName>GeometryTool3D</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -137,11 +137,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\SimpleScript.h" />
+    <ClInclude Include="src\MeshUtil.h" />
+    <ClInclude Include="src\MainModule.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\GeometryTool2DApp.cpp" />
-    <ClCompile Include="src\SimpleScript.cpp" />
+    <ClCompile Include="src\MeshUtil.cpp" />
+    <ClCompile Include="src\GeometryTool3DApp.cpp" />
+    <ClCompile Include="src\MainModule.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

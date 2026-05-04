@@ -5,8 +5,8 @@
 #include "Renderer/BufferLayout.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/Shape.h"
-#include "Renderer/Camera2D.h"
+#include "Renderer/2D/Shape.h"
+#include "Renderer/Camera.h"
 #include "Event/Event.h"
 
 namespace ft {
@@ -23,9 +23,6 @@ namespace ft {
 		void Init();
 		void Shutdown();
 		
-		static void Clear();
-		static void SetClearColor(float r, float g, float b, float a);
-
 		template <typename ShapeType, typename... Args>
 		Shape* AddShape(Args&&... args)
 		{
@@ -36,13 +33,12 @@ namespace ft {
 			return AddShapeInternal(it->second.get());
 		}
 		void RemoveShape(uint32_t shapeID);
-		Camera2D* GetCamera() { return m_Camera.get(); };
+		Camera* GetCamera() { return m_Camera.get(); };
 
 		void OnUpdate();
 		bool OnEvent(const Event& event);
 	private:
 		Shape* AddShapeInternal(Shape* shape);
-		void PackInterleaved(std::vector<uint8_t>& out, uint32_t vertexCount, const std::vector<const void*>& sources, const BufferLayout& layout) const;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexArray> m_VertexArray;
@@ -53,6 +49,6 @@ namespace ft {
 		std::unique_ptr<Shader> m_BasicShader, m_EllipseShader, m_TextureShader;
 
 		RendererType m_Type;
-		std::unique_ptr<Camera2D> m_Camera;
+		std::unique_ptr<Camera> m_Camera;
 	};
 }

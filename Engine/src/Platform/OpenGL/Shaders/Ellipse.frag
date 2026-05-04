@@ -1,6 +1,6 @@
 //!#version 330 core
 #ifdef FT_GLSL_INCLUDE
-std::string ellipseFrag = R"(
+static std::string ellipseFrag = R"(
 
 #version 330 core
 

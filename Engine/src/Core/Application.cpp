@@ -4,6 +4,8 @@
 #include "Core/Log.h"
 #include "UI/UIModule.h"
 #include "API/UI.h"
+#include "API/Renderer2D.h"
+#include "API/Renderer3D.h"
 
 namespace ft {
 	Application* Application::s_Instance = nullptr;
@@ -17,14 +19,18 @@ namespace ft {
 		m_Input = std::make_unique<Input>();
 		m_Input->Init([this](Event& event) { this->OnEvent(event); });
 
-		m_WorldRenderer = std::make_unique<Renderer2DInternal>(RendererType::World);
-		m_WorldRenderer->Init();
+		m_WorldRenderer2D = std::make_unique<Renderer2DInternal>(RendererType::World);
+		m_WorldRenderer2D->Init();
 
 		m_UIRenderer = std::make_unique<Renderer2DInternal>(RendererType::UI);
 		m_UIRenderer->Init();
 
-		Renderer2D::s_WorldRenderer = m_WorldRenderer.get();
+		m_Renderer3D = std::make_unique<Renderer3DInternal>();
+		m_Renderer3D->Init();
+
+		Renderer2D::s_WorldRenderer = m_WorldRenderer2D.get();
 		Renderer2D::s_UIRenderer = m_UIRenderer.get();
+		Renderer3D::s_Renderer = m_Renderer3D.get();
 
 		Renderer2D::SetClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
@@ -78,7 +84,8 @@ namespace ft {
 
 			m_Input->OnUpdate();
 			
-			m_WorldRenderer->OnUpdate();
+			m_WorldRenderer2D->OnUpdate();
+			m_Renderer3D->OnUpdate();
 			m_UIRenderer->OnUpdate();
 
 			m_Window->Update();
@@ -131,7 +138,9 @@ namespace ft {
 
 		stop = m_UIRenderer->OnEvent(event);
 		if (stop) return;
-		stop = m_WorldRenderer->OnEvent(event);
+		stop = m_Renderer3D->OnEvent(event);
+		if (stop) return;
+		stop = m_WorldRenderer2D->OnEvent(event);
 		if (stop) return;
 
 		for (auto& [id, module] : m_EngineModules)

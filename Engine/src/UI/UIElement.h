@@ -2,7 +2,7 @@
 
 #include "Core/Core.h"
 #include "Renderer/Texture.h"
-#include "Renderer/Shape.h"
+#include "Renderer/2D/Shape.h"
 #include "API/Renderer2D.h"
 #include "Event/InputEvent.h"
 
@@ -40,7 +40,7 @@ namespace ft {
 		void SetRect(Rect rect);
 		
 	protected:
-		Transform GenerateTransform() const;
+		Transform2D GenerateTransform() const;
 
 		Rect m_Rect;
 		uint32_t m_ID;
