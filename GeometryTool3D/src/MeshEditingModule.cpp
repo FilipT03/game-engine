@@ -1,21 +1,20 @@
 #include "MeshEditingModule.h"
 #include "MainModule.h"
+#include "MeshUtil.h"
 
 
 void MeshEditingModule::OnUpdate()
 {
 	if (mainModule->selectedMeshID == 0 || editingMode == EditingMode::Select)
 		return;
+	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
 	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
 	glm::vec2 mousePos = ft::Input::GetMousePosition();
 	glm::vec2 mouseDelta = mousePos - m_StartMousePos;
 	glm::vec3 objectDelta = ft::Renderer3D::ScreenDeltaToWorld(mousePos, mouseDelta, m_StartObjectDepth);
 	if (glm::length(m_LockVector) > 0.0001f) {
 		float projectedDist = glm::dot(objectDelta, m_LockVector);
-
-		// Reconstruct delta only along that axis
 		objectDelta = m_LockVector * projectedDist;
-		//objectDelta = m_LockVector * glm::length(objectDelta) * glm::sign(objectDelta);
 	}
 
 	if (mainModule->selectionMode == SelectionMode::Object) {
@@ -26,24 +25,68 @@ void MeshEditingModule::OnUpdate()
 		case EditingMode::Rotate:
 			selectedMesh->transform.rotation = m_OriginalTransform.rotation + objectDelta * 15.0f;
 			break;
-		case EditingMode::Scale:
-			selectedMesh->transform.scale = m_OriginalTransform.scale * (1.0f + objectDelta * 0.2f);
+		case EditingMode::Scale: {
+			if (glm::length(m_LockVector) > 0.00001f)
+				objectDelta += ft::Vector::One - m_LockVector;
+			else {
+				float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
+				if (ft::Input::IsCtrlDown())
+					objectDelta = glm::vec3(combined / 3.0f);
+				objectDelta = (glm::abs(objectDelta) + 0.1f) * 1.2f;
+			}
+			selectedMesh->transform.scale = m_OriginalTransform.scale * objectDelta;
 			break;
+		}
 		}
 		selectedMesh->CalculateModelMatrix();
 		return;
 	}
 	else {
+		selectedMesh->SetData(m_OriginalMeshData);
 		switch (editingMode) {
 		case EditingMode::Move:
+			MeshUtil::MoveFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta * 0.2f);
 			break;
-		case EditingMode::Rotate:
-			break;
-		case EditingMode::Scale:
-			break;
-		case EditingMode::Extrude:
+		case EditingMode::Scale: {
+			if (glm::length(m_LockVector) > 0.00001f) {
+				objectDelta += ft::Vector::One - m_LockVector;
+			}
+			else {
+				float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
+				if (ft::Input::IsCtrlDown())
+					objectDelta = glm::vec3(combined / 3.0f);
+				objectDelta = (glm::abs(objectDelta) + 0.1f) * 3.0f;
+			}
+			MeshUtil::ScaleFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta, glm::length(m_LockVector) > 0.00001f);
 			break;
 		}
+		case EditingMode::Extrude:
+			MeshUtil::ExtrudeFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta * 0.2f);
+			break;
+		case EditingMode::Rotate: {
+			glm::mat4 rotMatrix(1.0f);
+			float sensitivity = 0.01f;
+			if (glm::length(m_LockVector) > 0.0001f) {
+				float angle = (mouseDelta.x + mouseDelta.y) * sensitivity;
+				rotMatrix = glm::rotate(glm::mat4(1.0f), angle, m_LockVector);
+			}
+			else {
+				glm::vec3 camUp = camera->GetUp();
+				glm::vec3 camRight = camera->GetRight();
+
+				glm::mat4 yaw = glm::rotate(glm::mat4(1.0f), -mouseDelta.x * sensitivity, camUp);
+				glm::mat4 pitch = glm::rotate(glm::mat4(1.0f), -mouseDelta.y * sensitivity, camRight);
+
+				rotMatrix = yaw * pitch;
+			}
+			MeshUtil::RotateFaces(*selectedMesh->GetData(), mainModule->selectedFaces, rotMatrix);
+			break;
+		}
+		}
+		selectedMesh->BakeToRenderMesh();
+		ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
+		MeshUtil::CreateFromFaces(*selectedMesh->GetData(), *selectionData, mainModule->selectedFaces);
+		mainModule->selectionMesh->BakeToRenderMesh();
 	}
 }
 
@@ -58,8 +101,6 @@ bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 			SetEditingModeAndRevertChanges(EditingMode::Move);
 			break;
 		case GLFW_KEY_R:
-			if (mainModule->selectionMode == SelectionMode::Face)
-				break;
 			SetEditingModeAndRevertChanges(EditingMode::Rotate);
 			break;
 		case GLFW_KEY_S:
@@ -116,10 +157,22 @@ bool MeshEditingModule::OnMouseEvent(const ft::MouseEvent& event)
 			editingMode = EditingMode::Select;
 			m_LockVector = { 0, 0, 0 };
 			UpdateLockAxisMesh();
+			if (mainModule->selectionMode == SelectionMode::Face && mainModule->selectedFaces.size() != 0) {
+				ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
+				MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
+				mainModule->selectionMesh->BakeToRenderMesh();
+			}
+			return true;
 		}
 		else if (mousePressEvent.button == GLFW_MOUSE_BUTTON_RIGHT) {
 			// This will revert the mesh to its original state
 			SetEditingModeAndRevertChanges(EditingMode::Select);
+			if (mainModule->selectionMode == SelectionMode::Face && mainModule->selectedFaces.size() != 0) {
+				ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
+				MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
+				mainModule->selectionMesh->BakeToRenderMesh();
+			}
+			return true;
 		}
 		
 	}

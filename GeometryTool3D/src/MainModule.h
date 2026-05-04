@@ -28,8 +28,9 @@ public:
 	std::set<uint32_t> selectedFaces;
 
 	void SetSelectedID(uint32_t id) {
-		if (selectedMeshID != 0)
+		if (selectedMeshID != 0 && meshes.contains(selectedMeshID))
 			meshes[selectedMeshID]->outlined = false;
+		m_LastSelectedMeshID = selectedMeshID;
 		selectedMeshID = id;
 	}
 	ft::Mesh* GetSelectedMesh() {
@@ -37,11 +38,11 @@ public:
 			return nullptr;
 		return meshes[selectedMeshID];
 	}
+	void ClearSelectionMesh();
 private:
 	void CreateGrid();
 	void SetDefaultLight();
 	void SetStudioLightingMode();
-	void ClearSelectionMesh();
 
 	MeshEditingModule* m_EditingModule;
 
@@ -49,5 +50,8 @@ private:
 	bool m_Perspective = true;
 	bool m_Solid = true;
 	bool m_UsingStudioLighting = true;
+	bool m_ExpectingMeshAddKeyPress = false;
+	uint32_t m_LastSelectedMeshID = 0;
+	ft::UIElement* m_NamePanel;
 };
 
