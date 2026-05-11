@@ -3,6 +3,7 @@
 #include<GameEngine.h>
 
 class MainModule;
+class MeshHistoryModule;
 enum class EditingMode {
 	Select,
 	Extrude,
@@ -21,12 +22,14 @@ public:
 	bool OnKeyEvent(const ft::KeyEvent& event);
 	bool OnMouseEvent(const ft::MouseEvent& event);
 	MainModule* mainModule;
+	MeshHistoryModule* historyModule;
 
 	EditingMode editingMode = EditingMode::Select;
 
 private:
 	void SetEditingModeAndRevertChanges(EditingMode newMode);
 	void UpdateLockAxisMesh();
+	std::string GetActionNameForMode(EditingMode mode);
 
 	glm::vec2 m_StartMousePos;
 	float m_StartObjectDepth;

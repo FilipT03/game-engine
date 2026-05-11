@@ -62,7 +62,8 @@ namespace ft {
 
 	Mesh* Renderer3DInternal::AddMesh(Mesh&& mesh)
 	{
-		mesh.SetID(m_LastMeshId++);
+		if (mesh.GetID() == 0)
+			mesh.SetID(m_LastMeshId++);
 		auto [it, success] = m_Meshes.emplace(std::make_unique<Mesh>(std::move(mesh)));
 		Mesh* meshPtr = it->get();
 		RenderMesh* renderMesh = meshPtr->GetRenderMesh();

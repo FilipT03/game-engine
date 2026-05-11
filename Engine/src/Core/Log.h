@@ -17,6 +17,9 @@ namespace ft {
 		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_EngineLogger; }
 		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
+		static void SetCoreLogLevel(spdlog::level::level_enum level) { s_EngineLogger->set_level(level); }
+		static void SetClientLogLevel(spdlog::level::level_enum level) { s_ClientLogger->set_level(level); }
+
 	private:
 		static std::shared_ptr<spdlog::logger> s_EngineLogger;
 		static std::shared_ptr<spdlog::logger> s_ClientLogger;

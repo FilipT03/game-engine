@@ -57,6 +57,7 @@ namespace ft {
 			MarkDirty(); 
 			return m_Data.get(); 
 		}
+		const MeshData* GetData() const { return m_Data.get(); }
 		void SetData(const MeshData& data) { 
 			*m_Data = data; 
 			MarkDirty(); 
@@ -82,6 +83,7 @@ namespace ft {
 			else
 				m_ID = id;
 		}
+		void ForceSetID(uint32_t id) { m_ID = id; }
 		bool IsStatic() const { return m_Static; }
 		bool IsDirty() const { return m_Dirty; }
 		void ResetDirty() { m_Dirty = false; }

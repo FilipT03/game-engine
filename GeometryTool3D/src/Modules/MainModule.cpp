@@ -1,5 +1,5 @@
 #include "MainModule.h"
-#include "MeshUtil.h"
+#include "../MeshUtil.h"
 
 #include<Resources/MeshImporter.h>
 #include<API/UI.h>
@@ -13,6 +13,12 @@ void MainModule::OnRegister()
 
 	m_EditingModule = ft::Application::Get().RegisterModule<MeshEditingModule>();
 	m_EditingModule->mainModule = this;
+
+	m_HistoryModule = ft::Application::Get().RegisterModule<MeshHistoryModule>();
+	m_HistoryModule->mainModule = this;
+	m_HistoryModule->editingModule = m_EditingModule;
+
+	m_EditingModule->historyModule = m_HistoryModule;
 
 	ft::Renderer3D::SetClearColor(0.1, 0.1, 0.1, 0.1);
 
@@ -118,7 +124,7 @@ void MainModule::OnUpdate()
 bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 {
 	if (event.type == ft::EventType::KeyPress) {
-		if (m_ExpectingMeshAddKeyPress) {
+		if (m_ExpectingMeshAddKeyPress) { // Add new mesh based on key press after F6
 			if (m_EditingModule->editingMode != EditingMode::Select) {
 				m_ExpectingMeshAddKeyPress = false;
 				return false;
@@ -148,19 +154,20 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			else
 				newMesh->SetRenderMode(ft::RenderMode::Wireframe);
 			meshes.emplace(newMesh->GetID(), newMesh);
+			m_HistoryModule->RecordMeshAction("Create Mesh", newMesh->GetID(), true, true);
 			return false;
 		}
 
-		if (event.key == GLFW_KEY_ESCAPE)
+		if (event.key == GLFW_KEY_ESCAPE) // Close application on ESC
 			ft::Application::Get().Close();
-		if (event.key == GLFW_KEY_F3) {
+		if (event.key == GLFW_KEY_F3) { // Toggle projection mode
 			if (m_Perspective)
 				ft::Renderer3D::GetCamera()->SetProjectionMode(ft::ProjectionMode::Orthographic);
 			else
 				ft::Renderer3D::GetCamera()->SetProjectionMode(ft::ProjectionMode::Perspective);
 			m_Perspective = !m_Perspective;
 		}
-		if (event.key == GLFW_KEY_F2) {
+		if (event.key == GLFW_KEY_F2) { // Toggle solid/wireframe mode
 			for (auto& [id, mesh] : meshes) {
 				if (m_Solid)
 					mesh->SetRenderMode(ft::RenderMode::Wireframe);
@@ -169,7 +176,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			}
 			m_Solid = !m_Solid;
 		}
-		if (event.key == GLFW_KEY_F9 && m_EditingModule->editingMode == EditingMode::Select) {
+		if (event.key == GLFW_KEY_F9 && m_EditingModule->editingMode == EditingMode::Select) { // Import mesh
 			auto selection = pfd::open_file("Select a mesh file", ".", { "Wavefront .obj File", "*.obj" }).result();
 
 			std::optional<ft::Mesh> mesh;
@@ -188,15 +195,17 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				else
 					newMesh->SetRenderMode(ft::RenderMode::Wireframe);
 				meshes.emplace(newMesh->GetID(), newMesh);
+				m_HistoryModule->RecordMeshAction("Import Mesh", newMesh->GetID(), true, true);
 			}
 		}
-		if (event.key == GLFW_KEY_F4) {
+		if (event.key == GLFW_KEY_F4) { // Toggle lighting mode
 			if (m_UsingStudioLighting)
 				SetDefaultLight();
 			else
 				SetStudioLightingMode();
 		}
-		if (event.key == GLFW_KEY_F5 && m_EditingModule->editingMode == EditingMode::Select) { // Block mode change while editing
+		if (event.key == GLFW_KEY_F5 && m_EditingModule->editingMode == EditingMode::Select) { // Toggle selection mode 
+														// Block mode change while editing
 			if (selectionMode == SelectionMode::Object)
 				selectionMode = SelectionMode::Face;
 			else {
@@ -204,8 +213,9 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				ClearSelectionMesh();
 			}
 		}
-		if (event.key == GLFW_KEY_F7 && selectedMeshID != 0) {
+		if (event.key == GLFW_KEY_F7 && selectedMeshID != 0) { // Cycle smoothing mode
 			ft::MeshData* data = GetSelectedMesh()->GetData();
+			m_HistoryModule->RecordMeshAction("Change Smoothing Mode", selectedMeshID, true);
 			switch (data->GetSmoothingMode()) {
 				case ft::SmoothingMode::Flat:
 					data->SetSmoothingMode(ft::SmoothingMode::Smooth);
@@ -218,18 +228,21 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 					break;
 			}
 		}
-		if (event.key == GLFW_KEY_F10 && selectedMeshID != 0) {
+		if (event.key == GLFW_KEY_F10 && selectedMeshID != 0) { // Export mesh
 			auto selection = pfd::save_file("Export mesh as", ".", { "Wavefront .obj File", "*.obj" }).result();
 			if (selection.empty())
 				FT_TRACE("No file selected.");
 			else
 				ft::MeshImporter::ExportMesh(*GetSelectedMesh()->GetData(), selection);
 		}
-		if (event.key == GLFW_KEY_F6 && m_EditingModule->editingMode == EditingMode::Select) {
+		if (event.key == GLFW_KEY_F6 && m_EditingModule->editingMode == EditingMode::Select) { // Expect next key press to be mesh creation
 			m_ExpectingMeshAddKeyPress = true;
 			return false;
 		}
-		if (event.key == GLFW_KEY_F8 && selectedMeshID != 0 && m_LastSelectedMeshID != 0 && m_EditingModule->editingMode == EditingMode::Select) {
+		if (event.key == GLFW_KEY_F8 && selectedMeshID != 0 && m_LastSelectedMeshID != 0 && m_EditingModule->editingMode == EditingMode::Select) { // Merge current and last selected meshes
+			m_HistoryModule->BeginAction("Merge Meshes");
+			m_HistoryModule->CaptureMeshState(selectedMeshID, true);
+			m_HistoryModule->CaptureMeshState(m_LastSelectedMeshID, true);
 			ft::MeshData merged;
 			MeshUtil::MergeMeshes({ *meshes[selectedMeshID]->GetData(), *meshes[m_LastSelectedMeshID]->GetData() }, merged);
 			meshes[selectedMeshID]->SetData(merged);
@@ -237,20 +250,19 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			meshes.erase(m_LastSelectedMeshID);
 			m_LastSelectedMeshID = 0;
 			ClearSelectionMesh();
+			m_HistoryModule->CommitAction();
 		}
-		if (event.key == GLFW_KEY_F1) {
+		if (event.key == GLFW_KEY_F1) { // Toggle name panel
 			if (m_NamePanel->ShouldRender())
 				m_NamePanel->DisableRender();
 			else
 				m_NamePanel->EnableRender();
 		}
-		if (event.key == GLFW_KEY_DELETE && selectedMeshID != 0 && m_EditingModule->editingMode == EditingMode::Select) {
-			ft::Renderer3D::RemoveMesh(selectedMeshID);
-			meshes.erase(selectedMeshID);
-			ClearSelectionMesh();
-			SetSelectedID(0);
+		if (event.key == GLFW_KEY_DELETE && selectedMeshID != 0 && m_EditingModule->editingMode == EditingMode::Select) { // Delete selected mesh
+			m_HistoryModule->RecordMeshAction("Delete Mesh", selectedMeshID, true);
+			RemoveMesh(selectedMeshID);
 		}
-		if (selectedMeshID != 0) {
+		if (selectedMeshID != 0) { // Snap view to selected mesh based on numpad keys
 			bool move = false;
 			glm::vec3 direction;
 			if (event.key == GLFW_KEY_1) {
@@ -284,7 +296,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				camera->SetPosition(meshes[selectedMeshID]->transform.position - direction * depth);
 			}
 		}
-		if (event.key == GLFW_KEY_A && !(event.mods & GLFW_MOD_SHIFT)) {
+		if (event.key == GLFW_KEY_A && !(event.mods & GLFW_MOD_SHIFT)) { // Select all faces in face selection mode
 			if (selectedMeshID != 0 && selectionMode == SelectionMode::Face && m_EditingModule->editingMode == EditingMode::Select)
 			{
 				ft::Mesh* mesh = meshes[selectedMeshID];
@@ -373,6 +385,29 @@ bool MainModule::OnMouseEvent(const ft::MouseEvent& event)
 	return false;
 }
 
+void MainModule::AddMesh(ft::Mesh&& mesh)
+{
+	ft::Mesh* newMesh = ft::Renderer3D::AddMesh(std::move(mesh));
+	newMesh->outlineColor = glm::vec4(1.0f, 0.7f, 0.157f, 1.0f);
+	if (m_Solid)
+		newMesh->SetRenderMode(ft::RenderMode::Solid);
+	else
+		newMesh->SetRenderMode(ft::RenderMode::Wireframe);
+	meshes.emplace(newMesh->GetID(), newMesh);
+}
+
+void MainModule::RemoveMesh(uint32_t id)
+{
+	if (meshes.contains(id)) {
+		ft::Renderer3D::RemoveMesh(id);
+		meshes.erase(id);
+		if (selectedMeshID == id) {
+			ClearSelectionMesh();
+			SetSelectedID(0);
+		}
+	}
+}
+
 void MainModule::CreateGrid()
 {
 	ft::MeshData gridData = MeshUtil::CreateGrid(200, 3);
@@ -393,13 +428,13 @@ void MainModule::SetDefaultLight()
 	lightSource->color = glm::vec3(1.0f);
 	lightSource->intensity = 1.2f;
 	lightSource->ambientIntensity = 0.2f;
-	ft::Renderer3D::SetightingMode(false);
+	ft::Renderer3D::SetLightingMode(false);
 	m_UsingStudioLighting = false;
 }
 
 void MainModule::SetStudioLightingMode()
 {
-	ft::Renderer3D::SetightingMode(true);
+	ft::Renderer3D::SetLightingMode(true);
 	m_UsingStudioLighting = true;
 }
 

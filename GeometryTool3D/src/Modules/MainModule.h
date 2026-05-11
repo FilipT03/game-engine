@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "MeshEditingModule.h"
+#include "MeshHistoryModule.h"
 
 enum class SelectionMode {
 	Object,
@@ -39,12 +40,15 @@ public:
 		return meshes[selectedMeshID];
 	}
 	void ClearSelectionMesh();
+	void AddMesh(ft::Mesh&& mesh);
+	void RemoveMesh(uint32_t id);
 private:
 	void CreateGrid();
 	void SetDefaultLight();
 	void SetStudioLightingMode();
 
 	MeshEditingModule* m_EditingModule;
+	MeshHistoryModule* m_HistoryModule;
 
 	ft::Mesh* m_Grid, *m_XAxis, *m_ZAxis;
 	bool m_Perspective = true;

@@ -118,7 +118,8 @@ void MeshUtil::RotateFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, 
 }
 
 void MeshUtil::ExtrudeFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const glm::vec3& offset)
-{	std::set<uint32_t> affectedVertices;
+{	
+	std::set<uint32_t> affectedVertices;
 	uint32_t v = 0;
 	for (size_t f = 0; f < mesh.polygonSizes.size(); v += mesh.polygonSizes[f], f++) {
 		if (!faces.contains(f))

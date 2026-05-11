@@ -1,6 +1,6 @@
 #include "MeshEditingModule.h"
 #include "MainModule.h"
-#include "MeshUtil.h"
+#include "../MeshUtil.h"
 
 
 void MeshEditingModule::OnUpdate()
@@ -43,6 +43,10 @@ void MeshEditingModule::OnUpdate()
 	}
 	else {
 		selectedMesh->SetData(m_OriginalMeshData);
+		if (selectedMesh->GetData()->UsesCustomNormals() && editingMode != EditingMode::Select) {
+			selectedMesh->GetData()->SetUsesCustomNormals(false);
+			selectedMesh->GetData()->SetSmoothingMode(selectedMesh->GetData()->GetSmoothingMode());
+		}
 		switch (editingMode) {
 		case EditingMode::Move:
 			MeshUtil::MoveFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta * 0.2f);
@@ -162,6 +166,7 @@ bool MeshEditingModule::OnMouseEvent(const ft::MouseEvent& event)
 				MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
 				mainModule->selectionMesh->BakeToRenderMesh();
 			}
+			historyModule->CommitAction();
 			return true;
 		}
 		else if (mousePressEvent.button == GLFW_MOUSE_BUTTON_RIGHT) {
@@ -196,9 +201,10 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 		else {
 			mainModule->GetSelectedMesh()->SetData(m_OriginalMeshData);
 		}
+		historyModule->CancelAction();
 	}
 
-	if (editingMode == newMode)
+	if (editingMode == newMode || newMode == EditingMode::Select)
 		editingMode = EditingMode::Select;
 	else {
 		editingMode = newMode;
@@ -210,12 +216,14 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 		}
 		m_StartMousePos = ft::Input::GetMousePosition();
 		m_StartObjectDepth = glm::length(mainModule->GetSelectedMesh()->transform.position - ft::Renderer3D::GetCamera()->GetPosition());
+
+		historyModule->BeginAction(GetActionNameForMode(newMode));
+		historyModule->CaptureMeshState(mainModule->selectedMeshID, mainModule->selectionMode == SelectionMode::Face);
 	}
 }
 
 void MeshEditingModule::UpdateLockAxisMesh()
 {
-
 	if (glm::length(m_LockVector) < 0.0001f) {
 		if (m_LockAxisMesh) {
 			ft::Renderer3D::RemoveMesh(m_LockAxisMesh->GetID());
@@ -233,5 +241,21 @@ void MeshEditingModule::UpdateLockAxisMesh()
 		glm::vec3 position = m_OriginalTransform.position;
 		glm::vec4 color = glm::vec4(m_LockVector, 1.0f);
 		m_LockAxisMesh = ft::Renderer3D::AddMesh(ft::Mesh::CreateLine(position - m_LockVector * 100.0f, position + m_LockVector * 100.0f, color, false));
+	}
+}
+
+std::string MeshEditingModule::GetActionNameForMode(EditingMode mode)
+{
+	switch (mode) {
+	case EditingMode::Move:
+		return "Move";
+	case EditingMode::Rotate:
+		return "Rotate";
+	case EditingMode::Scale:
+		return "Scale";
+	case EditingMode::Extrude:
+		return "Extrude";
+	default:
+		return "Edit";
 	}
 }
