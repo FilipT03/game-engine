@@ -113,7 +113,14 @@ namespace ft {
 		}
 		if (event.type == EventType::MouseScroll) {
 			MouseScrollEvent scrollEvent = As<MouseScrollEvent>(event);
-			camera->Translate(camera->GetFront() * scrollEvent.yDelta * zoomSpeed * m_BaseZoomSpeed);
+			if (camera->GetProjectionMode() == ProjectionMode::Perspective)
+				camera->Translate(camera->GetFront() * scrollEvent.yDelta * zoomSpeed * m_BaseZoomSpeed);
+			else
+			{
+				m_LogZoom += scrollEvent.yDelta * m_ZoomSpeed;
+				m_LogZoom = std::clamp(m_LogZoom, -4.0f, 2.0f);
+				camera->SetOrthoZoom(std::exp(m_LogZoom));
+			}
 		}
 		return false;
 	}

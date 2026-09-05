@@ -26,6 +26,8 @@ namespace ft {
 		glm::vec3 m_MovementPositive = glm::vec3(0.0f), m_MovementNegative = glm::vec3(0.0f);
 		float m_Yaw = 0.0f, m_Pitch = 0.0f;
 		float m_BaseMoveSpeed = 10.0f, m_BaseZoomSpeed = 1.0f, m_BasePanSpeed = 10.0f, m_BaseRotateSpeed = 200.0f;
+		float m_LogZoom = 0.0f;
+		const float m_ZoomSpeed = 0.05f;
 	};
 }
 

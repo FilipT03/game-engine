@@ -89,9 +89,15 @@ namespace ft {
 		glm::vec3 GetUp() const { return m_CameraUp; }
 		glm::vec3 GetRight() const { return m_CameraRight; }
 		float GetFov() const { return m_Fov; }
+		float GetOrthoZoom() const { return m_OrthoZoom; }
 
 		void SetFov(float fov) {
 			m_Fov = fov;
+			CalculateProjectionMatrix(m_Width, m_Height);
+		}
+		void SetOrthoZoom(float othroZoom)
+		{
+			m_OrthoZoom = othroZoom;
 			CalculateProjectionMatrix(m_Width, m_Height);
 		}
 		void SetPosition(const glm::vec3& position) {
@@ -104,16 +110,18 @@ namespace ft {
 		}
 		void SetFront(const glm::vec3& front) {
 			m_Front = glm::normalize(front);
-			m_CameraRight = glm::normalize(glm::cross(m_Front, m_WorldUp));
+			m_CameraRight = glm::normalize(glm::cross(m_Front, GetReferenceUp())); 
 			m_CameraUp = glm::normalize(glm::cross(m_CameraRight, m_Front));
 			RecalculateView();
 		}
-		void SetWorldUp(const glm::vec3& up) {
-			m_WorldUp = glm::normalize(up);
-			m_CameraRight = glm::normalize(glm::cross(m_Front, m_WorldUp));
-			m_CameraUp = glm::normalize(glm::cross(m_CameraRight, m_Front));
-			RecalculateView();
+		glm::vec3 GetReferenceUp() const
+		{
+			glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+			if (glm::abs(glm::dot(m_Front, worldUp)) > 0.99999f) // If looking straight up or down, use a different up vector to avoid gimbal lock
+				worldUp = { 0.0f, 0.0f, -1.0f };
+			return worldUp;
 		}
+
 
 		ProjectionMode GetProjectionMode() const { return m_ProjectionMode; }
 		void SetProjectionMode(ProjectionMode mode) {
@@ -130,10 +138,10 @@ namespace ft {
 
 		glm::vec3 m_Position = Vector::Zero;
 		glm::vec3 m_Front = Vector::Forward;
-		glm::vec3 m_WorldUp = Vector::Up;
 		glm::vec3 m_CameraRight = Vector::Right;
 		glm::vec3 m_CameraUp = Vector::Up;
 		float m_Fov = 90.0f;
+		float m_OrthoZoom = 1.0f;
 
 		ProjectionMode m_ProjectionMode = ProjectionMode::Perspective;
 	};

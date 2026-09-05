@@ -115,13 +115,15 @@ namespace ft {
 
 	glm::vec2 WorldCamera3D::WorldToScreen(glm::vec3 worldCoordinates) const
 	{
-		glm::vec4 ndc = m_ViewProjection * glm::vec4(worldCoordinates.x, worldCoordinates.y, 0.0f, 1.0f);
+		glm::vec4 clip = m_ViewProjection * glm::vec4(worldCoordinates, 1.0f);
+		if (clip.w <= 0.0f)
+			return glm::vec2(-FLT_MAX);
+		glm::vec3 ndc = glm::vec3(clip) / clip.w;
 
 		glm::vec2 windowSize = Application::Get().GetWindow().GetWindowSize();
 		glm::vec2 screenCoords{};
-		ndc = (ndc + 1.0f) / 2.0f; // transform to range [0,1]
-		screenCoords.x = windowSize.x * ndc.x;
-		screenCoords.y = windowSize.y * (1.0f - ndc.y);
+		screenCoords.x = (ndc.x + 1.0f) * 0.5f * windowSize.x;
+		screenCoords.y = (1.0f - ndc.y) * 0.5f * windowSize.y;
 		return screenCoords;
 	}
 
@@ -160,7 +162,7 @@ namespace ft {
 			// Same as WorldCamera2D
 			float zoom = 0.1f / tan(glm::radians(m_Fov) * 0.5f);
 			float aspect;
-			float units = FT_VIEW_UNITS * zoom;
+			float units = FT_VIEW_UNITS * zoom / m_OrthoZoom;
 			if (width > height)
 			{
 				aspect = width / height;
@@ -185,10 +187,7 @@ namespace ft {
 
 	void WorldCamera3D::RecalculateView()
 	{
-		glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
-		if (m_Front.y > 0.99999f || m_Front.y < -0.99999f) // If looking straight up or down, use a different up vector to avoid gimbal lock
-			worldUp = { 0.0f, 0.0f, -1.0f };
-		m_View = glm::lookAt(m_Position, m_Position + m_Front, worldUp);
+		m_View = glm::lookAt(m_Position, m_Position + m_Front, GetReferenceUp());
 
 		m_ViewProjection = m_Projection * m_View;
 	}
