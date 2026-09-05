@@ -117,7 +117,8 @@ namespace ft {
 		if (closestFaceIndex != -1) {
 			result.hit = true;
 			result.faceIndex = closestFaceIndex;
-			result.hitPoint = rayOrigin + rayDir * closestDistance;
+			glm::vec3 localHitPoint = localOrigin + localDir * closestDistance;
+			result.hitPoint = glm::vec3(modelMatrix * glm::vec4(localHitPoint, 1.0f));
 		}
 		return result;
 	}
