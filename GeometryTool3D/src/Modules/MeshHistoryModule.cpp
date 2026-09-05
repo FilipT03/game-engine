@@ -87,7 +87,7 @@ std::optional<MeshSnapshot> MeshHistoryModule::CreateMeshSnapshot(uint32_t meshI
 		snapshot.exists = false;
 	}
 	else {
-		ft::Mesh* mesh = mainModule->meshes[meshID];
+		const ft::Mesh* mesh = mainModule->meshes[meshID];
 		snapshot.transform = mesh->transform;
 		if (captureData)
 			snapshot.data = *mesh->GetData();

@@ -47,59 +47,70 @@ void MainModule::OnRegister()
 	//			ft::Vector::Forward * 30.0f),
 	//		glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 50, 50));
 
+	//m_SelectionColor = glm::vec4(1.0f, 0.7f, 0.157f, 1.0f);
+	//m_SelectionColor = glm::vec4(0.97f, 0.93f, 0.36f, 1.0f);
+	m_SelectionColor = glm::vec4(0.16f, 0.7f, 0.7f, 1.0f);
+	//m_ObjectColor = glm::vec4(0.2f, 0.8f, 0.8f, 1.0f);
+	m_ObjectColor = glm::vec4(0.72f, 0.72f, 0.72f, 1.0f);
+
 	ft::Mesh* newMesh = ft::Renderer3D::AddMesh(
 						ft::Mesh::CreateCylinder(
 							ft::Transform3D(glm::vec3(0, 0, 0), 
 							ft::Vector::One * 3.0f), 
 							//ft::Vector::Forward * 30.0f), 
-							glm::vec4(0.2f, 0.8f, 0.8f, 1.0f), 30));
-	newMesh->outlineColor = glm::vec4(1.0f, 0.7f, 0.157f, 1.0f);
+							m_ObjectColor, 30));
+	newMesh->outlineColor = m_SelectionColor;
 	meshes.emplace(newMesh->GetID(), newMesh);
 
+	glm::vec4 selectionMeshColor = glm::vec4(0.18f, 0.815f, 0.803f, 1.0f);
 	//ft::Renderer3D::AddMesh(ft::Mesh::CreatePlane(ft::Transform3D(glm::vec3(0, -5.5, 0), ft::Vector::One * 10.0f), glm::vec4(1), true));
-	selectionMesh = ft::Renderer3D::AddMesh(ft::Mesh(ft::Transform3D(), glm::vec4(1.0f, 0.7f, 0.157f, 0.8f), false));
+	selectionMesh = ft::Renderer3D::AddMesh(ft::Mesh(ft::Transform3D(), selectionMeshColor, false));
 	selectionMesh->SetRenderMode(ft::RenderMode::Overlay);
 
 		FT_INFO(R"(
 === CONTROLS GUIDE ===
 
 [ SYSTEM & FILES ]
- Info Panel   : F1 (Toggle Name/Info)
+ Info panel   : F1 (toggle name and info)
  Import OBJ   : F9
- Export OBJ   : F10 *Requires Selection*
+ Export OBJ   : F10 (requires selection)
  Quit         : ESC
 
 [ VIEWPORT VISUALS ]
- Wireframe    : F2 (Toggle Solid/Wireframe) *Requires Selection*
- Projection   : F3 (Toggle Perspective/Orthographic)
- Lighting     : F4 (Toggle Studio/Default)
+ Wireframe    : F2 (toggle solid/wireframe) (requires selection)
+ Projection   : F3 (toggle perspective/orthographic)
+ Lighting     : F4 (toggle studio/default)
 
 [ MODELING MODES ]
- Select Mode  : F5 (Toggle Object / Face Mode)
- Creation     : F6 (Then press 1-5 for shapes)
- Smoothing    : F7 (Cycle Flat -> Smooth -> Angle) *Requires Selection*
- Merge Mesh   : F8 (Merges Current + Last Selected)
+ Select mode  : F5 (toggle object / face mode)
+ Creation     : F6 (then press 1-5 for shapes)
+ Smoothing    : F7 (cycle flat -> smooth -> angle) (requires selection)
+ Merge mesh   : F8 (merges current + last selected)
 
 [ CAMERA NAVIGATION ]
- Rotate       : Middle Mouse Button (Hold)
- Pan          : Shift + Middle Mouse Button (Hold)
- Zoom         : Scroll Wheel
- Move         : Shift + W/A/S/D (Planar) | Shift + Q/E (Vertical)
- Snap View    : 1-6 (Front, Left, Top, Back, Right, Bottom) *Requires Selection*
+ Rotate       : Middle mouse button (hold)
+ Pan          : Shift + Middle mouse button (hold)
+ Zoom         : Scroll wheel
+ Move         : Shift + W/A/S/D (planar) | Shift + Q/E (vertical)
+ Snap view    : 1-6 (Front, Left, Top, Back, Right, Bottom) (requires selection)
 
 [ EDITING TOOLS ]
- Select       : Left Click
- Add/Toggle   : Shift + Left Click
- Deselect     : Right Click (Empty space)
+ Select       : Left click
+ Add/Toggle   : Shift + Left click
+ Deselect     : Right click (empty space)
  Delete       : DELETE
- Select All   : A (Face Mode Only)
+ Select All   : A (face mode only)
+ Duplicate    : Ctrl + D (object mode only)
  Move         : G
  Rotate       : R
- Scale        : S (Uniform Scale with Ctrl)
- Extrude      : E (Face Mode Only)
- Lock Axis    : X / Y / Z (During Edit)
- Confirm      : Left Click
- Cancel       : Right Click
+ Scale        : S (uniform scale with ctrl)
+ Extrude      : E (face mode only)
+ Connect/Split: C (face mode, single face only)
+ Lock Axis    : X / Y / Z (during edit)
+ Confirm      : Left click
+ Cancel       : Right click
+ Undo         : Ctrl + Z
+ Redo         : Ctrl + Y
 )");
 }
 
@@ -129,7 +140,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				m_ExpectingMeshAddKeyPress = false;
 				return false;
 			}
-			glm::vec4 color = glm::vec4(0.2f, 0.8f, 0.8f, 1.0f);
+			glm::vec4 color = m_ObjectColor;
 			ft::Transform3D transform;
 			transform.position = ft::Renderer3D::GetCamera()->GetPosition() + ft::Renderer3D::GetCamera()->GetFront() * 3.0f;
 			ft::Mesh* newMesh = nullptr;
@@ -148,7 +159,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			if (newMesh == nullptr)
 				return false;
 
-			newMesh->outlineColor = glm::vec4(1.0f, 0.7f, 0.157f, 1.0f);
+			newMesh->outlineColor = glm::vec4(0.16f, 0.7f, 0.7f, 1.0f);
 			if (m_Solid)
 				newMesh->SetRenderMode(ft::RenderMode::Solid);
 			else
@@ -189,7 +200,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				mesh->transform.position = ft::Renderer3D::GetCamera()->GetPosition() + ft::Renderer3D::GetCamera()->GetFront() * 5.0f;
 				mesh->CalculateModelMatrix();
 				ft::Mesh* newMesh = (ft::Renderer3D::AddMesh(std::move(*mesh)));
-				newMesh->outlineColor = glm::vec4(1.0f, 0.7f, 0.157f, 1.0f);
+				newMesh->outlineColor = m_SelectionColor;
 				if (m_Solid)
 					newMesh->SetRenderMode(ft::RenderMode::Solid);
 				else
@@ -232,8 +243,11 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			auto selection = pfd::save_file("Export mesh as", ".", { "Wavefront .obj File", "*.obj" }).result();
 			if (selection.empty())
 				FT_TRACE("No file selected.");
-			else
+			else {
+				if (!selection.ends_with(".obj"))
+					selection += ".obj";
 				ft::MeshImporter::ExportMesh(*GetSelectedMesh()->GetData(), selection);
+			}
 		}
 		if (event.key == GLFW_KEY_F6 && m_EditingModule->editingMode == EditingMode::Select) { // Expect next key press to be mesh creation
 			m_ExpectingMeshAddKeyPress = true;
@@ -244,8 +258,9 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			m_HistoryModule->CaptureMeshState(selectedMeshID, true);
 			m_HistoryModule->CaptureMeshState(m_LastSelectedMeshID, true);
 			ft::MeshData merged;
-			MeshUtil::MergeMeshes({ *meshes[selectedMeshID]->GetData(), *meshes[m_LastSelectedMeshID]->GetData() }, merged);
+			MeshUtil::MergeMeshes({ meshes[selectedMeshID], meshes[m_LastSelectedMeshID] }, merged);
 			meshes[selectedMeshID]->SetData(merged);
+			meshes[selectedMeshID]->ResetTransform();
 			ft::Renderer3D::RemoveMesh(m_LastSelectedMeshID);
 			meshes.erase(m_LastSelectedMeshID);
 			m_LastSelectedMeshID = 0;
@@ -299,16 +314,33 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 		if (event.key == GLFW_KEY_A && !(event.mods & GLFW_MOD_SHIFT)) { // Select all faces in face selection mode
 			if (selectedMeshID != 0 && selectionMode == SelectionMode::Face && m_EditingModule->editingMode == EditingMode::Select)
 			{
-				ft::Mesh* mesh = meshes[selectedMeshID];
+				const ft::Mesh* mesh = meshes[selectedMeshID];
+				const ft::MeshData* meshData = mesh->GetData();
 				ft::MeshData* selectionData = selectionMesh->GetData();
-				if (selectedFaces.size() != mesh->GetData()->polygonSizes.size()) {
-					for (uint32_t i = 0; i < mesh->GetData()->polygonSizes.size(); i++)
+				if (selectedFaces.size() != meshData->polygonSizes.size()) {
+					for (uint32_t i = 0; i < meshData->polygonSizes.size(); i++)
 						selectedFaces.insert(i);
 				}
 				else
 					selectedFaces.clear();
-				MeshUtil::CreateFromFaces(*mesh->GetData(), *selectionData, selectedFaces);
+				MeshUtil::CreateFromFaces(*meshData, *selectionData, selectedFaces);
 				selectionMesh->BakeToRenderMesh();
+			}
+			return true; // Consume to prevent camera movement
+		}
+		if (event.key == GLFW_KEY_D && (event.mods & GLFW_MOD_CONTROL)) { // Duplicate selected mesh
+			if (selectedMeshID != 0 && selectionMode == SelectionMode::Object && m_EditingModule->editingMode == EditingMode::Select) {
+				const ft::Mesh* originalMesh = meshes[selectedMeshID];
+				const ft::MeshData* originalData = originalMesh->GetData();
+				ft::Mesh* duplicatedMesh = ft::Renderer3D::AddMesh(std::move(ft::Mesh(*originalData, originalMesh->transform, originalMesh->color,
+					originalMesh->IsStatic(), originalMesh->GetRenderMode())));
+				duplicatedMesh->outlineColor = glm::vec4(0.16f, 0.7f, 0.7f, 1.0f);
+				duplicatedMesh->renderOrder = originalMesh->renderOrder;
+				meshes.emplace(duplicatedMesh->GetID(), duplicatedMesh);
+
+				m_HistoryModule->RecordMeshAction("Duplicate Mesh", duplicatedMesh->GetID(), true, true);
+				SetSelectedID(duplicatedMesh->GetID());
+				m_EditingModule->SetEditingModeAndRevertChanges(EditingMode::Move);
 			}
 			return true; // Consume to prevent camera movement
 		}
@@ -364,7 +396,8 @@ bool MainModule::OnMouseEvent(const ft::MouseEvent& event)
 				}
 
 				if (!selectedFaces.empty()) {
-					ft::Mesh* mesh = meshes[meshID];
+					const ft::Mesh* mesh = meshes[meshID];
+					const ft::MeshData* meshData = mesh->GetData();
 					ft::MeshData* selectionData = selectionMesh->GetData();
 					MeshUtil::CreateFromFaces(*mesh->GetData(), *selectionData, selectedFaces);
 					
@@ -388,7 +421,7 @@ bool MainModule::OnMouseEvent(const ft::MouseEvent& event)
 void MainModule::AddMesh(ft::Mesh&& mesh)
 {
 	ft::Mesh* newMesh = ft::Renderer3D::AddMesh(std::move(mesh));
-	newMesh->outlineColor = glm::vec4(1.0f, 0.7f, 0.157f, 1.0f);
+	newMesh->outlineColor = m_SelectionColor;
 	if (m_Solid)
 		newMesh->SetRenderMode(ft::RenderMode::Solid);
 	else

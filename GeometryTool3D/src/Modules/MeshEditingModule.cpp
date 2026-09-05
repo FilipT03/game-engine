@@ -3,10 +3,34 @@
 #include "../MeshUtil.h"
 
 
+void MeshEditingModule::OnRegister()
+{
+	ft::Mesh sphere = ft::Mesh::CreateSphere(ft::Transform3D(ft::Vector::Zero, ft::Vector::One * 0.08f), m_CuttingCurrentColor, 90, 45, true);
+	sphere.DisableRendering();
+	sphere.SetRenderMode(ft::RenderMode::Overlay);
+	m_CurrentVertexHighlight = ft::Renderer3D::AddMesh(std::move(sphere));
+	
+	sphere = ft::Mesh::CreateSphere(ft::Transform3D(ft::Vector::One, ft::Vector::One * 0.08f), m_CuttingSelectedColor, 90, 45, true);
+	sphere.DisableRendering();
+	sphere.SetRenderMode(ft::RenderMode::Overlay);
+	m_SelectedVertexHighlight = ft::Renderer3D::AddMesh(std::move(sphere));
+
+	m_CurrentVertexIndex = std::nullopt;
+	m_SelectedVertexIndex = std::nullopt;
+
+	UpdateLockAxisMesh();
+}
+
 void MeshEditingModule::OnUpdate()
 {
 	if (mainModule->selectedMeshID == 0 || editingMode == EditingMode::Select)
 		return;
+	if (editingMode == EditingMode::Cut)
+	{
+		HandleCutting();
+		return;
+	}
+
 	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
 	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
 	glm::vec2 mousePos = ft::Input::GetMousePosition();
@@ -43,13 +67,14 @@ void MeshEditingModule::OnUpdate()
 	}
 	else {
 		selectedMesh->SetData(m_OriginalMeshData);
-		if (selectedMesh->GetData()->UsesCustomNormals() && editingMode != EditingMode::Select) {
-			selectedMesh->GetData()->SetUsesCustomNormals(false);
-			selectedMesh->GetData()->SetSmoothingMode(selectedMesh->GetData()->GetSmoothingMode());
+		ft::MeshData* selectedMeshData = selectedMesh->GetData();
+		if (selectedMeshData->UsesCustomNormals() && editingMode != EditingMode::Select) {
+			selectedMeshData->SetUsesCustomNormals(false);
+			selectedMeshData->SetSmoothingMode(selectedMeshData->GetSmoothingMode());
 		}
 		switch (editingMode) {
 		case EditingMode::Move:
-			MeshUtil::MoveFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta * 0.2f);
+			MeshUtil::MoveFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta * 0.2f);
 			break;
 		case EditingMode::Scale: {
 			if (glm::length(m_LockVector) > 0.00001f) {
@@ -61,11 +86,11 @@ void MeshEditingModule::OnUpdate()
 					objectDelta = glm::vec3(combined / 3.0f);
 				objectDelta = (glm::abs(objectDelta) + 0.1f) * 3.0f;
 			}
-			MeshUtil::ScaleFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta, glm::length(m_LockVector) > 0.00001f);
+			MeshUtil::ScaleFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta, glm::length(m_LockVector) > 0.00001f);
 			break;
 		}
 		case EditingMode::Extrude:
-			MeshUtil::ExtrudeFaces(*selectedMesh->GetData(), mainModule->selectedFaces, objectDelta * 0.2f);
+			MeshUtil::ExtrudeFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta * 0.2f);
 			break;
 		case EditingMode::Rotate: {
 			glm::mat4 rotMatrix(1.0f);
@@ -83,17 +108,46 @@ void MeshEditingModule::OnUpdate()
 
 				rotMatrix = yaw * pitch;
 			}
-			MeshUtil::RotateFaces(*selectedMesh->GetData(), mainModule->selectedFaces, rotMatrix);
+			MeshUtil::RotateFaces(*selectedMeshData, mainModule->selectedFaces, rotMatrix);
 			break;
 		}
 		}
 		selectedMesh->BakeToRenderMesh();
 		ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
-		MeshUtil::CreateFromFaces(*selectedMesh->GetData(), *selectionData, mainModule->selectedFaces);
+		MeshUtil::CreateFromFaces(*selectedMeshData, *selectionData, mainModule->selectedFaces);
 		mainModule->selectionMesh->BakeToRenderMesh();
 	}
 }
 
+void MeshEditingModule::HandleCutting()
+{
+	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
+	glm::vec2 mousePos = ft::Input::GetMousePosition();
+	uint32_t vertexIndex = 0;
+	bool found = MeshUtil::FindClosestVertexToMouse(mainModule->GetSelectedMesh(), m_CuttingFaceIndex, mousePos, camera, vertexIndex, 10.0f);
+	if (found) {
+		m_CurrentVertexIndex = vertexIndex;
+		
+		if (m_SelectedVertexIndex != m_CurrentVertexIndex) {
+			const ft::Mesh* mesh = mainModule->GetSelectedMesh();
+			const ft::MeshData* data = mesh->GetData();
+			m_CurrentVertexHighlight->EnableRendering();
+			const glm::vec3& localPosition = data->positions[vertexIndex];
+			const glm::vec3 worldPosition = glm::vec3(mesh->modelMatrix * glm::vec4(localPosition, 1.0f));
+			m_CurrentVertexHighlight->transform.position = worldPosition;
+			m_CurrentVertexHighlight->CalculateModelMatrix();
+		}
+	}
+	else {
+		m_CurrentVertexHighlight->DisableRendering();
+		m_CurrentVertexIndex = std::nullopt;
+	}
+
+	if (m_SelectedVertexIndex == m_CurrentVertexIndex)
+		m_SelectedVertexHighlight->color = m_CutttingSelectedHoverColor;
+	else
+		m_SelectedVertexHighlight->color = m_CuttingSelectedColor;
+}
 
 bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 {
@@ -115,9 +169,17 @@ bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 				break;
 			SetEditingModeAndRevertChanges(EditingMode::Extrude);
 			break;
+		case GLFW_KEY_C:
+			if (mainModule->selectionMode == SelectionMode::Object)
+				break;
+			if (mainModule->selectedFaces.size() != 1) // Only allow cutting a single face at a time
+				break;
+			m_CuttingFaceIndex = *mainModule->selectedFaces.begin();
+			SetEditingModeAndRevertChanges(EditingMode::Cut);
+			break;
 
 		case GLFW_KEY_X:
-			if (editingMode == EditingMode::Select)
+			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
 				break;
 			if (m_LockVector.x == 1)
 				m_LockVector = { 0, 0, 0 };
@@ -126,7 +188,7 @@ bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 			UpdateLockAxisMesh();
 			break;
 		case GLFW_KEY_Y:
-			if (editingMode == EditingMode::Select)
+			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
 				break;
 			if (m_LockVector.y == 1)
 				m_LockVector = { 0, 0, 0 };
@@ -135,7 +197,7 @@ bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 			UpdateLockAxisMesh();
 			break;
 		case GLFW_KEY_Z:
-			if (editingMode == EditingMode::Select)
+			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
 				break;
 			if (m_LockVector.z == 1)
 				m_LockVector = { 0, 0, 0 };
@@ -156,6 +218,44 @@ bool MeshEditingModule::OnMouseEvent(const ft::MouseEvent& event)
 		ft::MousePressEvent mousePressEvent = ft::As<ft::MousePressEvent>(event);
 		if (mainModule->selectedMeshID == 0 || editingMode == EditingMode::Select)
 			return false;
+		if (editingMode == EditingMode::Cut) {
+			if (mousePressEvent.button == GLFW_MOUSE_BUTTON_LEFT && m_CurrentVertexIndex.has_value()) { // Vertex is under the cursor
+				if (m_SelectedVertexIndex.has_value()) { // Second click
+					if (m_SelectedVertexIndex == m_CurrentVertexIndex) { // Clicking the same vertex again, cancel selection
+						m_SelectedVertexHighlight->DisableRendering();
+						m_SelectedVertexIndex = std::nullopt;
+						return true;
+					}
+
+					ft::Mesh* mesh = mainModule->GetSelectedMesh();
+					ft::MeshData* data = mesh->GetData();
+					MeshUtil::CutFace(*data, m_CuttingFaceIndex, *m_SelectedVertexIndex, *m_CurrentVertexIndex);
+					mesh->BakeToRenderMesh();
+					ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
+					mainModule->ClearSelectionMesh();
+					mainModule->SetSelectedID(0);
+					historyModule->CommitAction();
+					editingMode = EditingMode::Select;
+					m_CurrentVertexHighlight->DisableRendering();
+					m_CurrentVertexIndex = std::nullopt;
+					m_SelectedVertexHighlight->DisableRendering();
+					m_SelectedVertexIndex = std::nullopt;
+					m_CuttingFaceIndex = 0;
+				}
+				else { // First click
+					m_SelectedVertexIndex = m_CurrentVertexIndex;
+					m_SelectedVertexHighlight->transform.position = m_CurrentVertexHighlight->transform.position;
+					m_SelectedVertexHighlight->CalculateModelMatrix();
+					m_SelectedVertexHighlight->EnableRendering();
+					m_CurrentVertexHighlight->DisableRendering();
+				}
+			}
+			else if (mousePressEvent.button == GLFW_MOUSE_BUTTON_RIGHT) {
+				// Cancel the cut action
+				SetEditingModeAndRevertChanges(EditingMode::Select);
+			}
+			return true;
+		}
 		if (mousePressEvent.button == GLFW_MOUSE_BUTTON_LEFT) {
 			// Selected mesh already has the tranformation applied to it, so we can just exit the editing mode here
 			editingMode = EditingMode::Select;
@@ -197,6 +297,13 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 		if (mainModule->selectionMode == SelectionMode::Object) {
 			mainModule->GetSelectedMesh()->transform = m_OriginalTransform;
 			mainModule->GetSelectedMesh()->CalculateModelMatrix();
+		}
+		else if (editingMode == EditingMode::Cut) {
+			m_CurrentVertexHighlight->DisableRendering();
+			m_CurrentVertexIndex = std::nullopt;
+			m_SelectedVertexHighlight->DisableRendering();
+			m_SelectedVertexIndex = std::nullopt;
+			m_CuttingFaceIndex = 0;
 		}
 		else {
 			mainModule->GetSelectedMesh()->SetData(m_OriginalMeshData);
@@ -255,6 +362,8 @@ std::string MeshEditingModule::GetActionNameForMode(EditingMode mode)
 		return "Scale";
 	case EditingMode::Extrude:
 		return "Extrude";
+	case EditingMode::Cut:
+		return "Cut";
 	default:
 		return "Edit";
 	}

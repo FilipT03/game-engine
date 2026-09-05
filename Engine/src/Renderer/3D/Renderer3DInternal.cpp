@@ -196,7 +196,7 @@ namespace ft {
 			if (mesh->outlined) {
 				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 				glStencilMask(0x00);
-				glDisable(GL_DEPTH_TEST);
+				//glDisable(GL_DEPTH_TEST);
 				m_ModelMatrixCalculationMesh->transform = mesh->transform;
 				m_ModelMatrixCalculationMesh->transform.scale *= 1.025f;
 				m_ModelMatrixCalculationMesh->CalculateModelMatrix();
@@ -206,7 +206,8 @@ namespace ft {
 				glDrawElementsBaseVertex(mode, renderMesh->indices.size(), GL_UNSIGNED_INT, (void*)(intptr_t)renderMesh->indexOffset, renderMesh->vertexOffset);
 				glStencilMask(0xFF);
 				glStencilFunc(GL_ALWAYS, 0, 0xFF);
-				glEnable(GL_DEPTH_TEST);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				//glEnable(GL_DEPTH_TEST);
 			}
 		}
 		#endif

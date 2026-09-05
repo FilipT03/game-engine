@@ -91,6 +91,10 @@ namespace ft {
 		void DisableRendering() { m_Render = false; }
 		void EnableRendering() { m_Render = true; }
 		bool ShouldRender() const { return m_Render; }
+		void ResetTransform() {
+			transform = Transform3D();
+			CalculateModelMatrix();
+		}
 
 		void CalculateModelMatrix();
 		void BakeToRenderMesh();
