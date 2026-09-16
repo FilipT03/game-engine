@@ -56,6 +56,10 @@ private:
 	bool m_UsingStudioLighting = true;
 	bool m_ExpectingMeshAddKeyPress = false;
 	uint32_t m_LastSelectedMeshID = 0;
+	bool m_SavedCameraState = false;
+	glm::vec3 m_CameraSavedPosition, m_CameraSavedFront;
+	float m_CameraSavedOrthoZoom;
+	ft::ProjectionMode m_CameraSavedProjectionMode;
 	ft::UIElement* m_NamePanel;
 	glm::vec4 m_SelectionColor = glm::vec4(1,1,1,1);
 	glm::vec4 m_ObjectColor = glm::vec4(1,1,1,1);

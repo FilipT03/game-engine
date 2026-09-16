@@ -179,7 +179,7 @@ void MeshHistoryModule::ApplySnapshot(const MeshSnapshot& snapshot)
 		if (!snapshot.exists)
 			return;
 		ft::Mesh newMesh = ft::Mesh(*snapshot.data, *snapshot.transform, snapshot.color);
-		newMesh.ForceSetID(snapshot.meshID);
+		newMesh.SetID(snapshot.meshID);
 		mainModule->AddMesh(std::move(newMesh));
 	}
 }

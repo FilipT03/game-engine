@@ -148,13 +148,20 @@ namespace ft {
 		return Mesh(MeshData::CreateLine(start, end), Transform3D(), color, isStatic, RenderMode::Wireframe);
 	}
 
+	glm::mat4 Mesh::GetRotationMatrix()
+	{
+		glm::mat4 result(1.0f);
+		result = glm::rotate(result, glm::radians(transform.rotation.x), Vector::Right);
+		result = glm::rotate(result, glm::radians(transform.rotation.y), Vector::Up);
+		result = glm::rotate(result, glm::radians(transform.rotation.z), Vector::Forward);
+		return result;
+	}
+
 	void Mesh::CalculateModelMatrix()
 	{
 		modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, transform.position);
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), Vector::Right);
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), Vector::Up);
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), Vector::Forward);
+		modelMatrix *= GetRotationMatrix();
 		modelMatrix = glm::scale(modelMatrix, transform.scale);
 	}
 }

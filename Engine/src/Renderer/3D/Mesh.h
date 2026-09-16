@@ -97,6 +97,7 @@ namespace ft {
 		}
 
 		void CalculateModelMatrix();
+		glm::mat4 GetRotationMatrix();
 		void BakeToRenderMesh();
 		int GetPolygonCount() const { return m_Data->polygonSizes.size(); }
 

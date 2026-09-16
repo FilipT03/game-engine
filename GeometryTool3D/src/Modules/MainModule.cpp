@@ -68,7 +68,7 @@ void MainModule::OnRegister()
 	selectionMesh->SetRenderMode(ft::RenderMode::Overlay);
 
 		FT_INFO(R"(
-=== CONTROLS GUIDE ===
+=== CONTROLS ===
 
 [ SYSTEM & FILES ]
  Info panel   : F1 (toggle name and info)
@@ -92,7 +92,8 @@ void MainModule::OnRegister()
  Pan          : Shift + Middle mouse button (hold)
  Zoom         : Scroll wheel
  Move         : Shift + W/A/S/D (planar) | Shift + Q/E (vertical)
- Snap view    : 1-6 (Front, Left, Top, Back, Right, Bottom) (requires selection)
+ Snap view    : Numpad 1-6 (Front, Left, Top, Back, Right, Bottom) (requires selection)
+ Save/Load pos: Numpad 7/8 
 
 [ EDITING TOOLS ]
  Select       : Left click
@@ -280,27 +281,27 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 		if (selectedMeshID != 0) { // Snap view to selected mesh based on numpad keys
 			bool move = false;
 			glm::vec3 direction;
-			if (event.key == GLFW_KEY_1) {
+			if (event.key == GLFW_KEY_KP_1) {
 				direction = ft::Vector::Forward;
 				move = true;
 			}
-			else if (event.key == GLFW_KEY_2) {
+			else if (event.key == GLFW_KEY_KP_2) {
 				direction = ft::Vector::Left;
 				move = true;
 			}
-			else if (event.key == GLFW_KEY_3) {
+			else if (event.key == GLFW_KEY_KP_3) {
 				direction = ft::Vector::Down;
 				move = true;
 			}
-			else if (event.key == GLFW_KEY_4) {
+			else if (event.key == GLFW_KEY_KP_4) {
 				direction = ft::Vector::Back;
 				move = true;
 			}
-			else if (event.key == GLFW_KEY_5) {
+			else if (event.key == GLFW_KEY_KP_5) {
 				direction = ft::Vector::Right;
 				move = true;
 			}
-			else if (event.key == GLFW_KEY_6) {
+			else if (event.key == GLFW_KEY_KP_6) {
 				direction = ft::Vector::Up;
 				move = true;
 			}
@@ -310,6 +311,21 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 				camera->SetFront(direction);
 				camera->SetPosition(meshes[selectedMeshID]->transform.position - direction * depth);
 			}
+		}
+		if (event.key == GLFW_KEY_KP_7) {
+			ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
+			m_CameraSavedPosition = camera->GetPosition();
+			m_CameraSavedFront = camera->GetFront();
+			m_CameraSavedOrthoZoom = camera->GetOrthoZoom();
+			m_CameraSavedProjectionMode = camera->GetProjectionMode();
+			m_SavedCameraState = true;
+		}
+		if (event.key == GLFW_KEY_KP_8 && m_SavedCameraState) {
+			ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
+			camera->SetPosition(m_CameraSavedPosition);
+			camera->SetFront(m_CameraSavedFront);
+			camera->SetOrthoZoom(m_CameraSavedOrthoZoom);
+			camera->SetProjectionMode(m_CameraSavedProjectionMode);
 		}
 		if (event.key == GLFW_KEY_A && !(event.mods & GLFW_MOD_SHIFT)) { // Select all faces in face selection mode
 			if (selectedMeshID != 0 && selectionMode == SelectionMode::Face && m_EditingModule->editingMode == EditingMode::Select)

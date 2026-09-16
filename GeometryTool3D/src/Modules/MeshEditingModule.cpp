@@ -19,6 +19,11 @@ void MeshEditingModule::OnRegister()
 	m_SelectedVertexIndex = std::nullopt;
 
 	UpdateLockAxisMesh();
+
+	m_MouseStartIndicator = ft::UI::AddElement<ft::UIShape>(ft::ShapeType::Ellipse, ft::Rect(0, 0, 5, 5), glm::vec4(1.0f, 0.1f, 0.1f, 0.65f));
+	ft::Ellipse* circle = static_cast<ft::Ellipse*>(m_MouseStartIndicator->GetShape());
+	circle->AA = 0.7f;
+	m_MouseStartIndicator->DisableRender();
 }
 
 void MeshEditingModule::OnUpdate()
@@ -33,31 +38,55 @@ void MeshEditingModule::OnUpdate()
 
 	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
 	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
-	glm::vec2 mousePos = ft::Input::GetMousePosition();
-	glm::vec2 mouseDelta = mousePos - m_StartMousePos;
-	glm::vec3 objectDelta = ft::Renderer3D::ScreenDeltaToWorld(mousePos, mouseDelta, m_StartObjectDepth);
-	if (glm::length(m_LockVector) > 0.0001f) {
-		float projectedDist = glm::dot(objectDelta, m_LockVector);
-		objectDelta = m_LockVector * projectedDist;
+
+	glm::vec3 objectDelta;
+	glm::vec2 mouseDelta;
+	float numericValue;
+	if (!m_NumericInput.active) {
+		glm::vec2 mousePos = ft::Input::GetMousePosition();
+		mouseDelta = mousePos - m_StartMousePos;
+		objectDelta = ft::Renderer3D::ScreenDeltaToWorld(mousePos, mouseDelta, m_StartObjectDepth);
+		if (glm::length(m_LockVector) > 0.0001f) {
+			float projectedDist = glm::dot(objectDelta, m_LockVector);
+			objectDelta = m_LockVector * projectedDist;
+		}
+	}
+	else {
+		numericValue = m_NumericInput.GetValue();
+		if (glm::length(m_LockVector) > 0.0001f)
+			objectDelta = numericValue * m_LockVector;
+		else
+			objectDelta = numericValue * ft::Vector::One;
 	}
 
 	if (mainModule->selectionMode == SelectionMode::Object) {
 		switch (editingMode) {
 		case EditingMode::Move:
+			if (m_NumericInput.active) {
+				if (glm::length(m_LockVector) <= 0.0001f)
+					objectDelta *= ft::Vector::Forward;
+			}
 			selectedMesh->transform.position = m_OriginalTransform.position + objectDelta;
 			break;
 		case EditingMode::Rotate:
-			selectedMesh->transform.rotation = m_OriginalTransform.rotation + objectDelta * 15.0f;
+			if (!m_NumericInput.active)
+				objectDelta *= 15;
+			selectedMesh->transform.rotation = m_OriginalTransform.rotation + objectDelta;
 			break;
 		case EditingMode::Scale: {
-			if (glm::length(m_LockVector) > 0.00001f)
-				objectDelta += ft::Vector::One - m_LockVector;
-			else {
-				float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
-				if (ft::Input::IsCtrlDown())
-					objectDelta = glm::vec3(combined / 3.0f);
-				objectDelta = (glm::abs(objectDelta) + 0.1f) * 1.2f;
+			if (!m_NumericInput.active)
+			{
+				if (glm::length(m_LockVector) > 0.00001f)
+					objectDelta += ft::Vector::One - m_LockVector;
+				else {
+					float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
+					if (ft::Input::IsCtrlDown())
+						objectDelta = glm::vec3(combined / 3.0f);
+					objectDelta = (glm::abs(objectDelta) + 0.1f) * 1.2f;
+				}
 			}
+			else if (glm::length(m_LockVector) > 0.00001f)
+				objectDelta += ft::Vector::One - m_LockVector;
 			selectedMesh->transform.scale = m_OriginalTransform.scale * objectDelta;
 			break;
 		}
@@ -72,41 +101,62 @@ void MeshEditingModule::OnUpdate()
 			selectedMeshData->SetUsesCustomNormals(false);
 			selectedMeshData->SetSmoothingMode(selectedMeshData->GetSmoothingMode());
 		}
+		// Convert to local space rotation
+		objectDelta = glm::mat3(glm::inverse(selectedMesh->GetRotationMatrix())) * objectDelta;
 		switch (editingMode) {
 		case EditingMode::Move:
+			if (m_NumericInput.active) {
+				if (glm::length(m_LockVector) <= 0.0001f)
+					objectDelta *= ft::Vector::Forward;
+			}
 			MeshUtil::MoveFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta * 0.2f);
 			break;
 		case EditingMode::Scale: {
-			if (glm::length(m_LockVector) > 0.00001f) {
-				objectDelta += ft::Vector::One - m_LockVector;
-			}
-			else {
-				float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
-				if (ft::Input::IsCtrlDown())
-					objectDelta = glm::vec3(combined / 3.0f);
-				objectDelta = (glm::abs(objectDelta) + 0.1f) * 3.0f;
+			if (!m_NumericInput.active)
+			{
+				if (glm::length(m_LockVector) > 0.00001f) {
+					objectDelta += ft::Vector::One - m_LockVector;
+				}
+				else {
+					float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
+					if (ft::Input::IsCtrlDown())
+						objectDelta = glm::vec3(combined / 3.0f);
+					objectDelta = (glm::abs(objectDelta) + 0.1f) * 3.0f;
+				}
 			}
 			MeshUtil::ScaleFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta, glm::length(m_LockVector) > 0.00001f);
 			break;
 		}
 		case EditingMode::Extrude:
+			if (m_NumericInput.active) {
+				if (glm::length(m_LockVector) <= 0.0001f)
+					objectDelta *= ft::Vector::Forward;
+			}
 			MeshUtil::ExtrudeFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta * 0.2f);
 			break;
 		case EditingMode::Rotate: {
 			glm::mat4 rotMatrix(1.0f);
 			float sensitivity = 0.01f;
 			if (glm::length(m_LockVector) > 0.0001f) {
-				float angle = (mouseDelta.x + mouseDelta.y) * sensitivity;
+				float angle = 0.0f;
+				if (m_NumericInput.active)
+					angle = glm::radians(numericValue);
+				else
+					angle = (mouseDelta.x + mouseDelta.y) * sensitivity;
 				rotMatrix = glm::rotate(glm::mat4(1.0f), angle, m_LockVector);
 			}
 			else {
-				glm::vec3 camUp = camera->GetUp();
-				glm::vec3 camRight = camera->GetRight();
+				if (m_NumericInput.active)
+					rotMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(numericValue), camera->GetFront());
+				else {
+					glm::vec3 camUp = camera->GetUp();
+					glm::vec3 camRight = camera->GetRight();
 
-				glm::mat4 yaw = glm::rotate(glm::mat4(1.0f), -mouseDelta.x * sensitivity, camUp);
-				glm::mat4 pitch = glm::rotate(glm::mat4(1.0f), -mouseDelta.y * sensitivity, camRight);
+					glm::mat4 yaw = glm::rotate(glm::mat4(1.0f), -mouseDelta.x * sensitivity, camUp);
+					glm::mat4 pitch = glm::rotate(glm::mat4(1.0f), -mouseDelta.y * sensitivity, camRight);
 
-				rotMatrix = yaw * pitch;
+					rotMatrix = yaw * pitch;
+				}
 			}
 			MeshUtil::RotateFaces(*selectedMeshData, mainModule->selectedFaces, rotMatrix);
 			break;
@@ -124,7 +174,7 @@ void MeshEditingModule::HandleCutting()
 	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
 	glm::vec2 mousePos = ft::Input::GetMousePosition();
 	uint32_t vertexIndex = 0;
-	bool found = MeshUtil::FindClosestVertexToMouse(mainModule->GetSelectedMesh(), m_CuttingFaceIndex, mousePos, camera, vertexIndex, 10.0f);
+	bool found = MeshUtil::FindClosestVertexToMouse(mainModule->GetSelectedMesh(), m_CuttingFaceIndex, mousePos, camera, vertexIndex, 30.0f);
 	if (found) {
 		m_CurrentVertexIndex = vertexIndex;
 		
@@ -205,9 +255,18 @@ bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 				m_LockVector = { 0, 0, 1 };
 			UpdateLockAxisMesh();
 			break;
+		case GLFW_KEY_ESCAPE:
+			SetEditingModeAndRevertChanges(EditingMode::Select);
+			break;
+		case GLFW_KEY_ENTER:
+			ConfirmEdit();
+			break;
 		default:
 			break;
 		}
+		if (editingMode == EditingMode::Move || editingMode == EditingMode::Rotate
+			|| editingMode == EditingMode::Scale || editingMode == EditingMode::Extrude)
+			HandleNumericInput(event.key, event.mods);
 	}
 	return false;
 }
@@ -241,6 +300,7 @@ bool MeshEditingModule::OnMouseEvent(const ft::MouseEvent& event)
 					m_SelectedVertexHighlight->DisableRendering();
 					m_SelectedVertexIndex = std::nullopt;
 					m_CuttingFaceIndex = 0;
+					m_MouseStartIndicator->DisableRender();
 				}
 				else { // First click
 					m_SelectedVertexIndex = m_CurrentVertexIndex;
@@ -258,30 +318,66 @@ bool MeshEditingModule::OnMouseEvent(const ft::MouseEvent& event)
 		}
 		if (mousePressEvent.button == GLFW_MOUSE_BUTTON_LEFT) {
 			// Selected mesh already has the tranformation applied to it, so we can just exit the editing mode here
-			editingMode = EditingMode::Select;
-			m_LockVector = { 0, 0, 0 };
-			UpdateLockAxisMesh();
-			if (mainModule->selectionMode == SelectionMode::Face && mainModule->selectedFaces.size() != 0) {
-				ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
-				MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
-				mainModule->selectionMesh->BakeToRenderMesh();
-			}
-			historyModule->CommitAction();
+			ConfirmEdit();
 			return true;
 		}
 		else if (mousePressEvent.button == GLFW_MOUSE_BUTTON_RIGHT) {
 			// This will revert the mesh to its original state
 			SetEditingModeAndRevertChanges(EditingMode::Select);
-			if (mainModule->selectionMode == SelectionMode::Face && mainModule->selectedFaces.size() != 0) {
-				ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
-				MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
-				mainModule->selectionMesh->BakeToRenderMesh();
-			}
 			return true;
 		}
 		
 	}
 	return false;
+}
+
+bool MeshEditingModule::HandleNumericInput(const int key, const int mods)
+{
+	if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
+		m_NumericInput.active = true;
+		m_NumericInput.text += key - GLFW_KEY_0 + '0';
+		return true;
+	}
+	//else if (key >= GLFW_KEY_KP_0 && key <= GLFW_KEY_KP_9) {
+	//	m_NumericInput.active = true;
+	//	m_NumericInput.text += key - GLFW_KEY_KP_0 + '0';
+	//	return true;
+	//}
+	else if (key == GLFW_KEY_BACKSPACE) {
+		if (mods & GLFW_MOD_CONTROL)
+			m_NumericInput.Clear();
+		else {
+			if (m_NumericInput.text.size() > 0)
+				m_NumericInput.text.pop_back();
+			if (m_NumericInput.text.size() == 0)
+				m_NumericInput.active = false;
+		}
+		return true;
+	}
+	else if (key == GLFW_KEY_MINUS || key == GLFW_KEY_KP_SUBTRACT) {
+		m_NumericInput.negative = !m_NumericInput.negative;
+		return true;
+	}
+	else if (key == GLFW_KEY_PERIOD || key == GLFW_KEY_COMMA) {
+		m_NumericInput.active = true;
+		m_NumericInput.text += '.';
+		return true;
+	}
+}
+
+void MeshEditingModule::ConfirmEdit()
+{
+	editingMode = EditingMode::Select;
+	m_LockVector = { 0, 0, 0 };
+	UpdateLockAxisMesh();
+	m_NumericInput.Clear();
+	m_MouseStartIndicator->DisableRender();
+	if (mainModule->selectionMode == SelectionMode::Face && mainModule->selectedFaces.size() != 0) {
+		ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
+		MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
+		mainModule->selectionMesh->BakeToRenderMesh();
+	}
+	historyModule->CommitAction();
 }
 
 void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode) 
@@ -307,8 +403,15 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 		}
 		else {
 			mainModule->GetSelectedMesh()->SetData(m_OriginalMeshData);
+			if (mainModule->selectedFaces.size() != 0) {
+				ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
+				MeshUtil::CreateFromFaces(*mainModule->GetSelectedMesh()->GetData(), *selectionData, mainModule->selectedFaces);
+				mainModule->selectionMesh->BakeToRenderMesh();
+			}
 		}
+		m_NumericInput.Clear();
 		historyModule->CancelAction();
+		m_MouseStartIndicator->DisableRender();
 	}
 
 	if (editingMode == newMode || newMode == EditingMode::Select)
@@ -322,7 +425,13 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 			m_OriginalMeshData = *mainModule->GetSelectedMesh()->GetData(); // Save current state
 		}
 		m_StartMousePos = ft::Input::GetMousePosition();
-		m_StartObjectDepth = glm::length(mainModule->GetSelectedMesh()->transform.position - ft::Renderer3D::GetCamera()->GetPosition());
+		if (newMode != EditingMode::Cut) {
+			m_MouseStartIndicator->SetPosition(m_StartMousePos - m_MouseStartIndicator->GetRect().Size() / 2.0f);
+			m_MouseStartIndicator->EnableRender();
+		}
+
+		glm::vec3 toObject = mainModule->GetSelectedMesh()->transform.position - ft::Renderer3D::GetCamera()->GetPosition();
+		m_StartObjectDepth = glm::dot(toObject, ft::Renderer3D::GetCamera()->GetFront());
 
 		historyModule->BeginAction(GetActionNameForMode(newMode));
 		historyModule->CaptureMeshState(mainModule->selectedMeshID, mainModule->selectionMode == SelectionMode::Face);
