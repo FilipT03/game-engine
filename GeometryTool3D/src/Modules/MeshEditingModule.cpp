@@ -2,6 +2,8 @@
 #include "MainModule.h"
 #include "../MeshUtil.h"
 
+#include <glm/gtc/matrix_inverse.hpp>
+
 
 void MeshEditingModule::OnRegister()
 {
@@ -18,12 +20,28 @@ void MeshEditingModule::OnRegister()
 	m_CurrentVertexIndex = std::nullopt;
 	m_SelectedVertexIndex = std::nullopt;
 
-	UpdateLockAxisMesh();
-
 	m_MouseStartIndicator = ft::UI::AddElement<ft::UIShape>(ft::ShapeType::Ellipse, ft::Rect(0, 0, 5, 5), glm::vec4(1.0f, 0.1f, 0.1f, 0.65f));
 	ft::Ellipse* circle = static_cast<ft::Ellipse*>(m_MouseStartIndicator->GetShape());
 	circle->AA = 0.7f;
 	m_MouseStartIndicator->DisableRender();
+
+	ft::Mesh lineX = ft::Mesh::CreateLine(ft::Vector::Zero, ft::Vector::One, glm::vec4(ft::Vector::X, 1.0f), true);
+	ft::Mesh lineY = ft::Mesh::CreateLine(ft::Vector::Zero, ft::Vector::One, glm::vec4(ft::Vector::Y, 1.0f), true);
+	ft::Mesh lineZ = ft::Mesh::CreateLine(ft::Vector::Zero, ft::Vector::One, glm::vec4(ft::Vector::Z, 1.0f), true);
+	//lineX.renderOrder = 10;
+	//lineY.renderOrder = 10;
+	//lineZ.renderOrder = 10;
+	//lineX.alwaysOnTop = true;
+	//lineY.alwaysOnTop = true;
+	//lineZ.alwaysOnTop = true;
+	m_LockAxisMeshX = ft::Renderer3D::AddMesh(std::move(lineX));
+	m_LockAxisMeshY = ft::Renderer3D::AddMesh(std::move(lineY));
+	m_LockAxisMeshZ = ft::Renderer3D::AddMesh(std::move(lineZ));
+	m_LockAxisMeshX->DisableRendering();
+	m_LockAxisMeshY->DisableRendering();
+	m_LockAxisMeshZ->DisableRendering();
+
+	UpdateLockAxisMesh();
 }
 
 void MeshEditingModule::OnUpdate()
@@ -37,136 +55,159 @@ void MeshEditingModule::OnUpdate()
 	}
 
 	ft::WorldCamera3D* camera = ft::Renderer3D::GetCamera();
-	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
 
 	glm::vec3 objectDelta;
+	glm::vec3 numericDelta;
 	glm::vec2 mouseDelta;
 	float numericValue;
 	if (!m_NumericInput.active) {
+		glm::vec2 windowSize = ft::Application::Get().GetWindow().GetWindowSize();
 		glm::vec2 mousePos = ft::Input::GetMousePosition();
 		mouseDelta = mousePos - m_StartMousePos;
+		glm::vec2 normalizedDelta = mouseDelta / windowSize;
 		objectDelta = ft::Renderer3D::ScreenDeltaToWorld(mousePos, mouseDelta, m_StartObjectDepth);
-		if (glm::length(m_LockVector) > 0.0001f) {
-			float projectedDist = glm::dot(objectDelta, m_LockVector);
-			objectDelta = m_LockVector * projectedDist;
+		numericValue = glm::length(normalizedDelta) * glm::sign(mouseDelta.x);
+		if (m_ConstraintFrame.IsActive()) {
+			objectDelta = m_ConstraintFrame.ProjectLocalConstrained(objectDelta);
+			objectDelta = m_ConstraintFrame.ToWorld(objectDelta);
 		}
 	}
-	else {
+	else
 		numericValue = m_NumericInput.GetValue();
-		if (glm::length(m_LockVector) > 0.0001f)
-			objectDelta = numericValue * m_LockVector;
-		else
-			objectDelta = numericValue * ft::Vector::One;
-	}
 
-	if (mainModule->selectionMode == SelectionMode::Object) {
-		switch (editingMode) {
-		case EditingMode::Move:
-			if (m_NumericInput.active) {
-				if (glm::length(m_LockVector) <= 0.0001f)
-					objectDelta *= ft::Vector::Forward;
-			}
-			selectedMesh->transform.position = m_OriginalTransform.position + objectDelta;
-			break;
-		case EditingMode::Rotate:
-			if (!m_NumericInput.active)
-				objectDelta *= 15;
-			selectedMesh->transform.rotation = m_OriginalTransform.rotation + objectDelta;
-			break;
-		case EditingMode::Scale: {
-			if (!m_NumericInput.active)
-			{
-				if (glm::length(m_LockVector) > 0.00001f)
-					objectDelta += ft::Vector::One - m_LockVector;
-				else {
-					float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
-					if (ft::Input::IsCtrlDown())
-						objectDelta = glm::vec3(combined / 3.0f);
-					objectDelta = (glm::abs(objectDelta) + 0.1f) * 1.2f;
-				}
-			}
-			else if (glm::length(m_LockVector) > 0.00001f)
-				objectDelta += ft::Vector::One - m_LockVector;
-			selectedMesh->transform.scale = m_OriginalTransform.scale * objectDelta;
-			break;
-		}
-		}
-		selectedMesh->CalculateModelMatrix();
-		return;
-	}
-	else {
+	if (m_ConstraintFrame.IsActive())
+		numericDelta = m_ConstraintFrame.GetConstrainedVector() * numericValue;
+	else
+		numericDelta = numericValue * ft::Vector::Right;
+
+	if (m_NumericInput.active)
+		objectDelta = numericDelta;
+
+	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
+	if (mainModule->selectionMode == SelectionMode::Face) {
 		selectedMesh->SetData(m_OriginalMeshData);
 		ft::MeshData* selectedMeshData = selectedMesh->GetData();
 		if (selectedMeshData->UsesCustomNormals() && editingMode != EditingMode::Select) {
 			selectedMeshData->SetUsesCustomNormals(false);
 			selectedMeshData->SetSmoothingMode(selectedMeshData->GetSmoothingMode());
 		}
-		// Convert to local space rotation
-		objectDelta = glm::mat3(glm::inverse(selectedMesh->GetRotationMatrix())) * objectDelta;
-		switch (editingMode) {
-		case EditingMode::Move:
-			if (m_NumericInput.active) {
-				if (glm::length(m_LockVector) <= 0.0001f)
-					objectDelta *= ft::Vector::Forward;
-			}
-			MeshUtil::MoveFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta * 0.2f);
-			break;
-		case EditingMode::Scale: {
-			if (!m_NumericInput.active)
-			{
-				if (glm::length(m_LockVector) > 0.00001f) {
-					objectDelta += ft::Vector::One - m_LockVector;
-				}
-				else {
-					float combined = glm::abs(objectDelta.x) + glm::abs(objectDelta.y) + glm::abs(objectDelta.z);
-					if (ft::Input::IsCtrlDown())
-						objectDelta = glm::vec3(combined / 3.0f);
-					objectDelta = (glm::abs(objectDelta) + 0.1f) * 3.0f;
-				}
-			}
-			MeshUtil::ScaleFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta, glm::length(m_LockVector) > 0.00001f);
-			break;
-		}
-		case EditingMode::Extrude:
-			if (m_NumericInput.active) {
-				if (glm::length(m_LockVector) <= 0.0001f)
-					objectDelta *= ft::Vector::Forward;
-			}
-			MeshUtil::ExtrudeFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta * 0.2f);
-			break;
-		case EditingMode::Rotate: {
-			glm::mat4 rotMatrix(1.0f);
-			float sensitivity = 0.01f;
-			if (glm::length(m_LockVector) > 0.0001f) {
-				float angle = 0.0f;
-				if (m_NumericInput.active)
-					angle = glm::radians(numericValue);
-				else
-					angle = (mouseDelta.x + mouseDelta.y) * sensitivity;
-				rotMatrix = glm::rotate(glm::mat4(1.0f), angle, m_LockVector);
-			}
-			else {
-				if (m_NumericInput.active)
-					rotMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(numericValue), camera->GetFront());
-				else {
-					glm::vec3 camUp = camera->GetUp();
-					glm::vec3 camRight = camera->GetRight();
+		// Convert to local space delta
+		objectDelta = glm::inverse(glm::mat3(m_OriginalTransform.GetMatrix())) * objectDelta;
+	}
 
-					glm::mat4 yaw = glm::rotate(glm::mat4(1.0f), -mouseDelta.x * sensitivity, camUp);
-					glm::mat4 pitch = glm::rotate(glm::mat4(1.0f), -mouseDelta.y * sensitivity, camRight);
+	switch (editingMode) {
+	case EditingMode::Move:
+		Move(objectDelta);
+		break;
+	case EditingMode::Rotate:
+		Rotate(numericValue);
+		break;
+	case EditingMode::Scale:
+		Scale(numericValue);
+		break;
+	case EditingMode::Extrude:
+		Extrude(objectDelta);
+		break;
+	}
+		
 
-					rotMatrix = yaw * pitch;
-				}
-			}
-			MeshUtil::RotateFaces(*selectedMeshData, mainModule->selectedFaces, rotMatrix);
-			break;
-		}
-		}
+	if (mainModule->selectionMode == SelectionMode::Object)
+		selectedMesh->UpdateModelMatrix();
+	else {
+		ft::MeshData* selectedMeshData = selectedMesh->GetData();
 		selectedMesh->BakeToRenderMesh();
 		ft::MeshData* selectionData = mainModule->selectionMesh->GetData();
 		MeshUtil::CreateFromFaces(*selectedMeshData, *selectionData, mainModule->selectedFaces);
 		mainModule->selectionMesh->BakeToRenderMesh();
 	}
+}
+
+
+void MeshEditingModule::Move(glm::vec3& objectDelta)
+{
+	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
+	ft::MeshData* selectedMeshData = selectedMesh->GetData();
+	if (mainModule->selectionMode == SelectionMode::Object)
+		selectedMesh->transform.position = m_OriginalTransform.position + objectDelta;
+	else
+		MeshUtil::MoveFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta);
+}
+
+void MeshEditingModule::Rotate(float numericValue)
+{
+	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
+	ft::MeshData* selectedMeshData = selectedMesh->GetData();
+
+	float angle = glm::radians(m_NumericInput.active ? numericValue : numericValue * 720.0f);
+
+	glm::vec3 axis = m_OriginalCameraFront;
+	if (m_ConstraintFrame.IsActive())
+		axis = m_ConstraintFrame.OneAxisActive()
+		? m_ConstraintFrame.GetConstrainedVector()
+		: m_ConstraintFrame.GetUnconstrainedVector();
+	axis = glm::normalize(axis);
+
+	glm::quat worldRot = glm::angleAxis(angle, axis);
+
+	if (mainModule->selectionMode == SelectionMode::Object) {
+		glm::quat q(glm::radians(m_OriginalTransform.rotation));
+		q = worldRot * q;
+		selectedMesh->transform.rotation = glm::degrees(glm::eulerAngles(q));
+	}
+	else {
+		glm::mat4 L(glm::mat3(m_OriginalTransform.GetMatrix()));
+		glm::mat4 localRot = glm::inverse(L) * glm::mat4_cast(worldRot) * L;
+		MeshUtil::RotateFaces(*selectedMeshData, mainModule->selectedFaces, localRot);
+	}
+}
+
+void MeshEditingModule::Scale(float numericValue)
+{
+	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
+	ft::MeshData* selectedMeshData = selectedMesh->GetData();
+
+	const float threshold = 0.1f;
+	float valueTemp = std::abs(numericValue);
+	if (!m_NumericInput.active) {
+		if (valueTemp < threshold) {
+			// Map [0,threshold) to [0.1-1)
+			valueTemp = (valueTemp / threshold) * 0.9f + 0.1f;
+		}
+		else {
+			// Map [threshold,X] to [1,(X/t)*3-2]
+			valueTemp = (valueTemp / threshold) * 2.0f - 1.0f;
+		}
+		numericValue = valueTemp * glm::sign(threshold);
+	}
+
+	if (mainModule->selectionMode == SelectionMode::Object) {
+		glm::vec3 multiplier{ numericValue };
+		if (m_ConstraintFrame.IsActive()) {
+			glm::mat3 R(m_OriginalTransform.GetRotationMatrix()); // columns are local axes in world
+			glm::vec3 weight(0.0f);
+			for (int i = 0; i < 3; i++) {
+				const glm::vec3 axis = R[i];
+				if (m_ConstraintFrame.activeX) weight[i] += glm::pow(glm::dot(axis, m_ConstraintFrame.GetAxisX()), 2.0f);
+				if (m_ConstraintFrame.activeY) weight[i] += glm::pow(glm::dot(axis, m_ConstraintFrame.GetAxisY()), 2.0f);
+				if (m_ConstraintFrame.activeZ) weight[i] += glm::pow(glm::dot(axis, m_ConstraintFrame.GetAxisZ()), 2.0f);
+			}
+			multiplier = glm::vec3(1.0f) + (numericValue - 1.0f) * weight;
+		}
+		selectedMesh->transform.scale = m_OriginalTransform.scale * multiplier;
+	}
+	else {
+		glm::mat3 objectToWorld = m_OriginalTransform.GetMatrix();
+		MeshUtil::ScaleFaces(*selectedMeshData, mainModule->selectedFaces, numericValue, m_ConstraintFrame, objectToWorld);
+	}
+}
+
+void MeshEditingModule::Extrude(glm::vec3& objectDelta)
+{
+	if (mainModule->selectionMode == SelectionMode::Object)
+		return;
+	ft::Mesh* selectedMesh = mainModule->GetSelectedMesh();
+	ft::MeshData* selectedMeshData = selectedMesh->GetData();
+	MeshUtil::ExtrudeFaces(*selectedMeshData, mainModule->selectedFaces, objectDelta);
 }
 
 void MeshEditingModule::HandleCutting()
@@ -185,7 +226,7 @@ void MeshEditingModule::HandleCutting()
 			const glm::vec3& localPosition = data->positions[vertexIndex];
 			const glm::vec3 worldPosition = glm::vec3(mesh->modelMatrix * glm::vec4(localPosition, 1.0f));
 			m_CurrentVertexHighlight->transform.position = worldPosition;
-			m_CurrentVertexHighlight->CalculateModelMatrix();
+			m_CurrentVertexHighlight->UpdateModelMatrix();
 		}
 	}
 	else {
@@ -202,8 +243,35 @@ void MeshEditingModule::HandleCutting()
 bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 {
 	if (event.type == ft::EventType::KeyPress) {
-		if (mainModule->selectedMeshID == 0 || (event.mods & GLFW_MOD_SHIFT))
+		if (mainModule->selectedMeshID == 0)
 			return false;
+		switch (event.key)
+		{
+		case GLFW_KEY_X:
+			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
+				break;
+			BuildConstraintFrame(ConstraintAxis::X, event.mods & GLFW_MOD_SHIFT);
+			UpdateLockAxisMesh();
+			break;
+		case GLFW_KEY_Y:
+			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
+				break;
+			BuildConstraintFrame(ConstraintAxis::Y, event.mods & GLFW_MOD_SHIFT);
+			UpdateLockAxisMesh();
+			break;
+		case GLFW_KEY_Z:
+			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
+				break;
+			BuildConstraintFrame(ConstraintAxis::Z, event.mods & GLFW_MOD_SHIFT);
+			UpdateLockAxisMesh();
+			break;
+		default:
+			break;
+		}
+
+		if (event.mods & GLFW_MOD_SHIFT)
+			return false;
+
 		switch (event.key) {
 		case GLFW_KEY_G:
 			SetEditingModeAndRevertChanges(EditingMode::Move);
@@ -226,34 +294,6 @@ bool MeshEditingModule::OnKeyEvent(const ft::KeyEvent& event)
 				break;
 			m_CuttingFaceIndex = *mainModule->selectedFaces.begin();
 			SetEditingModeAndRevertChanges(EditingMode::Cut);
-			break;
-
-		case GLFW_KEY_X:
-			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
-				break;
-			if (m_LockVector.x == 1)
-				m_LockVector = { 0, 0, 0 };
-			else 
-				m_LockVector = { 1, 0, 0 };
-			UpdateLockAxisMesh();
-			break;
-		case GLFW_KEY_Y:
-			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
-				break;
-			if (m_LockVector.y == 1)
-				m_LockVector = { 0, 0, 0 };
-			else
-				m_LockVector = { 0, 1, 0 };
-			UpdateLockAxisMesh();
-			break;
-		case GLFW_KEY_Z:
-			if (editingMode == EditingMode::Select || editingMode == EditingMode::Cut)
-				break;
-			if (m_LockVector.z == 1)
-				m_LockVector = { 0, 0, 0 };
-			else 
-				m_LockVector = { 0, 0, 1 };
-			UpdateLockAxisMesh();
 			break;
 		case GLFW_KEY_ESCAPE:
 			SetEditingModeAndRevertChanges(EditingMode::Select);
@@ -305,7 +345,7 @@ bool MeshEditingModule::OnMouseEvent(const ft::MouseEvent& event)
 				else { // First click
 					m_SelectedVertexIndex = m_CurrentVertexIndex;
 					m_SelectedVertexHighlight->transform.position = m_CurrentVertexHighlight->transform.position;
-					m_SelectedVertexHighlight->CalculateModelMatrix();
+					m_SelectedVertexHighlight->UpdateModelMatrix();
 					m_SelectedVertexHighlight->EnableRendering();
 					m_CurrentVertexHighlight->DisableRendering();
 				}
@@ -365,10 +405,65 @@ bool MeshEditingModule::HandleNumericInput(const int key, const int mods)
 	}
 }
 
+void MeshEditingModule::BuildConstraintFrame(ConstraintAxis input, bool extend)
+{
+	if (mainModule->selectedMeshID == 0)
+		return;
+
+	const ConstraintMode secondMode =
+		mainModule->selectionMode == SelectionMode::Object
+		? ConstraintMode::Local
+		: ConstraintMode::Normal;
+
+	// Cycle current mode
+	if (m_ConstraintFrame.IsActive() && m_ConstraintFrame.CheckConstraint(input)) {
+		if (m_ConstraintFrame.mode == ConstraintMode::World)
+			m_ConstraintFrame.mode = secondMode;
+		else {
+			m_ConstraintFrame.ClearActive();
+			m_ConstraintFrame.mode = ConstraintMode::None;
+		}
+	} 
+	else {
+		bool keepExisting = extend && m_ConstraintFrame.OneAxisActive();
+		if (!keepExisting) {
+			m_ConstraintFrame.ClearActive();
+			m_ConstraintFrame.mode = ConstraintMode::World;
+		}
+		m_ConstraintFrame.SetConstraint(input);
+	}
+
+	switch (m_ConstraintFrame.mode) {
+	case ConstraintMode::World:
+		m_ConstraintFrame.SetCardinal();
+		break;
+	case ConstraintMode::Local:
+		m_ConstraintFrame.SetFromTransform(m_OriginalTransform);
+		break;
+	case ConstraintMode::Normal: {
+		glm::mat3 M = glm::mat3(m_OriginalTransform.GetMatrix());
+		glm::mat3 normalMatrix = glm::inverseTranspose(M);
+		glm::vec3 nObj = MeshUtil::GetAverageNormal(m_OriginalMeshData, mainModule->selectedFaces);
+		glm::vec3 tObj = MeshUtil::GetTangent(m_OriginalMeshData, mainModule->selectedFaces, nObj, ft::Vector::X);
+		if (glm::dot(tObj, tObj) < 1e-12f)
+			tObj = ft::Vector::X;
+
+		glm::vec3 normal = normalMatrix * nObj;
+		glm::vec3 tangent = M * tObj;
+
+		if (!m_ConstraintFrame.CalculateFromXZ(tangent, normal, ConstraintAxis::Z))
+			m_ConstraintFrame.SetCardinal();
+		break;
+	}
+	default:
+		break;
+	}
+}
+
 void MeshEditingModule::ConfirmEdit()
 {
 	editingMode = EditingMode::Select;
-	m_LockVector = { 0, 0, 0 };
+	m_ConstraintFrame.Clear();
 	UpdateLockAxisMesh();
 	m_NumericInput.Clear();
 	m_MouseStartIndicator->DisableRender();
@@ -385,14 +480,14 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 	if (mainModule->selectedMeshID == 0)
 		return;
 
-	m_LockVector = { 0, 0, 0 };
+	m_ConstraintFrame.Clear();
 	UpdateLockAxisMesh();
 
 	// Revert changes if switching modes
 	if (editingMode != EditingMode::Select) {
 		if (mainModule->selectionMode == SelectionMode::Object) {
 			mainModule->GetSelectedMesh()->transform = m_OriginalTransform;
-			mainModule->GetSelectedMesh()->CalculateModelMatrix();
+			mainModule->GetSelectedMesh()->UpdateModelMatrix();
 		}
 		else if (editingMode == EditingMode::Cut) {
 			m_CurrentVertexHighlight->DisableRendering();
@@ -418,16 +513,19 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 		editingMode = EditingMode::Select;
 	else {
 		editingMode = newMode;
-		if (mainModule->selectionMode == SelectionMode::Object) {
-			m_OriginalTransform = mainModule->GetSelectedMesh()->transform;
-		}
-		else {
+		if (mainModule->selectionMode == SelectionMode::Face)
 			m_OriginalMeshData = *mainModule->GetSelectedMesh()->GetData(); // Save current state
-		}
+		m_OriginalTransform = mainModule->GetSelectedMesh()->transform;
+		m_OriginalCameraFront = glm::normalize(ft::Renderer3D::GetCamera()->GetFront());
 		m_StartMousePos = ft::Input::GetMousePosition();
 		if (newMode != EditingMode::Cut) {
 			m_MouseStartIndicator->SetPosition(m_StartMousePos - m_MouseStartIndicator->GetRect().Size() / 2.0f);
 			m_MouseStartIndicator->EnableRender();
+		}
+		if (newMode == EditingMode::Extrude) {
+			BuildConstraintFrame(ConstraintAxis::Z, false);
+			BuildConstraintFrame(ConstraintAxis::Z, false);
+			UpdateLockAxisMesh();
 		}
 
 		glm::vec3 toObject = mainModule->GetSelectedMesh()->transform.position - ft::Renderer3D::GetCamera()->GetPosition();
@@ -440,23 +538,39 @@ void MeshEditingModule::SetEditingModeAndRevertChanges(EditingMode newMode)
 
 void MeshEditingModule::UpdateLockAxisMesh()
 {
-	if (glm::length(m_LockVector) < 0.0001f) {
-		if (m_LockAxisMesh) {
-			ft::Renderer3D::RemoveMesh(m_LockAxisMesh->GetID());
-			m_LockAxisMesh = nullptr;
-		}
+	m_LockAxisMeshX->DisableRendering();
+	m_LockAxisMeshY->DisableRendering();
+	m_LockAxisMeshZ->DisableRendering();
+	
+	if (!m_ConstraintFrame.IsActive())
 		return;
-	}
 	if (mainModule->selectedMeshID == 0)
 		return;
-	if (glm::length(m_LockVector) > 0.0001f) {
-		if (m_LockAxisMesh) {
-			ft::Renderer3D::RemoveMesh(m_LockAxisMesh->GetID());
-			m_LockAxisMesh = nullptr;
-		}
-		glm::vec3 position = m_OriginalTransform.position;
-		glm::vec4 color = glm::vec4(m_LockVector, 1.0f);
-		m_LockAxisMesh = ft::Renderer3D::AddMesh(ft::Mesh::CreateLine(position - m_LockVector * 100.0f, position + m_LockVector * 100.0f, color, false));
+
+	glm::vec3 position;
+	if (mainModule->selectionMode == SelectionMode::Object)
+		position = m_OriginalTransform.position;
+	else {
+		glm::vec3 centroid = MeshUtil::GetCentroid(m_OriginalMeshData, mainModule->selectedFaces);
+		position = m_OriginalTransform.TransformPoint(centroid);
+	}
+	if (m_ConstraintFrame.activeX) {
+		ft::MeshData* dataX = m_LockAxisMeshX->GetData();
+		glm::vec3 axisX = m_ConstraintFrame.GetAxisX();
+		dataX->positions = { position - axisX * 100.0f, position + axisX * 100.0f };
+		m_LockAxisMeshX->EnableRendering();
+	}
+	if (m_ConstraintFrame.activeY) {
+		ft::MeshData* dataY = m_LockAxisMeshY->GetData();
+		glm::vec3 axisY = m_ConstraintFrame.GetAxisY();
+		dataY->positions = { position - axisY * 100.0f, position + axisY * 100.0f };
+		m_LockAxisMeshY->EnableRendering();
+	}
+	if (m_ConstraintFrame.activeZ) {
+		ft::MeshData* dataZ = m_LockAxisMeshZ->GetData();
+		glm::vec3 axisZ = m_ConstraintFrame.GetAxisZ();
+		dataZ->positions = { position - axisZ * 100.0f, position + axisZ * 100.0f };
+		m_LockAxisMeshZ->EnableRendering();
 	}
 }
 

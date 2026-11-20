@@ -167,7 +167,7 @@ void MeshHistoryModule::ApplySnapshot(const MeshSnapshot& snapshot)
 		else {
 			if (snapshot.transform.has_value()) {
 				mesh->transform = *snapshot.transform;
-				mesh->CalculateModelMatrix();
+				mesh->UpdateModelMatrix();
 			}
 			if (snapshot.data.has_value())
 				mesh->SetData(*snapshot.data);

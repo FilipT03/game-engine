@@ -14,4 +14,5 @@
 #include "API/Renderer3D.h"
 #include "Renderer/2D/Shape.h"
 #include "Renderer/3D/Mesh.h"
+#include "Renderer/3D/Transform3D.h"
 

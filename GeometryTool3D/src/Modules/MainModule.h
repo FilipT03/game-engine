@@ -18,7 +18,7 @@ public:
 	void OnRegister();
 	void OnDelete() {};
 	void OnUpdate();
-	bool OnEvent(const ft::Event& event) { return false; };
+	bool OnEvent(const ft::Event& event);
 	bool OnKeyEvent(const ft::KeyEvent& event);
 	bool OnMouseEvent(const ft::MouseEvent& event);
 

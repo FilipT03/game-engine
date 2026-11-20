@@ -142,6 +142,8 @@ namespace ft {
 				glStencilFunc(GL_ALWAYS, 1, 0xFF);
 				glStencilMask(0xFF);
 			}
+			if (mesh->alwaysOnTop)
+				glDisable(GL_DEPTH_TEST);
 
 			Shader* shader;
 			if (mesh->GetRenderMode() == RenderMode::Overlay || mesh->GetRenderMode() == RenderMode::Wireframe)
@@ -171,7 +173,7 @@ namespace ft {
 			RenderMesh* renderMesh = mesh->GetRenderMesh();
 			if (mesh->IsDirty())
 			{
-				mesh->CalculateModelMatrix();
+				mesh->UpdateModelMatrix();
 				mesh->BakeToRenderMesh();
 				if (mesh->IsStatic()) {
 					uint32_t vertexSize = renderMesh->GetVertexCount() * m_VertexArray->GetBufferLayout().GetStride();
@@ -199,7 +201,7 @@ namespace ft {
 				//glDisable(GL_DEPTH_TEST);
 				m_ModelMatrixCalculationMesh->transform = mesh->transform;
 				m_ModelMatrixCalculationMesh->transform.scale *= 1.025f;
-				m_ModelMatrixCalculationMesh->CalculateModelMatrix();
+				m_ModelMatrixCalculationMesh->UpdateModelMatrix();
 				m_UnlitShader->Bind();
 				m_UnlitShader->SetUniformMatrix4fv("uModel", m_ModelMatrixCalculationMesh->modelMatrix);
 				m_UnlitShader->SetUniform4f("uColor", mesh->outlineColor);
@@ -209,6 +211,8 @@ namespace ft {
 				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 				//glEnable(GL_DEPTH_TEST);
 			}
+			if (mesh->alwaysOnTop)
+				glEnable(GL_DEPTH_TEST);
 		}
 		#endif
 	}

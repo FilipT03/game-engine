@@ -1,10 +1,13 @@
 #include "MeshUtil.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <glm/gtc/matrix_inverse.hpp>
+#include "Math/Vector.h"
 
-void MeshUtil::MergeMeshes(const std::vector<ft::Mesh*>& sourceMeshes, ft::MeshData& targetMesh)
+void MeshUtil::MergeMeshes(const std::vector<ft::Mesh*>& sourceMeshes, ft::MeshData& targetMesh, const glm::mat4& targetModelMatrix)
 {
 	targetMesh.Clear();
+	glm::mat4 worldToTarget = glm::inverse(targetModelMatrix);
 	for (const ft::Mesh* mesh : sourceMeshes) {
 		if (!mesh) 
 			continue;
@@ -13,13 +16,16 @@ void MeshUtil::MergeMeshes(const std::vector<ft::Mesh*>& sourceMeshes, ft::MeshD
 			continue;
 
 		uint32_t vertexOffset = targetMesh.positions.size();
-		const glm::mat4& modelMatrix = mesh->modelMatrix;
-		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+		glm::mat4 toTarget = worldToTarget * mesh->modelMatrix;
+		size_t   indexOffset = targetMesh.indices.size();
+		size_t   cornerOffset = targetMesh.cornerNormals.size();
+		glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(toTarget));
+		bool mirrored = glm::determinant(glm::mat3(toTarget)) < 0.0f;
 
 
 		targetMesh.positions.reserve(targetMesh.positions.size() + meshData->positions.size());
 		for (const glm::vec3& pos : meshData->positions)
-			targetMesh.positions.push_back(glm::vec3(modelMatrix * glm::vec4(pos, 1.0f)));
+			targetMesh.positions.push_back(glm::vec3(toTarget * glm::vec4(pos, 1.0f)));
 
 		targetMesh.indices.reserve(targetMesh.indices.size() + meshData->indices.size());
 		for (uint32_t index : meshData->indices)
@@ -29,11 +35,24 @@ void MeshUtil::MergeMeshes(const std::vector<ft::Mesh*>& sourceMeshes, ft::MeshD
 
 		targetMesh.faceNormals.reserve(targetMesh.faceNormals.size() + meshData->faceNormals.size());
 		for (const glm::vec3& normal : meshData->faceNormals)
-			targetMesh.faceNormals.push_back(glm::normalize(normalMatrix * normal));
+			targetMesh.faceNormals.push_back(ft::Vector::NormalizeOrDefault(normalMatrix * normal, ft::Vector::Up));
 
 		targetMesh.cornerNormals.reserve(targetMesh.cornerNormals.size() + meshData->cornerNormals.size());
 		for (const glm::vec3& normal : meshData->cornerNormals)
-			targetMesh.cornerNormals.push_back(glm::normalize(normalMatrix * normal));
+			targetMesh.cornerNormals.push_back(ft::Vector::NormalizeOrDefault(normalMatrix * normal, ft::Vector::Up));
+	
+		if (mirrored) {
+			bool hasCorners = meshData->cornerNormals.size() == meshData->indices.size();
+			size_t off = 0;
+			for (uint32_t size : meshData->polygonSizes) {
+				std::reverse(targetMesh.indices.begin() + indexOffset + off,
+					targetMesh.indices.begin() + indexOffset + off + size);
+				if (hasCorners)
+					std::reverse(targetMesh.cornerNormals.begin() + cornerOffset + off,
+						targetMesh.cornerNormals.begin() + cornerOffset + off + size);
+				off += size;
+			}
+		}
 	}
 
 	targetMesh.CalculateVertexToFaceMap();
@@ -82,7 +101,7 @@ void MeshUtil::MoveFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, co
 	mesh.CalculateNormals();
 }
 
-void MeshUtil::ScaleFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const glm::vec3& scale, bool locked = false)
+void MeshUtil::ScaleFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const float scale, const ConstraintFrame constraint, const glm::mat3& objectToWorld)
 {
 	std::set<uint32_t> affectedVertices;
 	uint32_t v = 0;
@@ -98,9 +117,20 @@ void MeshUtil::ScaleFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, c
 	for (uint32_t vertexIndex : affectedVertices)
 		centroid += mesh.positions[vertexIndex];
 	centroid /= affectedVertices.size();
+	bool useConstraint = constraint.IsActive();
+	glm::mat3 worldToObject = glm::inverse(objectToWorld);
 	for (uint32_t vertexIndex : affectedVertices) {
 		glm::vec3 dir = mesh.positions[vertexIndex] - centroid;
-		mesh.positions[vertexIndex] = centroid + dir * scale;
+		if (useConstraint) {
+			glm::vec3 local = constraint.ProjectLocal(objectToWorld * dir);
+			if (constraint.activeX) local.x *= scale;
+			if (constraint.activeY) local.y *= scale;
+			if (constraint.activeZ) local.z *= scale;
+			dir = worldToObject * constraint.ToWorld(local);
+		}
+		else
+			dir *= scale;
+		mesh.positions[vertexIndex] = centroid + dir;
 	}
 	mesh.CalculateNormals();
 }
@@ -123,7 +153,7 @@ void MeshUtil::RotateFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, 
 	centroid /= affectedVertices.size();
 	for (uint32_t vertexIndex : affectedVertices) {
 		glm::vec3 localPos = mesh.positions[vertexIndex] - centroid;
-		glm::vec3 rotatedPos = glm::vec3(rotationMatrix * glm::vec4(localPos, 1.0f));
+		glm::vec3 rotatedPos = glm::vec3(rotationMatrix * glm::vec4(localPos, 0.0f));
 		mesh.positions[vertexIndex] = centroid + rotatedPos;
 	}
 	mesh.CalculateNormals();
@@ -286,6 +316,75 @@ void MeshUtil::CutFace(ft::MeshData& mesh, uint32_t faceIndex, uint32_t vertexA,
 
 	mesh.CalculateNormals();
 }
+
+glm::vec3 MeshUtil::GetAverageNormal(ft::MeshData& mesh, const std::set<uint32_t>& faces)
+{
+	glm::vec3 normalSum(0.0f);
+	for (size_t f = 0; f < mesh.polygonSizes.size(); f++) {
+		if (!faces.contains(f))
+			continue;
+		normalSum += mesh.faceNormals[f];
+	}
+	return ft::Vector::NormalizeOrDefault(normalSum, ft::Vector::Up);
+}
+
+glm::vec3 MeshUtil::GetTangent(ft::MeshData& mesh, const std::set<uint32_t>& faces, glm::vec3 normal, glm::vec3 preferredAxis)
+{
+	preferredAxis = glm::normalize(preferredAxis);
+	normal = glm::normalize(normal);
+	float bestLength = -1;
+	float bestAlign = -1;
+	glm::vec3 bestEdge{ 0.0f };
+	uint32_t v = 0;
+	for (size_t f = 0; f < mesh.polygonSizes.size(); v += mesh.polygonSizes[f], f++) {
+		if (!faces.contains(f))
+			continue;
+		uint32_t polygonSize = mesh.polygonSizes[f];
+		for (int i = 0; i < polygonSize; i++) {
+			uint32_t v1 = mesh.indices[v + i];
+			uint32_t v2 = mesh.indices[v + (i + 1) % polygonSize];
+			glm::vec3 edge = mesh.positions[v2] - mesh.positions[v1];
+			glm::vec3 projected = edge - normal * glm::dot(edge, normal);
+			float length = glm::length(projected);
+			if (length < 1e-12f)
+				continue;
+			float align = std::abs(glm::dot(projected, preferredAxis)) / length; // 0-1
+			float tolerance = 1e-4f * std::max(length, bestLength);
+			bool tie = std::abs(length - bestLength) < -tolerance;
+			bool better = tie ? align > bestAlign : length > bestLength;
+			if (better) {
+				bestEdge = projected;
+				bestAlign = align;
+				if (!tie)
+					bestLength = length;
+			}
+		}
+	}
+	if (glm::dot(bestEdge, preferredAxis) < 0.0f)
+		bestEdge = -bestEdge;
+	return bestEdge;
+}
+
+glm::vec3 MeshUtil::GetCentroid(ft::MeshData& mesh, const std::set<uint32_t>& faces)
+{
+	std::set<uint32_t> affectedVertices;
+	uint32_t v = 0;
+	for (size_t f = 0; f < mesh.polygonSizes.size(); v += mesh.polygonSizes[f], f++) {
+		if (!faces.contains(f))
+			continue;
+		for (int i = 0; i < mesh.polygonSizes[f]; i++) {
+			uint32_t vertexIndex = mesh.indices[v + i];
+			affectedVertices.insert(vertexIndex);
+		}
+	}
+	glm::vec3 centroid(0.0f);
+	for (uint32_t vertexIndex : affectedVertices)
+		centroid += mesh.positions[vertexIndex];
+	centroid /= affectedVertices.size();
+	return centroid;
+}
+
+
 
 ft::MeshData MeshUtil::CreateGrid(int size, float spacing) {
 	ft::MeshData gridData;

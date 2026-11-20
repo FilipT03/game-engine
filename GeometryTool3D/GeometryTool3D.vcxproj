@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ConstraintFrame.h" />
     <ClInclude Include="src\Modules\MeshEditingModule.h" />
     <ClInclude Include="src\Modules\MeshHistoryModule.h" />
     <ClInclude Include="src\MeshUtil.h" />

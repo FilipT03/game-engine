@@ -13,7 +13,7 @@ namespace ft {
 	{
 		m_Data = std::make_unique<MeshData>();
 		m_RenderMesh = std::make_unique<RenderMesh>(isStatic);
-		CalculateModelMatrix();
+		UpdateModelMatrix();
 		BakeToRenderMesh();
 	}
 
@@ -27,7 +27,7 @@ namespace ft {
 	{
 		m_Data = std::make_unique<MeshData>(std::move(data));
 		m_RenderMesh = std::make_unique<RenderMesh>(isStatic);
-		CalculateModelMatrix();
+		UpdateModelMatrix();
 		BakeToRenderMesh();
 	}
 
@@ -148,20 +148,8 @@ namespace ft {
 		return Mesh(MeshData::CreateLine(start, end), Transform3D(), color, isStatic, RenderMode::Wireframe);
 	}
 
-	glm::mat4 Mesh::GetRotationMatrix()
+	void Mesh::UpdateModelMatrix()
 	{
-		glm::mat4 result(1.0f);
-		result = glm::rotate(result, glm::radians(transform.rotation.x), Vector::Right);
-		result = glm::rotate(result, glm::radians(transform.rotation.y), Vector::Up);
-		result = glm::rotate(result, glm::radians(transform.rotation.z), Vector::Forward);
-		return result;
-	}
-
-	void Mesh::CalculateModelMatrix()
-	{
-		modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, transform.position);
-		modelMatrix *= GetRotationMatrix();
-		modelMatrix = glm::scale(modelMatrix, transform.scale);
+		modelMatrix = transform.GetMatrix();
 	}
 }

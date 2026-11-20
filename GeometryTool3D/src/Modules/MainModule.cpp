@@ -22,7 +22,8 @@ void MainModule::OnRegister()
 
 	ft::Renderer3D::SetClearColor(0.1, 0.1, 0.1, 0.1);
 
-	m_NamePanel = ft::UI::AddElement<ft::Panel>("assets/namePanel.png", ft::Rect(0, 0, 240, 150));
+	glm::vec2 screen = ft::Application::Get().GetWindow().GetWindowSize();
+	m_NamePanel = ft::UI::AddElement<ft::Panel>("assets/namePanel.png", ft::Rect(screen.x - 199, screen.y - 28, 199, 28));
 
 	SetStudioLightingMode();
 
@@ -119,7 +120,7 @@ void MainModule::OnUpdate()
 {
 	for (auto& [id, mesh] : meshes) {
 		//mesh->transform.rotation.y += 90.0f * ft::Time::DeltaTime();
-		//mesh->CalculateModelMatrix();
+		//mesh->UpdateModelMatrix();
 	}
 	if (selectedMeshID != 0) {
 		if (selectionMode == SelectionMode::Object) {
@@ -128,9 +129,20 @@ void MainModule::OnUpdate()
 		else {
 			meshes[selectedMeshID]->outlined = false;
 			selectionMesh->transform = meshes[selectedMeshID]->transform;
-			selectionMesh->CalculateModelMatrix();
+			selectionMesh->UpdateModelMatrix();
 		}
 	}
+}
+
+
+bool MainModule::OnEvent(const ft::Event& event)
+{
+	if (event.type == ft::EventType::WindowResize) {
+		auto& resizeEvent = ft::As<ft::WindowResizeEvent>(event);
+		glm::vec2 size = m_NamePanel->GetRect().Size();
+		m_NamePanel->SetRect(ft::Rect(resizeEvent.width - size.x, resizeEvent.height - size.y, size.x, size.y));
+	}
+	return false;
 }
 
 bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
@@ -199,7 +211,7 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 
 			if (mesh) {
 				mesh->transform.position = ft::Renderer3D::GetCamera()->GetPosition() + ft::Renderer3D::GetCamera()->GetFront() * 5.0f;
-				mesh->CalculateModelMatrix();
+				mesh->UpdateModelMatrix();
 				ft::Mesh* newMesh = (ft::Renderer3D::AddMesh(std::move(*mesh)));
 				newMesh->outlineColor = m_SelectionColor;
 				if (m_Solid)
@@ -258,10 +270,28 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			m_HistoryModule->BeginAction("Merge Meshes");
 			m_HistoryModule->CaptureMeshState(selectedMeshID, true);
 			m_HistoryModule->CaptureMeshState(m_LastSelectedMeshID, true);
+
+			ft::Mesh* target = meshes[selectedMeshID];
+			ft::Mesh* other = meshes[m_LastSelectedMeshID];
+			target->UpdateModelMatrix();
+			other->UpdateModelMatrix();
+			ft::SmoothingMode targetSmoothing = target->GetData()->GetSmoothingMode();
+
 			ft::MeshData merged;
-			MeshUtil::MergeMeshes({ meshes[selectedMeshID], meshes[m_LastSelectedMeshID] }, merged);
-			meshes[selectedMeshID]->SetData(merged);
-			meshes[selectedMeshID]->ResetTransform();
+			MeshUtil::MergeMeshes({ meshes[selectedMeshID], meshes[m_LastSelectedMeshID] }, merged, glm::mat4(1.0f));
+			glm::vec3 minPos = merged.positions[0], maxPos = merged.positions[0];
+			for (auto& p : merged.positions) {
+				minPos = glm::min(minPos, p);
+				maxPos = glm::max(maxPos, p);
+			}
+			glm::vec3 center = (minPos + maxPos) * 0.5f;
+			for (auto& p : merged.positions) p -= center;
+			merged.SetSmoothingMode(targetSmoothing);
+			target->SetData(merged);
+			target->ResetTransform();
+			target->transform.position = center;
+			target->UpdateModelMatrix();
+			
 			ft::Renderer3D::RemoveMesh(m_LastSelectedMeshID);
 			meshes.erase(m_LastSelectedMeshID);
 			m_LastSelectedMeshID = 0;
@@ -326,6 +356,14 @@ bool MainModule::OnKeyEvent(const ft::KeyEvent& event)
 			camera->SetFront(m_CameraSavedFront);
 			camera->SetOrthoZoom(m_CameraSavedOrthoZoom);
 			camera->SetProjectionMode(m_CameraSavedProjectionMode);
+		}
+		if (event.key == GLFW_KEY_I) {
+			if (selectedMeshID != 0 && m_EditingModule->editingMode == EditingMode::Select) {
+				ft::Mesh* mesh = GetSelectedMesh();
+				m_HistoryModule->RecordMeshAction("Reset Transform", mesh->GetID(), false, false);
+				mesh->ResetTransform();
+				mesh->UpdateModelMatrix();
+			}
 		}
 		if (event.key == GLFW_KEY_A && !(event.mods & GLFW_MOD_SHIFT)) { // Select all faces in face selection mode
 			if (selectedMeshID != 0 && selectionMode == SelectionMode::Face && m_EditingModule->editingMode == EditingMode::Select)
