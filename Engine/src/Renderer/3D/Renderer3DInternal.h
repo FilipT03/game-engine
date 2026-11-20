@@ -26,7 +26,7 @@ namespace ft {
 		void RemoveMesh(uint32_t meshID);
 		WorldCamera3D* GetCamera() { return m_Camera.get(); };
 		LightSource* GetLightSource() { return m_LightSource.get(); };
-		void SetightingMode(bool useStudioLighting) { m_UseStudioLighting = useStudioLighting; }
+		void SetLightingMode(bool useStudioLighting) { m_UseStudioLighting = useStudioLighting; }
 
 		void OnUpdate();
 		bool OnEvent(const Event& event);

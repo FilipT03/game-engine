@@ -28,8 +28,8 @@ namespace ft {
 		inline static LightSource* GetLightSource() {
 			return s_Renderer->GetLightSource();
 		}
-		inline static void SetightingMode(bool useStudioLighting) {
-			s_Renderer->SetightingMode(useStudioLighting);
+		inline static void SetLightingMode(bool useStudioLighting) {
+			s_Renderer->SetLightingMode(useStudioLighting);
 		}
 
 		inline static glm::vec3 ScreenToWorld(glm::vec2 screenCoordinates, float depth) {

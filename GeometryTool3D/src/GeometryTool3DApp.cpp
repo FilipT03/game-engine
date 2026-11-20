@@ -2,7 +2,7 @@
 #include <Core/EntryPoint.h>
 #include <Modules/CameraController3D.h>
 
-#include "MainModule.h"
+#include "Modules/MainModule.h"
 
 class GeometryTool3D : public ft::Application
 {

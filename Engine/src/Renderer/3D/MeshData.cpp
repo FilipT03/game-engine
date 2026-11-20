@@ -51,9 +51,18 @@ namespace ft {
 		size_t v = 0;
 		for (size_t f = 0; f < polygonSizes.size(); f++) {
 			glm::vec3 a = positions[indices[v + 1]] - positions[indices[v]];
-			glm::vec3 b = positions[indices[v + 2]] - positions[indices[v + 1]];
-			glm::vec3 normal = glm::cross(a, b);
-			faceNormals.push_back(glm::normalize(normal));
+			glm::vec3 b, normal;
+			size_t i = 2;
+			do {
+				b = positions[indices[v + i]] - positions[indices[v + 1]];
+				normal = glm::cross(a, b);
+				i++;
+			} while (glm::dot(normal, normal) <= 1e-10f && i < polygonSizes[f]);
+
+			if (glm::dot(normal, normal) > 1e-10f)
+				faceNormals.push_back(glm::normalize(normal));
+			else
+				faceNormals.push_back(glm::vec3(0.0f));
 
 			v += polygonSizes[f];
 		}

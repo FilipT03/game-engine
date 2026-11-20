@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "MeshEditingModule.h"
+#include "MeshHistoryModule.h"
 
 enum class SelectionMode {
 	Object,
@@ -17,7 +18,7 @@ public:
 	void OnRegister();
 	void OnDelete() {};
 	void OnUpdate();
-	bool OnEvent(const ft::Event& event) { return false; };
+	bool OnEvent(const ft::Event& event);
 	bool OnKeyEvent(const ft::KeyEvent& event);
 	bool OnMouseEvent(const ft::MouseEvent& event);
 
@@ -39,12 +40,15 @@ public:
 		return meshes[selectedMeshID];
 	}
 	void ClearSelectionMesh();
+	void AddMesh(ft::Mesh&& mesh);
+	void RemoveMesh(uint32_t id);
 private:
 	void CreateGrid();
 	void SetDefaultLight();
 	void SetStudioLightingMode();
 
 	MeshEditingModule* m_EditingModule;
+	MeshHistoryModule* m_HistoryModule;
 
 	ft::Mesh* m_Grid, *m_XAxis, *m_ZAxis;
 	bool m_Perspective = true;
@@ -52,6 +56,12 @@ private:
 	bool m_UsingStudioLighting = true;
 	bool m_ExpectingMeshAddKeyPress = false;
 	uint32_t m_LastSelectedMeshID = 0;
+	bool m_SavedCameraState = false;
+	glm::vec3 m_CameraSavedPosition, m_CameraSavedFront;
+	float m_CameraSavedOrthoZoom;
+	ft::ProjectionMode m_CameraSavedProjectionMode;
 	ft::UIElement* m_NamePanel;
+	glm::vec4 m_SelectionColor = glm::vec4(1,1,1,1);
+	glm::vec4 m_ObjectColor = glm::vec4(1,1,1,1);
 };
 

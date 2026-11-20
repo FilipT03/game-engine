@@ -67,7 +67,9 @@ namespace ft {
 			}
 		}
 		data.CalculateFaceNormals();
+		data.CalculateVertexToFaceMap();
 		data.SetUseCornerNormals(true); // Use corner normals regardless of smoothing mode
+		data.SetUsesCustomNormals(true);
 		return Mesh(data, Transform3D(), glm::vec4(1.0f), isStatic);
 	}
 

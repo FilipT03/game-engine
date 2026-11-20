@@ -114,4 +114,38 @@ namespace ft {
 			m_Shape = Renderer2D::AddUIShape<TextureQuad>(m_Texture, transform, m_Color);
 		m_RegisteredShape = true;
 	}
+
+	/// ============ UI Shape ============
+	UIShape::UIShape(ShapeType shape, Rect rect, const glm::vec4& color) : m_ShapeType(shape), UIElement(rect), m_Color(color) {}
+
+	void UIShape::RegisterShape()
+	{
+		if (m_RegisteredShape)
+			return;
+		Transform2D transform = GenerateTransform();
+		if (m_ShapeType == ShapeType::Rectangle)
+			m_Shape = Renderer2D::AddUIShape<Rectangle>(transform, m_Color);
+		else if (m_ShapeType == ShapeType::Ellipse)
+			m_Shape = Renderer2D::AddUIShape<Ellipse>(0.0f, 0.01f, transform, m_Color);
+		else if (m_ShapeType == ShapeType::Line)
+			m_Shape = Renderer2D::AddUIShape<Line>(m_Rect.Position(), m_Rect.Position() + m_Rect.Size(), m_Color);
+
+		m_RegisteredShape = true;
+	}
+
+	void UIShape::SetRect(Rect rect) {
+		m_Rect = rect;
+		if (m_Shape == nullptr) return;
+		if (m_ShapeType == ShapeType::Line) {
+			Line* line = static_cast<Line*>(m_Shape);
+			line->SetStart(m_Rect.Position());
+			line->SetEnd(m_Rect.Position() + m_Rect.Size());
+		}
+		m_Shape->transform = GenerateTransform();
+		m_Shape->UpdateWorldVertices();
+	}
+
+	void UIShape::SetOutline(bool isOutline) {
+		m_Shape->isOutline = isOutline;
+	}
 }

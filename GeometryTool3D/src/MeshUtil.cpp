@@ -1,32 +1,61 @@
 #include "MeshUtil.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <glm/gtc/matrix_inverse.hpp>
+#include "Math/Vector.h"
 
-void MeshUtil::CopyMesh(const ft::MeshData& sourceMesh, ft::MeshData& targetMesh)
+void MeshUtil::MergeMeshes(const std::vector<ft::Mesh*>& sourceMeshes, ft::MeshData& targetMesh, const glm::mat4& targetModelMatrix)
 {
 	targetMesh.Clear();
-	targetMesh.SetSmoothingMode(sourceMesh.GetSmoothingMode()); 
-	targetMesh.SetSmoothingThreshold(sourceMesh.GetSmoothingThreshold());
-	targetMesh.positions = sourceMesh.positions;
-	targetMesh.indices = sourceMesh.indices;
-	targetMesh.polygonSizes = sourceMesh.polygonSizes;
-	targetMesh.faceNormals = sourceMesh.faceNormals;
-	targetMesh.cornerNormals = sourceMesh.cornerNormals;
-}
+	glm::mat4 worldToTarget = glm::inverse(targetModelMatrix);
+	for (const ft::Mesh* mesh : sourceMeshes) {
+		if (!mesh) 
+			continue;
+		const ft::MeshData* meshData = mesh->GetData();
+		if (!meshData) 
+			continue;
 
-void MeshUtil::MergeMeshes(const std::vector<ft::MeshData>& sourceMeshes, ft::MeshData& targetMesh)
-{
-	targetMesh.Clear();
-	for (const ft::MeshData& mesh : sourceMeshes) {
 		uint32_t vertexOffset = targetMesh.positions.size();
-		targetMesh.positions.insert(targetMesh.positions.end(), mesh.positions.begin(), mesh.positions.end());
-		targetMesh.indices.insert(targetMesh.indices.end(), mesh.indices.begin(), mesh.indices.end());
-		targetMesh.polygonSizes.insert(targetMesh.polygonSizes.end(), mesh.polygonSizes.begin(), mesh.polygonSizes.end());
-		targetMesh.faceNormals.insert(targetMesh.faceNormals.end(), mesh.faceNormals.begin(), mesh.faceNormals.end());
-		targetMesh.cornerNormals.insert(targetMesh.cornerNormals.end(), mesh.cornerNormals.begin(), mesh.cornerNormals.end());
-		for (size_t i = targetMesh.indices.size() - mesh.indices.size(); i < targetMesh.indices.size(); i++)
-			targetMesh.indices[i] += vertexOffset;
+		glm::mat4 toTarget = worldToTarget * mesh->modelMatrix;
+		size_t   indexOffset = targetMesh.indices.size();
+		size_t   cornerOffset = targetMesh.cornerNormals.size();
+		glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(toTarget));
+		bool mirrored = glm::determinant(glm::mat3(toTarget)) < 0.0f;
+
+
+		targetMesh.positions.reserve(targetMesh.positions.size() + meshData->positions.size());
+		for (const glm::vec3& pos : meshData->positions)
+			targetMesh.positions.push_back(glm::vec3(toTarget * glm::vec4(pos, 1.0f)));
+
+		targetMesh.indices.reserve(targetMesh.indices.size() + meshData->indices.size());
+		for (uint32_t index : meshData->indices)
+			targetMesh.indices.push_back(index + vertexOffset);
+
+		targetMesh.polygonSizes.insert(targetMesh.polygonSizes.end(), meshData->polygonSizes.begin(), meshData->polygonSizes.end());
+
+		targetMesh.faceNormals.reserve(targetMesh.faceNormals.size() + meshData->faceNormals.size());
+		for (const glm::vec3& normal : meshData->faceNormals)
+			targetMesh.faceNormals.push_back(ft::Vector::NormalizeOrDefault(normalMatrix * normal, ft::Vector::Up));
+
+		targetMesh.cornerNormals.reserve(targetMesh.cornerNormals.size() + meshData->cornerNormals.size());
+		for (const glm::vec3& normal : meshData->cornerNormals)
+			targetMesh.cornerNormals.push_back(ft::Vector::NormalizeOrDefault(normalMatrix * normal, ft::Vector::Up));
+	
+		if (mirrored) {
+			bool hasCorners = meshData->cornerNormals.size() == meshData->indices.size();
+			size_t off = 0;
+			for (uint32_t size : meshData->polygonSizes) {
+				std::reverse(targetMesh.indices.begin() + indexOffset + off,
+					targetMesh.indices.begin() + indexOffset + off + size);
+				if (hasCorners)
+					std::reverse(targetMesh.cornerNormals.begin() + cornerOffset + off,
+						targetMesh.cornerNormals.begin() + cornerOffset + off + size);
+				off += size;
+			}
+		}
 	}
+
+	targetMesh.CalculateVertexToFaceMap();
 }
 
 void MeshUtil::CreateFromFaces(const ft::MeshData& sourceMesh, ft::MeshData& targetMesh, const std::set<uint32_t>& faces)
@@ -40,14 +69,14 @@ void MeshUtil::CreateFromFaces(const ft::MeshData& sourceMesh, ft::MeshData& tar
 		uint32_t polygonSize = sourceMesh.polygonSizes[f];
 		
 		for (int i = 0; i < polygonSize; i++) { 
-			uint32_t sourceIndex = sourceMesh.indices[v + i];
-			if (uniqueVertices.contains(sourceIndex))
-				targetMesh.indices.push_back(uniqueVertices[sourceIndex]);
+			uint32_t sourceVertex = sourceMesh.indices[v + i];
+			if (uniqueVertices.contains(sourceVertex))
+				targetMesh.indices.push_back(uniqueVertices[sourceVertex]);
 			else {
-				targetMesh.positions.push_back(sourceMesh.positions[sourceIndex]);
+				targetMesh.positions.push_back(sourceMesh.positions[sourceVertex]);
 				uint32_t newVertexIndex = targetMesh.positions.size() - 1; 
 				targetMesh.indices.push_back(newVertexIndex); 
-				uniqueVertices[sourceIndex] = newVertexIndex; 
+				uniqueVertices[sourceVertex] = newVertexIndex; 
 			}
 		}
 		targetMesh.polygonSizes.push_back(polygonSize);
@@ -69,9 +98,10 @@ void MeshUtil::MoveFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, co
 	}
 	for (uint32_t vertexIndex : affectedVertices)
 		mesh.positions[vertexIndex] += offset;
+	mesh.CalculateNormals();
 }
 
-void MeshUtil::ScaleFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const glm::vec3& scale, bool locked = false)
+void MeshUtil::ScaleFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const float scale, const ConstraintFrame constraint, const glm::mat3& objectToWorld)
 {
 	std::set<uint32_t> affectedVertices;
 	uint32_t v = 0;
@@ -87,10 +117,22 @@ void MeshUtil::ScaleFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, c
 	for (uint32_t vertexIndex : affectedVertices)
 		centroid += mesh.positions[vertexIndex];
 	centroid /= affectedVertices.size();
+	bool useConstraint = constraint.IsActive();
+	glm::mat3 worldToObject = glm::inverse(objectToWorld);
 	for (uint32_t vertexIndex : affectedVertices) {
 		glm::vec3 dir = mesh.positions[vertexIndex] - centroid;
-		mesh.positions[vertexIndex] = centroid + dir * scale;
+		if (useConstraint) {
+			glm::vec3 local = constraint.ProjectLocal(objectToWorld * dir);
+			if (constraint.activeX) local.x *= scale;
+			if (constraint.activeY) local.y *= scale;
+			if (constraint.activeZ) local.z *= scale;
+			dir = worldToObject * constraint.ToWorld(local);
+		}
+		else
+			dir *= scale;
+		mesh.positions[vertexIndex] = centroid + dir;
 	}
+	mesh.CalculateNormals();
 }
 
 void MeshUtil::RotateFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const glm::mat4& rotationMatrix)
@@ -111,14 +153,15 @@ void MeshUtil::RotateFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, 
 	centroid /= affectedVertices.size();
 	for (uint32_t vertexIndex : affectedVertices) {
 		glm::vec3 localPos = mesh.positions[vertexIndex] - centroid;
-		glm::vec3 rotatedPos = glm::vec3(rotationMatrix * glm::vec4(localPos, 1.0f));
+		glm::vec3 rotatedPos = glm::vec3(rotationMatrix * glm::vec4(localPos, 0.0f));
 		mesh.positions[vertexIndex] = centroid + rotatedPos;
 	}
 	mesh.CalculateNormals();
 }
 
 void MeshUtil::ExtrudeFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces, const glm::vec3& offset)
-{	std::set<uint32_t> affectedVertices;
+{	
+	std::set<uint32_t> affectedVertices;
 	uint32_t v = 0;
 	for (size_t f = 0; f < mesh.polygonSizes.size(); v += mesh.polygonSizes[f], f++) {
 		if (!faces.contains(f))
@@ -186,6 +229,163 @@ void MeshUtil::ExtrudeFaces(ft::MeshData& mesh, const std::set<uint32_t>& faces,
 	mesh.CalculateNormals();
 }
 
+void MeshUtil::CutFace(ft::MeshData& mesh, uint32_t faceIndex, uint32_t vertexA, uint32_t vertexB)
+{
+	if (vertexA == vertexB)
+		return;
+
+	uint32_t v = 0;
+	for (size_t f = 0; f < faceIndex; f++)
+		v += mesh.polygonSizes[f];
+	uint32_t polygonSize = mesh.polygonSizes[faceIndex];
+	
+	uint32_t indexA = UINT32_MAX, indexB = UINT32_MAX;
+	for (size_t i = 0; i < polygonSize; i++) {
+		uint32_t currentVertex = mesh.indices[v + i];
+		if (currentVertex == vertexA)
+			indexA = i;
+		else if (currentVertex == vertexB)
+			indexB = i;
+	}
+	if (indexA == UINT32_MAX || indexB == UINT32_MAX) {
+		FT_ERROR("One or both vertices not found in the specified face for cutting.");
+		return;
+	}
+	bool isEdge =
+		(indexA + 1) % polygonSize == indexB ||
+		(indexB + 1) % polygonSize == indexA;
+	if (isEdge) // Split edge
+	{
+		mesh.positions.push_back((mesh.positions[vertexA] + mesh.positions[vertexB]) * 0.5f);
+		uint32_t newVertexIndex = mesh.positions.size() - 1;
+		if ((indexA + 1) % polygonSize == indexB)
+			mesh.indices.insert(mesh.indices.begin() + v + indexB, newVertexIndex);
+		else
+			mesh.indices.insert(mesh.indices.begin() + v + indexA, newVertexIndex);
+		mesh.polygonSizes[faceIndex]++;
+		
+		std::pair<uint32_t, uint32_t> edge = { std::min(vertexA, vertexB), std::max(vertexA, vertexB) };
+		v = 0;
+		for (uint32_t f = 0; f < mesh.polygonSizes.size(); ++f) {
+			if (f == faceIndex)	{
+				v += mesh.polygonSizes[f];
+				continue;
+			}
+			polygonSize = mesh.polygonSizes[f];
+			for (int i = 0; i < polygonSize; ++i) {
+				uint32_t v1 = mesh.indices[v + i];
+				uint32_t v2 = mesh.indices[v + (i + 1) % polygonSize];
+				if (edge.first == std::min(v1, v2) && edge.second == std::max(v1, v2)) {
+					mesh.indices.insert(mesh.indices.begin() + v + i + 1, newVertexIndex);
+					mesh.polygonSizes[f]++;
+					polygonSize++;
+					break;
+				}
+			}
+			v += polygonSize;
+		}
+	}
+	else // Connect vertices
+	{
+		if (indexA > indexB)
+			std::swap(indexA, indexB);
+		std::vector<uint32_t> indicesA, indicesB;
+	
+		for (uint32_t i = indexA; i <= indexB; i++) {
+			uint32_t currentVertex = mesh.indices[v + i];
+			indicesA.push_back(currentVertex);
+		}
+		for (uint32_t i = indexB; i < polygonSize; i++) {
+			uint32_t currentVertex = mesh.indices[v + i];
+			indicesB.push_back(currentVertex);
+		}
+		for (uint32_t i = 0; i <= indexA; i++) {
+			uint32_t currentVertex = mesh.indices[v + i];
+			indicesB.push_back(currentVertex);
+		}
+
+		mesh.indices.erase(mesh.indices.begin() + v, mesh.indices.begin() + v + polygonSize);
+		mesh.polygonSizes.erase(mesh.polygonSizes.begin() + faceIndex);
+
+		mesh.indices.insert(mesh.indices.begin() + v, indicesA.begin(), indicesA.end());
+		mesh.indices.insert(mesh.indices.begin() + v + indicesA.size(), indicesB.begin(), indicesB.end());
+		mesh.polygonSizes.insert(mesh.polygonSizes.begin() + faceIndex,
+			{ static_cast<uint32_t>(indicesA.size()), static_cast<uint32_t>(indicesB.size())}
+		);
+	}
+
+	mesh.CalculateNormals();
+}
+
+glm::vec3 MeshUtil::GetAverageNormal(ft::MeshData& mesh, const std::set<uint32_t>& faces)
+{
+	glm::vec3 normalSum(0.0f);
+	for (size_t f = 0; f < mesh.polygonSizes.size(); f++) {
+		if (!faces.contains(f))
+			continue;
+		normalSum += mesh.faceNormals[f];
+	}
+	return ft::Vector::NormalizeOrDefault(normalSum, ft::Vector::Up);
+}
+
+glm::vec3 MeshUtil::GetTangent(ft::MeshData& mesh, const std::set<uint32_t>& faces, glm::vec3 normal, glm::vec3 preferredAxis)
+{
+	preferredAxis = glm::normalize(preferredAxis);
+	normal = glm::normalize(normal);
+	float bestLength = -1;
+	float bestAlign = -1;
+	glm::vec3 bestEdge{ 0.0f };
+	uint32_t v = 0;
+	for (size_t f = 0; f < mesh.polygonSizes.size(); v += mesh.polygonSizes[f], f++) {
+		if (!faces.contains(f))
+			continue;
+		uint32_t polygonSize = mesh.polygonSizes[f];
+		for (int i = 0; i < polygonSize; i++) {
+			uint32_t v1 = mesh.indices[v + i];
+			uint32_t v2 = mesh.indices[v + (i + 1) % polygonSize];
+			glm::vec3 edge = mesh.positions[v2] - mesh.positions[v1];
+			glm::vec3 projected = edge - normal * glm::dot(edge, normal);
+			float length = glm::length(projected);
+			if (length < 1e-12f)
+				continue;
+			float align = std::abs(glm::dot(projected, preferredAxis)) / length; // 0-1
+			float tolerance = 1e-4f * std::max(length, bestLength);
+			bool tie = std::abs(length - bestLength) < -tolerance;
+			bool better = tie ? align > bestAlign : length > bestLength;
+			if (better) {
+				bestEdge = projected;
+				bestAlign = align;
+				if (!tie)
+					bestLength = length;
+			}
+		}
+	}
+	if (glm::dot(bestEdge, preferredAxis) < 0.0f)
+		bestEdge = -bestEdge;
+	return bestEdge;
+}
+
+glm::vec3 MeshUtil::GetCentroid(ft::MeshData& mesh, const std::set<uint32_t>& faces)
+{
+	std::set<uint32_t> affectedVertices;
+	uint32_t v = 0;
+	for (size_t f = 0; f < mesh.polygonSizes.size(); v += mesh.polygonSizes[f], f++) {
+		if (!faces.contains(f))
+			continue;
+		for (int i = 0; i < mesh.polygonSizes[f]; i++) {
+			uint32_t vertexIndex = mesh.indices[v + i];
+			affectedVertices.insert(vertexIndex);
+		}
+	}
+	glm::vec3 centroid(0.0f);
+	for (uint32_t vertexIndex : affectedVertices)
+		centroid += mesh.positions[vertexIndex];
+	centroid /= affectedVertices.size();
+	return centroid;
+}
+
+
+
 ft::MeshData MeshUtil::CreateGrid(int size, float spacing) {
 	ft::MeshData gridData;
 	for (int i = -size; i <= size; i++) {
@@ -210,5 +410,40 @@ ft::MeshData MeshUtil::CreateGrid(int size, float spacing) {
 		gridData.polygonSizes.push_back(2);
 	}
 	return gridData;
+}
+
+bool MeshUtil::FindClosestVertexToMouse(const ft::Mesh* mesh, uint32_t faceIndex, const glm::vec2& mousePosition, const ft::WorldCamera3D* camera, uint32_t& closestVertexIndex, float maxPixelDistance)
+{
+	const ft::MeshData* data = mesh->GetData();
+	if (!data || faceIndex >= data->polygonSizes.size())
+		return false;
+
+	size_t v = 0;
+	for (size_t f = 0; f < faceIndex; f++)
+		v += data->polygonSizes[f];
+
+	uint32_t polygonSize = data->polygonSizes[faceIndex];
+	
+	float closestDistance = maxPixelDistance;
+	bool found = false;
+
+	for (uint32_t i = 0; i < polygonSize; i++) 
+	{
+		uint32_t vertexIndex = data->indices[v + i];
+		const glm::vec3& localPosition = data->positions[vertexIndex];
+		const glm::vec3 worldPosition = glm::vec3(mesh->modelMatrix * glm::vec4(localPosition, 1.0f));
+
+		glm::vec2 screenPosition = camera->WorldToScreen(worldPosition);
+		float screenDistance = glm::length(screenPosition - mousePosition);
+
+		if (screenDistance < closestDistance)
+		{
+			closestDistance = screenDistance;
+			closestVertexIndex = vertexIndex;
+			found = true;
+		}
+	}
+
+	return found;
 }
 

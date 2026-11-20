@@ -13,7 +13,7 @@ namespace ft {
 	{
 		m_Data = std::make_unique<MeshData>();
 		m_RenderMesh = std::make_unique<RenderMesh>(isStatic);
-		CalculateModelMatrix();
+		UpdateModelMatrix();
 		BakeToRenderMesh();
 	}
 
@@ -27,7 +27,7 @@ namespace ft {
 	{
 		m_Data = std::make_unique<MeshData>(std::move(data));
 		m_RenderMesh = std::make_unique<RenderMesh>(isStatic);
-		CalculateModelMatrix();
+		UpdateModelMatrix();
 		BakeToRenderMesh();
 	}
 
@@ -117,7 +117,8 @@ namespace ft {
 		if (closestFaceIndex != -1) {
 			result.hit = true;
 			result.faceIndex = closestFaceIndex;
-			result.hitPoint = rayOrigin + rayDir * closestDistance;
+			glm::vec3 localHitPoint = localOrigin + localDir * closestDistance;
+			result.hitPoint = glm::vec3(modelMatrix * glm::vec4(localHitPoint, 1.0f));
 		}
 		return result;
 	}
@@ -147,13 +148,8 @@ namespace ft {
 		return Mesh(MeshData::CreateLine(start, end), Transform3D(), color, isStatic, RenderMode::Wireframe);
 	}
 
-	void Mesh::CalculateModelMatrix()
+	void Mesh::UpdateModelMatrix()
 	{
-		modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, transform.position);
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), Vector::Right);
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), Vector::Up);
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), Vector::Forward);
-		modelMatrix = glm::scale(modelMatrix, transform.scale);
+		modelMatrix = transform.GetMatrix();
 	}
 }

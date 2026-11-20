@@ -138,8 +138,10 @@ namespace ft {
 
 		stop = m_UIRenderer->OnEvent(event);
 		if (stop) return;
+
 		stop = m_Renderer3D->OnEvent(event);
 		if (stop) return;
+
 		stop = m_WorldRenderer2D->OnEvent(event);
 		if (stop) return;
 
@@ -147,9 +149,11 @@ namespace ft {
 		{
 			stop = module->OnEvent(event);
 			if (stop) return;
+
 			if (event.category == EventCategory::KeyInput)
 				stop = module->OnKeyEvent(static_cast<KeyEvent&>(event));
 			if (stop) return;
+
 			if (event.category == EventCategory::MouseInput)
 				stop = module->OnMouseEvent(static_cast<MouseEvent&>(event));
 			if (stop) return;
@@ -159,9 +163,11 @@ namespace ft {
 		{
 			stop = module->OnEvent(event);
 			if (stop) return;
+
 			if (event.category == EventCategory::KeyInput)
 				stop = module->OnKeyEvent(static_cast<KeyEvent&>(event));
 			if (stop) return;
+
 			if (event.category == EventCategory::MouseInput)
 				stop = module->OnMouseEvent(static_cast<MouseEvent&>(event));
 			if (stop) return;

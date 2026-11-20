@@ -10,6 +10,8 @@ namespace ft {
 	struct Rect {
 		float x, y, width, height;
 		Rect(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {};
+		glm::vec2 Size() const { return glm::vec2(width, height); }
+		glm::vec2 Position() const { return glm::vec2(x, y); }
 	};
 
 	typedef std::function<void(void)> ClickCallback;
@@ -38,6 +40,12 @@ namespace ft {
 		bool InBounds(const glm::vec2& xy) const { return InBounds(xy.x, xy.y); }
 		const Rect& GetRect() const { return m_Rect; }
 		void SetRect(Rect rect);
+		void SetPosition(int x, int y) {
+			m_Rect.x = x;
+			m_Rect.y = y;
+			SetRect(m_Rect);
+		}
+		void SetPosition(const glm::vec2& xy) { SetPosition(xy.x, xy.y); }
 		void DisableRender() { m_Shape->render = false; }
 		void EnableRender() { m_Shape->render = true; }
 		bool ShouldRender() const { return m_Shape->render; }
@@ -98,6 +106,28 @@ namespace ft {
 	private:
 		std::shared_ptr<Texture> m_Texture;
 		glm::vec4 m_Color;
+	};
+
+	class UIShape : public UIElement
+	{
+	public:
+		UIShape(ShapeType shapeType, Rect rect, const glm::vec4& color = glm::vec4(1.0f));
+		void RegisterShape() override;
+
+		void SetColor(const glm::vec4& color) { m_Color = color; }
+		void SetRect(Rect rect);
+		void SetPosition(int x, int y) {
+			m_Rect.x = x;
+			m_Rect.y = y;
+			SetRect(m_Rect);
+		}
+		void SetPosition(const glm::vec2& xy) { SetPosition(xy.x, xy.y); }
+		void SetOutline(bool isOutline);
+		bool GetOutline() const { return m_Shape->isOutline; }
+		ft::Shape* GetShape() { return m_Shape; }
+	private:
+		glm::vec4 m_Color;
+		ShapeType m_ShapeType;
 	};
 }
 

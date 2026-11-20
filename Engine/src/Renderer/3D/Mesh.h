@@ -4,24 +4,12 @@
 #include "Core/Log.h"
 #include "MeshData.h"
 #include "RenderMesh.h"
+#include "Transform3D.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
 namespace ft {
-
-	/// ===== Transform3D =====
-	struct Transform3D {
-		glm::vec3 position;
-		glm::vec3 scale;
-		glm::vec3 rotation;
-		float zIndex;
-		Transform3D(const glm::vec3& position = glm::vec3(0.0f),
-			const glm::vec3& scale = glm::vec3(1.0f),
-			const glm::vec3 rotation = glm::vec3(0.0f),
-			float zIndex = 0.0f)
-			: position(position), rotation(rotation), scale(scale), zIndex(zIndex) {}
-	};
 
 	/// ===== RenderMode =====
 	enum class RenderMode {
@@ -51,12 +39,14 @@ namespace ft {
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		int renderOrder = 0;
 		bool outlined = false;
+		bool alwaysOnTop = false;
 		glm::vec4 outlineColor = glm::vec4(1.0f);
 		
 		MeshData* GetData() { 
 			MarkDirty(); 
 			return m_Data.get(); 
 		}
+		const MeshData* GetData() const { return m_Data.get(); }
 		void SetData(const MeshData& data) { 
 			*m_Data = data; 
 			MarkDirty(); 
@@ -82,6 +72,7 @@ namespace ft {
 			else
 				m_ID = id;
 		}
+		void ForceSetID(uint32_t id) { m_ID = id; }
 		bool IsStatic() const { return m_Static; }
 		bool IsDirty() const { return m_Dirty; }
 		void ResetDirty() { m_Dirty = false; }
@@ -89,8 +80,12 @@ namespace ft {
 		void DisableRendering() { m_Render = false; }
 		void EnableRendering() { m_Render = true; }
 		bool ShouldRender() const { return m_Render; }
+		void ResetTransform() {
+			transform = Transform3D();
+			UpdateModelMatrix();
+		}
 
-		void CalculateModelMatrix();
+		void UpdateModelMatrix();
 		void BakeToRenderMesh();
 		int GetPolygonCount() const { return m_Data->polygonSizes.size(); }
 

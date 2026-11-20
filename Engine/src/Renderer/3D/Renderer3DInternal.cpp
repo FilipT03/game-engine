@@ -62,7 +62,8 @@ namespace ft {
 
 	Mesh* Renderer3DInternal::AddMesh(Mesh&& mesh)
 	{
-		mesh.SetID(m_LastMeshId++);
+		if (mesh.GetID() == 0)
+			mesh.SetID(m_LastMeshId++);
 		auto [it, success] = m_Meshes.emplace(std::make_unique<Mesh>(std::move(mesh)));
 		Mesh* meshPtr = it->get();
 		RenderMesh* renderMesh = meshPtr->GetRenderMesh();
@@ -141,6 +142,8 @@ namespace ft {
 				glStencilFunc(GL_ALWAYS, 1, 0xFF);
 				glStencilMask(0xFF);
 			}
+			if (mesh->alwaysOnTop)
+				glDisable(GL_DEPTH_TEST);
 
 			Shader* shader;
 			if (mesh->GetRenderMode() == RenderMode::Overlay || mesh->GetRenderMode() == RenderMode::Wireframe)
@@ -170,7 +173,7 @@ namespace ft {
 			RenderMesh* renderMesh = mesh->GetRenderMesh();
 			if (mesh->IsDirty())
 			{
-				mesh->CalculateModelMatrix();
+				mesh->UpdateModelMatrix();
 				mesh->BakeToRenderMesh();
 				if (mesh->IsStatic()) {
 					uint32_t vertexSize = renderMesh->GetVertexCount() * m_VertexArray->GetBufferLayout().GetStride();
@@ -195,18 +198,21 @@ namespace ft {
 			if (mesh->outlined) {
 				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 				glStencilMask(0x00);
-				glDisable(GL_DEPTH_TEST);
+				//glDisable(GL_DEPTH_TEST);
 				m_ModelMatrixCalculationMesh->transform = mesh->transform;
 				m_ModelMatrixCalculationMesh->transform.scale *= 1.025f;
-				m_ModelMatrixCalculationMesh->CalculateModelMatrix();
+				m_ModelMatrixCalculationMesh->UpdateModelMatrix();
 				m_UnlitShader->Bind();
 				m_UnlitShader->SetUniformMatrix4fv("uModel", m_ModelMatrixCalculationMesh->modelMatrix);
 				m_UnlitShader->SetUniform4f("uColor", mesh->outlineColor);
 				glDrawElementsBaseVertex(mode, renderMesh->indices.size(), GL_UNSIGNED_INT, (void*)(intptr_t)renderMesh->indexOffset, renderMesh->vertexOffset);
 				glStencilMask(0xFF);
 				glStencilFunc(GL_ALWAYS, 0, 0xFF);
-				glEnable(GL_DEPTH_TEST);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				//glEnable(GL_DEPTH_TEST);
 			}
+			if (mesh->alwaysOnTop)
+				glEnable(GL_DEPTH_TEST);
 		}
 		#endif
 	}

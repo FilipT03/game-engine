@@ -42,6 +42,8 @@ namespace ft {
 		}
 		void SetUseCornerNormals(bool value) { m_UseCornerNormals = value; }
 		bool UsesCornerNormals() const { return m_UseCornerNormals; }
+		void SetUsesCustomNormals(bool value) { m_UsesCustomNormals = value; }
+		bool UsesCustomNormals() const { return m_UsesCustomNormals; }
 
 		static MeshData CreateCube();
 		static MeshData CreateSphere(uint32_t segmentCount, uint32_t ringCount);
@@ -52,6 +54,7 @@ namespace ft {
 	private:
 		SmoothingMode m_SmoothingMode = SmoothingMode::Flat;
 		bool m_UseCornerNormals = false;
+		bool m_UsesCustomNormals = false;
 		float m_SmoothingTheshold = 30.0f;
 	};
 }
